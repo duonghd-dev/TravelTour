@@ -1,0 +1,128 @@
+@use '@/assets/styles/variables' as *;
+
+.otp-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 40px;
+  background: linear-gradient(135deg, #fef9f5 0%, #faf6f1 100%);
+  border-radius: 12px;
+  max-width: 320px;
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(157, 82, 67, 0.08);
+
+  .otp-icon {
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    color: #333;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: #888;
+    text-align: center;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .otp-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 12px 0;
+
+    .otp-input {
+      width: 44px;
+      height: 50px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: #333;
+      background-color: white;
+      cursor: text;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #9d5243;
+        box-shadow: 0 0 0 3px rgba(157, 82, 67, 0.1);
+        background-color: #fffbf8;
+      }
+
+      &::placeholder {
+        color: #ccc;
+        font-weight: 400;
+      }
+    }
+  }
+
+  .btn-verify {
+    width: 100%;
+    padding: 12px;
+    background-color: #9d5243;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+
+    &:hover:not(:disabled) {
+      background-color: #8a4737;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .resend-section {
+    text-align: center;
+    margin-top: 16px;
+
+    .resend-text {
+      font-size: 0.85rem;
+      color: #999;
+      margin: 0 0 8px 0;
+    }
+
+    .resend-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+
+      a {
+        color: #9d5243;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: text-decoration 0.3s;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .timer {
+        font-size: 0.8rem;
+        color: #bbb;
+        font-weight: 500;
+      }
+    }
+  }
+}

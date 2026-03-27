@@ -1,0 +1,81 @@
+@use '@/assets/styles/variables' as *;
+
+.auth-banner {
+  display: none;
+  position: relative;
+  background: linear-gradient(135deg, #3d2817 0%, #2a1810 100%);
+  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD5919T7OamzrA6BlfQ723TGmHXrD-Tynd9LHITN38O4VQfs4yiXXhWGAnt0jRpFH9i_bNt2ioBHaGxTB50NgkOZ7TUhJjIaPTaGbCHTbwEK_uXR04zOIkOJraotTFCL7xdgi-picyvUzJGWlEJPCQbhzgwisCbZ5QJGzKv9xs7BZWpGrOpnFl92sBxPIG5eBFmJv5dcp3MuMDFZKd1FMvsqHgjhST1HCjQBpq1Ca-Cem60jEJ4LXbOSN-IIzdIdlbMkIw9MIbFx54');
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+
+  @media (min-width: 1024px) {
+    display: flex;
+    width: 50%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .banner-content {
+    position: relative;
+    z-index: 2;
+    color: white;
+    padding: 60px 40px;
+    max-width: 480px;
+
+    .banner-text {
+      h2 {
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #d4af37;
+        font-weight: 500;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        line-height: 1.1;
+        font-weight: 700;
+        margin-bottom: 32px;
+        font-family: Quicksand, serif;
+
+        span {
+          font-style: italic;
+        }
+      }
+
+      p {
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #e8d5c4;
+
+        &:not(.author) {
+          font-style: italic;
+          margin-bottom: 16px;
+        }
+
+        &.author {
+          font-style: normal;
+          color: #baa893;
+          font-size: 0.95rem;
+          margin-top: 12px;
+        }
+      }
+    }
+  }
+
+  .banner-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.1)
+    );
+    z-index: 1;
+  }
+}

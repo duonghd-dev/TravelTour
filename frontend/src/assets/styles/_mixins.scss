@@ -1,0 +1,39 @@
+// Common Mixins
+@mixin radius_common($radius: 10px) {
+  border-radius: $radius;
+}
+
+@mixin flex_box_custom($x, $y, $gap: 10px) {
+  display: flex;
+  justify-content: $x;
+  align-items: $y;
+  gap: $gap;
+}
+
+@mixin btn($width, $height, $color, $radius: 10px) {
+  width: $width;
+  height: $height;
+  color: $color;
+  cursor: pointer;
+  @include radius_common($radius);
+}
+
+// Button Styles
+@mixin button-primary {
+  background: $primary;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: $border-radius;
+  font-weight: 500;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}

@@ -1,0 +1,204 @@
+@use '@/assets/styles/variables' as *;
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  // gap: 18px;
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 0 !important;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    // gap: 8px;
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #333;
+      letter-spacing: 0.3px;
+    }
+
+    input[type='text'],
+    input[type='email'],
+    input[type='tel'],
+    input[type='password'],
+    select {
+      padding: 11px 14px;
+      border: 1px solid #e5e1dc;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      background-color: #fef9f5;
+      color: #333;
+      transition: all 0.3s ease;
+      font-family: Quicksand, sans-serif;
+
+      &::placeholder {
+        color: #ddd0c4;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #a0553d;
+        background-color: #fff;
+      }
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 34px;
+    }
+
+    &.password-group {
+      .password-input {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        input {
+          width: 100%;
+          padding-right: 40px;
+        }
+
+        .toggle-visibility {
+          position: absolute;
+          right: 12px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #999;
+          padding: 4px 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.3s;
+
+          &:hover {
+            color: #a0553d;
+          }
+
+          svg {
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+    }
+
+    &.checkbox {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 8px;
+
+      input[type='checkbox'] {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        cursor: pointer;
+        accent-color: #a0553d;
+        flex-shrink: 0;
+      }
+
+      label {
+        margin: 0;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: #666;
+        line-height: 1.5;
+        font-weight: 400;
+
+        a {
+          color: #9d5243;
+          text-decoration: none;
+          font-weight: 500;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+
+  .btn-create {
+    padding: 13px 16px;
+    background-color: #9d5243;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    // margin-top: 8px;
+    letter-spacing: 0.2px;
+
+    &:hover {
+      background-color: #8b4a35;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  .btn-back {
+    padding: 13px 16px;
+    background-color: transparent;
+    color: #9d5243;
+    border: 1.5px solid #9d5243;
+    border-radius: 3px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    letter-spacing: 0.2px;
+
+    &:hover {
+      background-color: #f5ece7;
+      border-color: #8b4a35;
+      color: #8b4a35;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &.verify-email {
+    max-width: 400px;
+
+    h2 {
+      font-size: 1.4rem;
+      color: #333;
+      // margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .btn-create,
+    .btn-back {
+      width: 100%;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Open Profile Page",
+      "type": "shell",
+      "command": "code",
+      "args": ["--open-url", "http://localhost:5175/profile"],
+      "problemMatcher": []
+    }
+  ]
+}

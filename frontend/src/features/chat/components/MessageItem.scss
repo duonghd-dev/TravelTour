@@ -1,0 +1,236 @@
+.message-item {
+  display: flex;
+  margin-bottom: 0;
+  animation: messageIn 0.3s ease;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+
+  &.own {
+    margin-left: auto;
+    width: auto;
+    max-width: 80%;
+    justify-content: flex-end;
+
+    .message-content {
+      align-items: flex-end;
+    }
+
+    .message-bubble {
+      background: #6d5446;
+      color: white;
+      border-radius: 20px 6px 20px 20px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      padding: 10px 16px;
+    }
+
+    .message-text {
+      font-size: 15px;
+      line-height: 1.4;
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .message-meta {
+      justify-content: flex-end;
+      text-align: right;
+      margin-right: 4px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+  }
+
+  &.other {
+    width: auto;
+    max-width: 80%;
+    justify-content: flex-start;
+
+    .message-content {
+      align-items: flex-start;
+    }
+
+    .message-bubble {
+      background: #fef08a;
+      color: #1f2937;
+      border-radius: 6px 20px 20px 20px;
+      border: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      padding: 10px 16px;
+    }
+
+    .message-text {
+      font-size: 15px;
+      line-height: 1.4;
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .message-meta {
+      justify-content: flex-start;
+      text-align: left;
+      margin-left: 4px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .sender-info {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+  }
+
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    color: white;
+    font-size: 11px;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-placeholder {
+      font-size: 12px;
+    }
+  }
+
+  .message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 85%;
+    word-break: break-word;
+  }
+
+  .message-bubble {
+    padding: 10px 14px;
+    word-wrap: break-word;
+    line-height: 1.4;
+    border-radius: 16px;
+  }
+
+  .message-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.4;
+    color: inherit;
+
+    .edited-label {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-left: 6px;
+      font-style: italic;
+    }
+  }
+
+  .message-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+  }
+
+  .message-time {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .read-indicator {
+    font-size: 10px;
+    color: #667eea;
+    font-weight: bold;
+  }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &:hover .delete-btn {
+    opacity: 1;
+  }
+
+  .message-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+
+    .attachment {
+      max-width: 200px;
+
+      img {
+        width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        cursor: pointer;
+        object-fit: cover;
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: #f0f0f0;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #667eea;
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 180px;
+
+        &:hover {
+          background: #e0e0e0;
+        }
+      }
+    }
+  }
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,12 @@
+.wrapLayout {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  padding-top: 80px;
+}
+
+.container {
+  width: min(1400px, 100%);
+  min-height: 100vh;
+}

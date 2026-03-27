@@ -1,0 +1,59 @@
+@use '@/assets/styles/variables' as *;
+
+.register-page {
+  display: flex;
+  min-height: 100vh;
+  background: white;
+
+  .register-form-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+
+    @media (min-width: 1024px) {
+      width: 50%;
+    }
+  }
+
+  .register-form-wrapper {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .brand {
+    margin-bottom: 6px;
+
+    h1 {
+      font-size: 2.2rem;
+      color: #333;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    p {
+      margin-top: 8px;
+      color: #999;
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+  }
+
+  .signin-text {
+    text-align: center;
+    margin-top: 24px;
+    color: #666;
+    font-size: 0.85rem;
+
+    a {
+      color: #9d5243;
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

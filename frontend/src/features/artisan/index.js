@@ -1,0 +1,1 @@
+export { ArtisanDetailPage } from './pages';
