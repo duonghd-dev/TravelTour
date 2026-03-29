@@ -23,6 +23,9 @@ import ProfilePage from '../features/profile/pages/ProfilePage';
 // Admin Pages
 import { AdminDashboard, UsersPage, SupportPage } from '@/features/admin';
 
+// Artisan Pages
+import { ArtisanDetailPage, ArtisansListPage } from '@/features/artisan';
+
 // Layouts
 import {
   MainLayout,
@@ -57,6 +60,27 @@ const AppRouter = () => {
           element={
             <MainLayout>
               <HomePage />
+            </MainLayout>
+          }
+        />
+
+        {/* ==================== PUBLIC ROUTES (Artisan) ==================== */}
+        {/* Artisans List Page */}
+        <Route
+          path="/artisans"
+          element={
+            <MainLayout>
+              <ArtisansListPage />
+            </MainLayout>
+          }
+        />
+
+        {/* Artisan Detail Page */}
+        <Route
+          path="/artisan/:id"
+          element={
+            <MainLayout>
+              <ArtisanDetailPage />
             </MainLayout>
           }
         />

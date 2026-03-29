@@ -1,1 +1,1 @@
-export { ArtisanDetailPage } from './pages';
+export { ArtisanDetailPage, ArtisansListPage } from './pages';

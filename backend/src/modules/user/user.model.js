@@ -25,6 +25,13 @@ const userSchema = new Schema(
       enum: ['male', 'female', 'other'],
       default: 'other',
     },
+    dateOfBirth: {
+      type: Date,
+    },
+    address: {
+      type: String,
+      default: '',
+    },
 
     // 📧 Đăng nhập
     email: {

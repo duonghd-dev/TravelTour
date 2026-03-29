@@ -13,6 +13,7 @@ import {
 
 import authRoutes from './modules/auth/index.js';
 import userRoutes from './modules/user/index.js';
+import artisanRoutes from './modules/artisan/index.js';
 import { chatRoutes } from './modules/chat/index.js';
 
 const app = express();
@@ -57,6 +58,9 @@ app.use('/api/auth/verify-otp', otpLimiter); // Extra OTP rate limiting
 
 // User routes
 app.use('/api/v1/users', userRoutes);
+
+// Artisan routes
+app.use('/api/v1/artisans', artisanRoutes);
 
 // Chat routes
 app.use('/api/v1/chat', chatRoutes);
