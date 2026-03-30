@@ -32,16 +32,16 @@ const NotFound = () => {
             </button>
             <button
               className="not-found__btn not-found__btn--secondary"
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/experiences')}
             >
               Xem Trải nghiệm
             </button>
-            <button
+            {/* <button
               className="not-found__btn not-found__btn--secondary"
               onClick={() => navigate('/admin/messages')}
             >
               Liên hệ Hỗ trợ
-            </button>
+            </button> */}
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import './ArtisanHeader.scss';
+import { heartIcon, messengerIcon } from '@/assets/icons/svgs/index.js';
 
 const ArtisanHeader = ({ artisan, user }) => {
   if (!artisan || !artisan.userId) return null;
@@ -18,7 +19,7 @@ const ArtisanHeader = ({ artisan, user }) => {
             alt={fullName}
           />
           {artisan.isVerified && (
-            <span className="artisan-header__badge">✓ HERITAGE VERIFIED</span>
+            <span className="artisan-header__badge">HERITAGE VERIFIED</span>
           )}
         </div>
 
@@ -69,11 +70,21 @@ const ArtisanHeader = ({ artisan, user }) => {
           <div className="artisan-header__actions">
             {user?.id !== artisan.userId._id && (
               <>
-                <button className="artisan-header__btn artisan-header__btn--message">
-                  💬 Message
+                <button
+                  className="artisan-header__btn artisan-header__btn--message"
+                  title="Send Message"
+                >
+                  <span className="artisan-header__btn-icon">
+                    <img src={messengerIcon} alt="Message" />
+                  </span>
                 </button>
-                <button className="artisan-header__btn artisan-header__btn--favorite">
-                  ❤️
+                <button
+                  className="artisan-header__btn artisan-header__btn--favorite"
+                  title="Add to Favorite"
+                >
+                  <span className="artisan-header__btn-icon">
+                    <img src={heartIcon} alt="Favorite" />
+                  </span>
                 </button>
               </>
             )}

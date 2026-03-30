@@ -1,7 +1,7 @@
 import axiosInstance from '../../../services/axiosInstance';
 import * as XLSX from 'xlsx';
 
-const usersAPI = '/v1/users';
+const usersAPI = '/api/v1/users';
 
 /**
  * Fetch all users with filters
@@ -128,7 +128,7 @@ export const exportUsersReport = async (filters = {}) => {
     let totalPages = 1;
 
     while (page <= totalPages) {
-      const response = await axiosInstance.get('/v1/users', {
+      const response = await axiosInstance.get(usersAPI, {
         params: {
           page,
           limit: 100,

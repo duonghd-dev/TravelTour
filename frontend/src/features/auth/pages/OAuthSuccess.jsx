@@ -39,7 +39,7 @@ const OAuthSuccess = () => {
 
         // Fetch user profile using the token
         axiosInstance
-          .get('/v1/users/profile')
+          .get('/api/v1/users/profile')
           .then((response) => {
             const user = response.data?.data || response.data?.user;
 

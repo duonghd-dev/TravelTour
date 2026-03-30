@@ -1,8 +1,8 @@
 export const HEADER_NAV_LINKS = [
-  { type: 'link', label: 'Trang chủ', path: '/' },
-  { type: 'link', label: 'Trải nghiệm', path: '/experiences' },
-  { type: 'link', label: 'Nghệ nhân', path: '/artisans' },
-  { type: 'link', label: 'Câu chuyện', path: '/stories' },
-  { type: 'link', label: 'Ẩm thực', path: '/foods' },
-  { type: 'link', label: 'Khám phá Việt Nam', path: '/explore-vietnam' },
+  { type: 'link', label: 'Home', path: '/' },
+  { type: 'link', label: 'Experiences and Foods', path: '/experiences' },
+  { type: 'link', label: 'Artisans', path: '/artisans' },
+  // { type: 'link', label: 'Stories', path: '/stories' },
+  { type: 'link', label: 'Hotel', path: '/hotel' },
+  { type: 'link', label: 'Explore Vietnam', path: '/explore-vietnam' },
 ];

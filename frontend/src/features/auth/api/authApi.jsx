@@ -10,7 +10,7 @@ import apiService from '../../../services/api/apiService.js';
  * Register new user
  */
 export const registerUser = async (userData) => {
-  return apiService.post('/auth/register', {
+  return apiService.post('/api/auth/register', {
     email: userData.email,
     password: userData.password,
     firstName: userData.firstName,
@@ -23,7 +23,7 @@ export const registerUser = async (userData) => {
  * Verify email with OTP
  */
 export const verifyEmail = async (userId, otp) => {
-  return apiService.post('/auth/verify-email', {
+  return apiService.post('/api/auth/verify-email', {
     userId,
     otp,
   });
@@ -33,7 +33,7 @@ export const verifyEmail = async (userId, otp) => {
  * Login with email and password
  */
 export const loginUser = async (credentials) => {
-  return apiService.post('/auth/login', {
+  return apiService.post('/api/auth/login', {
     email: credentials.email,
     password: credentials.password,
   });
@@ -43,7 +43,7 @@ export const loginUser = async (credentials) => {
  * Verify login OTP (2FA)
  */
 export const verifyLoginOTP = async (userId, otp) => {
-  return apiService.post('/auth/verify-login-otp', {
+  return apiService.post('/api/auth/verify-login-otp', {
     userId,
     otp,
   });
@@ -53,7 +53,7 @@ export const verifyLoginOTP = async (userId, otp) => {
  * Request password reset OTP
  */
 export const forgotPassword = async (email) => {
-  return apiService.post('/auth/forgot-password', {
+  return apiService.post('/api/auth/forgot-password', {
     email,
   });
 };
@@ -62,7 +62,7 @@ export const forgotPassword = async (email) => {
  * Verify reset password OTP
  */
 export const verifyResetPasswordOTP = async (email, otp) => {
-  return apiService.post('/auth/verify-reset-password-otp', {
+  return apiService.post('/api/auth/verify-reset-password-otp', {
     email,
     otp,
   });
@@ -72,7 +72,7 @@ export const verifyResetPasswordOTP = async (email, otp) => {
  * Reset password
  */
 export const resetPassword = async (email, otp, newPassword) => {
-  return apiService.post('/auth/reset-password', {
+  return apiService.post('/api/auth/reset-password', {
     email,
     otp,
     newPassword,
@@ -83,21 +83,21 @@ export const resetPassword = async (email, otp, newPassword) => {
  * Get authenticated user profile
  */
 export const getCurrentUser = async () => {
-  return apiService.get('/v1/users/profile');
+  return apiService.get('/api/v1/users/profile');
 };
 
 /**
  * Update user profile
  */
 export const updateUserProfile = async (profileData) => {
-  return apiService.put('/v1/users/profile', profileData);
+  return apiService.put('/api/v1/users/profile', profileData);
 };
 
 /**
  * Change password
  */
 export const changePassword = async (oldPassword, newPassword) => {
-  return apiService.put('/v1/users/password', {
+  return apiService.put('/api/v1/users/password', {
     oldPassword,
     newPassword,
   });
@@ -107,7 +107,7 @@ export const changePassword = async (oldPassword, newPassword) => {
  * Verify email from verification link (non-registration flow)
  */
 export const verifyEmailPage = async (email, otp) => {
-  return apiService.post('/v1/users/verify-email', {
+  return apiService.post('/api/v1/users/verify-email', {
     email,
     otp,
   });

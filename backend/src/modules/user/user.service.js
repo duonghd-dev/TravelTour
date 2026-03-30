@@ -1,4 +1,5 @@
 import User from './user.model.js';
+import Artisan from '../artisan/artisan.model.js';
 import { hashPassword, comparePassword } from '../../common/utils/hash.js';
 import logger from '../../common/utils/logger.js';
 import { sendOTPEmail, sendVerifyEmailLink } from '../../common/utils/email.js';
@@ -366,12 +367,20 @@ export const createUser = async (userData) => {
     password,
     gender,
     role = 'customer',
+    artisanInfo = null,
   } = userData;
 
   if (!firstName || !lastName || !email || !password || !role) {
     throw new Error(
       'firstName, lastName, email, password, and role are required'
     );
+  }
+
+  // Validate artisan required fields
+  if (role === 'artisan') {
+    if (!artisanInfo?.category || !artisanInfo?.craft) {
+      throw new Error('Category and craft are required for artisan role');
+    }
   }
 
   // Password validation
@@ -414,18 +423,50 @@ export const createUser = async (userData) => {
       password: hashedPassword,
       isEmailVerified: false, // User must verify email first
       isFirstLogin: true, // User should complete profile on first login
-      isActive: false, // Not active until email is verified
+      isActive: role === 'artisan' ? false : false, // Not active until email is verified
       emailOTP,
       emailOTPExpire,
     });
 
     await newUser.save();
 
+    // Create artisan record if role is artisan
+    if (role === 'artisan' && artisanInfo) {
+      const newArtisan = new Artisan({
+        userId: newUser._id,
+        category: artisanInfo.category,
+        craft: artisanInfo.craft,
+        bio: artisanInfo.bio || '',
+        storytelling: artisanInfo.storytelling || '',
+        experienceYears: artisanInfo.experienceYears || 0,
+        skills: artisanInfo.skills || [],
+        province: artisanInfo.province || '',
+        village: artisanInfo.village || '',
+        location: artisanInfo.location || {
+          type: 'Point',
+          coordinates: [0, 0],
+        },
+        workshopLocation: artisanInfo.workshopLocation || {
+          address: '',
+          description: '',
+        },
+        isVerified: artisanInfo.isVerified || false,
+        title: artisanInfo.title || '',
+        certifyingOrganization: artisanInfo.certifyingOrganization || '',
+        proofImages: artisanInfo.proofImages || [],
+      });
+
+      await newArtisan.save();
+      logger.info(
+        `Artisan created for user: ${email} with category: ${artisanInfo.category}`
+      );
+    }
+
     // Send verification email with link and OTP
     await sendVerifyEmailLink(email, emailOTP);
 
     logger.info(
-      `User created: ${email} by admin. Verification email sent with OTP: ${emailOTP}`
+      `User created: ${email} by admin with role: ${role}. Verification email sent with OTP: ${emailOTP}`
     );
 
     return {
@@ -452,8 +493,16 @@ export const createUser = async (userData) => {
  * Update user by ID (Admin only)
  */
 export const updateUserById = async (userId, updateData) => {
-  const { firstName, lastName, phone, role, isActive, avatar, gender } =
-    updateData;
+  const {
+    firstName,
+    lastName,
+    phone,
+    role,
+    isActive,
+    avatar,
+    gender,
+    artisanInfo = null,
+  } = updateData;
 
   const user = await User.findById(userId);
   if (!user) {
@@ -471,6 +520,85 @@ export const updateUserById = async (userId, updateData) => {
     if (gender !== undefined) user.gender = gender;
 
     await user.save();
+
+    // Handle artisan data update
+    if (user.role === 'artisan' && artisanInfo) {
+      const existingArtisan = await Artisan.findOne({ userId });
+
+      if (existingArtisan) {
+        // Update existing artisan record
+        Object.assign(existingArtisan, {
+          category: artisanInfo.category || existingArtisan.category,
+          craft: artisanInfo.craft || existingArtisan.craft,
+          bio:
+            artisanInfo.bio !== undefined
+              ? artisanInfo.bio
+              : existingArtisan.bio,
+          storytelling:
+            artisanInfo.storytelling !== undefined
+              ? artisanInfo.storytelling
+              : existingArtisan.storytelling,
+          experienceYears:
+            artisanInfo.experienceYears !== undefined
+              ? artisanInfo.experienceYears
+              : existingArtisan.experienceYears,
+          skills: artisanInfo.skills || existingArtisan.skills,
+          province:
+            artisanInfo.province !== undefined
+              ? artisanInfo.province
+              : existingArtisan.province,
+          village:
+            artisanInfo.village !== undefined
+              ? artisanInfo.village
+              : existingArtisan.village,
+          location: artisanInfo.location || existingArtisan.location,
+          workshopLocation:
+            artisanInfo.workshopLocation || existingArtisan.workshopLocation,
+          isVerified:
+            artisanInfo.isVerified !== undefined
+              ? artisanInfo.isVerified
+              : existingArtisan.isVerified,
+          title:
+            artisanInfo.title !== undefined
+              ? artisanInfo.title
+              : existingArtisan.title,
+          certifyingOrganization:
+            artisanInfo.certifyingOrganization !== undefined
+              ? artisanInfo.certifyingOrganization
+              : existingArtisan.certifyingOrganization,
+          proofImages: artisanInfo.proofImages || existingArtisan.proofImages,
+        });
+        await existingArtisan.save();
+        logger.info(`Artisan profile updated for user: ${userId}`);
+      } else {
+        // Create new artisan record if it doesn't exist
+        const newArtisan = new Artisan({
+          userId,
+          category: artisanInfo.category,
+          craft: artisanInfo.craft,
+          bio: artisanInfo.bio || '',
+          storytelling: artisanInfo.storytelling || '',
+          experienceYears: artisanInfo.experienceYears || 0,
+          skills: artisanInfo.skills || [],
+          province: artisanInfo.province || '',
+          village: artisanInfo.village || '',
+          location: artisanInfo.location || {
+            type: 'Point',
+            coordinates: [0, 0],
+          },
+          workshopLocation: artisanInfo.workshopLocation || {
+            address: '',
+            description: '',
+          },
+          isVerified: artisanInfo.isVerified || false,
+          title: artisanInfo.title || '',
+          certifyingOrganization: artisanInfo.certifyingOrganization || '',
+          proofImages: artisanInfo.proofImages || [],
+        });
+        await newArtisan.save();
+        logger.info(`Artisan profile created for user: ${userId}`);
+      }
+    }
 
     logger.info(`User ${userId} updated by admin`);
 
@@ -535,6 +663,11 @@ export const getUserById = async (userId) => {
   }
 
   try {
+    let artisanInfo = null;
+    if (user.role === 'artisan') {
+      artisanInfo = await Artisan.findOne({ userId }).lean();
+    }
+
     logger.info(`User ${userId} requested by admin`);
 
     return {
@@ -551,6 +684,7 @@ export const getUserById = async (userId) => {
         isEmailVerified: user.isEmailVerified,
         isActive: user.isActive,
         createdAt: user.createdAt,
+        ...(artisanInfo && { artisanInfo }),
       },
     };
   } catch (error) {

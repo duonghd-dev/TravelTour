@@ -124,6 +124,10 @@ const artisanSchema = new Schema(
         type: String,
       },
     ],
+    generation: {
+      type: Number,
+      default: 1,
+    },
   },
   {
     timestamps: true,

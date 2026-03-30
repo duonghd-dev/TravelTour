@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '../../../contexts/ToastContext';
 import { fetchUserById, updateUser } from '../api';
+import ArtisanFieldsForm from './ArtisanFieldsForm';
 import maleAvatarImg from '@/assets/images/avatarDefault/maleAvatar.png';
 import femaleAvatarImg from '@/assets/images/avatarDefault/femaleAvatar.png';
 import './UserEditModal.scss';
@@ -43,6 +44,28 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
     role: 'customer',
     isActive: false,
   });
+  const [artisanData, setArtisanData] = useState({
+    category: '',
+    craft: '',
+    bio: '',
+    storytelling: '',
+    experienceYears: 0,
+    skills: [],
+    province: '',
+    village: '',
+    location: {
+      type: 'Point',
+      coordinates: [0, 0],
+    },
+    workshopLocation: {
+      address: '',
+      description: '',
+    },
+    isVerified: false,
+    title: '',
+    certifyingOrganization: '',
+    proofImages: [],
+  });
 
   useEffect(() => {
     if (isOpen && userId) {
@@ -66,6 +89,34 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
         role: user.role || 'customer',
         isActive: user.isActive !== undefined ? user.isActive : false,
       });
+
+      // Load artisan data if role is artisan
+      if ((user.role || 'customer') === 'artisan' && user.artisanInfo) {
+        const artisan = user.artisanInfo;
+        setArtisanData({
+          category: artisan.category || '',
+          craft: artisan.craft || '',
+          bio: artisan.bio || '',
+          storytelling: artisan.storytelling || '',
+          experienceYears: artisan.experienceYears || 0,
+          skills: artisan.skills || [],
+          province: artisan.province || '',
+          village: artisan.village || '',
+          location: artisan.location || {
+            type: 'Point',
+            coordinates: [0, 0],
+          },
+          workshopLocation: artisan.workshopLocation || {
+            address: '',
+            description: '',
+          },
+          isVerified: artisan.isVerified || false,
+          title: artisan.title || '',
+          certifyingOrganization: artisan.certifyingOrganization || '',
+          proofImages: artisan.proofImages || [],
+        });
+      }
+
       setAvatarPreview(getAvatarUrl(user.avatar, user.gender));
     } catch (err) {
       setError('Failed to load user: ' + (err.message || 'Unknown error'));
@@ -81,6 +132,10 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleArtisanDataChange = (newArtisanData) => {
+    setArtisanData(newArtisanData);
   };
 
   // Update avatar preview when gender changes
@@ -129,6 +184,19 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
       setError('Email is required');
       return false;
     }
+
+    // Validate artisan fields if role is artisan
+    if (formData.role === 'artisan') {
+      if (!artisanData.category?.trim()) {
+        setError('Category is required for artisan');
+        return false;
+      }
+      if (!artisanData.craft?.trim()) {
+        setError('Craft is required for artisan');
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -139,7 +207,12 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
     setLoading(true);
     setError('');
     try {
-      await updateUser(userId, formData);
+      const updateData = {
+        ...formData,
+        ...(formData.role === 'artisan' && { artisanInfo: artisanData }),
+      };
+
+      await updateUser(userId, updateData);
 
       // Show success toast
       toast.success(`Cập nhật thông tin thành công!`, 4000);
@@ -336,6 +409,15 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
               <option value="admin">Admin</option>
             </select>
           </div>
+
+          {/* Artisan Fields - Show only when role is artisan */}
+          {formData.role === 'artisan' && (
+            <ArtisanFieldsForm
+              artisanData={artisanData}
+              onArtisanDataChange={handleArtisanDataChange}
+              loading={loading}
+            />
+          )}
 
           <div className="form-group checkbox-group">
             <label htmlFor="isActive">

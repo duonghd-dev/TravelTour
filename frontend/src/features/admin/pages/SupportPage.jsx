@@ -9,24 +9,21 @@ import './SupportPage.scss';
 
 /**
  * Admin Support Page
- * Conversation management interface for admin/staff to support customers and artisans
- * 2-column layout: Conversations list (left) + Chat detail (right)
+ * Conversation management interface for admin/staff
  */
 const SupportPage = () => {
   const { user } = useAuth();
-  const {
-    conversations,
-    openConversations,
-    openChat,
-    closeChat,
-    updateConversations,
-  } = useChatContext();
+
+  const { conversations, openChat, updateConversations } = useChatContext();
+
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingConvs, setLoadingConvs] = useState(false);
-  const [activeTab, setActiveTab] = useState('recent'); // recent | unread
+  const [activeTab, setActiveTab] = useState('recent');
 
-  // Get messages for selected conversation
+  // =========================
+  // CHAT HOOK
+  // =========================
   const {
     messages,
     loading: messagesLoading,
@@ -35,24 +32,20 @@ const SupportPage = () => {
     handleTyping,
   } = useChat(selectedConversation?._id, user);
 
-  // Load conversations on mount
+  // =========================
+  // LOAD CONVERSATIONS
+  // =========================
   useEffect(() => {
     loadConversations();
   }, []);
 
-  // Auto-select first conversation if none selected
-  useEffect(() => {
-    if (conversations.length > 0 && !selectedConversation) {
-      setSelectedConversation(conversations[0]);
-      openChat(conversations[0]._id);
-    }
-  }, [conversations]);
-
   const loadConversations = async () => {
     try {
       setLoadingConvs(true);
+
       const response = await chatApi.getUserConversations();
       const convs = response.data || [];
+
       updateConversations(convs);
     } catch (error) {
       console.error('Error loading conversations:', error);
@@ -61,34 +54,52 @@ const SupportPage = () => {
     }
   };
 
+  // =========================
+  // AUTO SELECT FIRST
+  // =========================
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversation) {
+      setSelectedConversation(conversations[0]);
+      openChat(conversations[0]._id);
+    }
+  }, [conversations, selectedConversation]);
+
+  // =========================
+  // FILTER
+  // =========================
   const filteredConversations = conversations
     .filter((conv) => {
       const otherUserName = `${conv.otherParticipant?.firstName || ''} ${
         conv.otherParticipant?.lastName || ''
       }`.toLowerCase();
+
       return otherUserName.includes(searchTerm.toLowerCase());
     })
     .filter((conv) => {
       if (activeTab === 'unread') return conv.unreadCount > 0;
-      return true; // recent tab shows all
+      return true;
     });
 
   const hasUnreadConversations = conversations.some(
     (conv) => conv.unreadCount > 0
   );
 
+  // =========================
+  // ACTIONS
+  // =========================
   const handleMarkAllAsRead = async () => {
     try {
-      // Mark all unread conversations as read
       const unreadConvs = conversations.filter((c) => c.unreadCount > 0);
+
       await Promise.all(
         unreadConvs.map((conv) => chatApi.markConversationAsRead(conv._id))
       );
-      // Update conversations list - set all unreadCount to 0
+
       const updatedConvs = conversations.map((conv) => ({
         ...conv,
         unreadCount: 0,
       }));
+
       updateConversations(updatedConvs);
     } catch (error) {
       console.error('Error marking conversations as read:', error);
@@ -99,14 +110,14 @@ const SupportPage = () => {
     setSelectedConversation(conversation);
     openChat(conversation._id);
 
-    // Mark as read if conversation has unread messages
     if (conversation.unreadCount > 0) {
       try {
         chatApi.markConversationAsRead(conversation._id);
-        // Update conversations list - set unreadCount to 0
+
         const updatedConvs = conversations.map((conv) =>
           conv._id === conversation._id ? { ...conv, unreadCount: 0 } : conv
         );
+
         updateConversations(updatedConvs);
       } catch (error) {
         console.error('Error marking conversation as read:', error);
@@ -119,9 +130,13 @@ const SupportPage = () => {
     await sendMessage(content);
   };
 
+  // =========================
+  // UTILS
+  // =========================
   const getTimeAgo = (date) => {
     const now = new Date();
     const diffMs = now - new Date(date);
+
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -134,12 +149,16 @@ const SupportPage = () => {
     return new Date(date).toLocaleDateString('vi-VN');
   };
 
+  // =========================
+  // RENDER
+  // =========================
   return (
     <div className="support-page">
-      {/* Conversations Sidebar */}
+      {/* SIDEBAR */}
       <div className="support-sidebar">
         <div className="sidebar-header">
           <h2>Messages</h2>
+
           {hasUnreadConversations && (
             <button className="mark-read-btn" onClick={handleMarkAllAsRead}>
               Mark as read
@@ -147,7 +166,7 @@ const SupportPage = () => {
           )}
         </div>
 
-        {/* Search */}
+        {/* SEARCH */}
         <div className="search-box">
           <input
             type="text"
@@ -159,7 +178,7 @@ const SupportPage = () => {
           <span className="search-icon">🔍</span>
         </div>
 
-        {/* Tabs */}
+        {/* TABS */}
         <div className="conversations-tabs">
           <button
             className={`tab ${activeTab === 'recent' ? 'active' : ''}`}
@@ -167,15 +186,16 @@ const SupportPage = () => {
           >
             Gần đây
           </button>
+
           <button
             className={`tab ${activeTab === 'unread' ? 'active' : ''}`}
             onClick={() => setActiveTab('unread')}
           >
-            Đánh dấu đã đọc
+            Chưa đọc
           </button>
         </div>
 
-        {/* Conversations List */}
+        {/* LIST */}
         <div className="conversations-list">
           {loadingConvs ? (
             <div className="loading-state">Loading...</div>
@@ -198,21 +218,25 @@ const SupportPage = () => {
                   {conv.otherParticipant?.lastName?.charAt(0).toUpperCase() ||
                     ''}
                 </div>
+
                 <div className="conversation-content">
                   <div className="conversation-header">
                     <div className="conversation-name">
                       {conv.otherParticipant?.firstName}{' '}
                       {conv.otherParticipant?.lastName}
                     </div>
+
                     <span className="conversation-time">
                       {getTimeAgo(conv.lastMessageAt)}
                     </span>
                   </div>
+
                   <div className="conversation-preview-wrapper">
                     <p className="conversation-preview">
                       {conv.lastMessage?.content?.substring(0, 50) ||
                         'No messages yet'}
                     </p>
+
                     {conv.unreadCount > 0 && (
                       <span className="unread-badge">{conv.unreadCount}</span>
                     )}
@@ -224,44 +248,17 @@ const SupportPage = () => {
         </div>
       </div>
 
-      {/* Chat Area */}
+      {/* CHAT */}
       <div className="support-chat">
         {selectedConversation ? (
           <>
-            {/* Chat Header */}
             <div className="chat-header">
-              <div className="header-left">
-                <div className="avatar-small">
-                  {selectedConversation.otherParticipant?.firstName
-                    ?.charAt(0)
-                    .toUpperCase() || 'U'}
-                  {selectedConversation.otherParticipant?.lastName
-                    ?.charAt(0)
-                    .toUpperCase() || ''}
-                </div>
-                <div className="header-info">
-                  <h3>
-                    {selectedConversation.otherParticipant?.firstName}{' '}
-                    {selectedConversation.otherParticipant?.lastName}
-                  </h3>
-                  <p className="header-role">
-                    {selectedConversation.otherParticipant?.role === 'artisan'
-                      ? 'ARTISAN'
-                      : 'CUSTOMER'}
-                  </p>
-                </div>
-              </div>
-              <div className="header-actions">
-                <button className="action-btn" title="Call">
-                  ☎️
-                </button>
-                <button className="action-btn" title="More options">
-                  ⋮
-                </button>
-              </div>
+              <h3>
+                {selectedConversation.otherParticipant?.firstName}{' '}
+                {selectedConversation.otherParticipant?.lastName}
+              </h3>
             </div>
 
-            {/* Messages Area */}
             <MessageList
               messages={messages}
               currentUserId={user?.id}
@@ -270,7 +267,6 @@ const SupportPage = () => {
               onDeleteMessage={() => {}}
             />
 
-            {/* Input Area */}
             <MessageInput
               onSend={handleSendMessage}
               disabled={sending}

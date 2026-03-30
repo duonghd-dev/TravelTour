@@ -20,6 +20,8 @@ import HomePage from '../features/home/pages/HomePage';
 // Profile Pages
 import ProfilePage from '../features/profile/pages/ProfilePage';
 
+import { ExperiencesPage, ExperiencesDetail } from '@/features/Experiences';
+
 // Admin Pages
 import { AdminDashboard, UsersPage, SupportPage } from '@/features/admin';
 
@@ -60,6 +62,33 @@ const AppRouter = () => {
           element={
             <MainLayout>
               <HomePage />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/experiences"
+          element={
+            <MainLayout>
+              <ExperiencesPage />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/experiences/:id"
+          element={
+            <MainLayout>
+              <ExperiencesDetail />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/artisans"
+          element={
+            <MainLayout>
+              <ArtisansListPage />
             </MainLayout>
           }
         />

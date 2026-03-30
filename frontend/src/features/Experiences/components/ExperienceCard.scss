@@ -1,0 +1,105 @@
+.experience-card {
+  background: #fff8f3;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s;
+  position: relative;
+  min-width: 280px;
+
+  &:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  &__image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: #2d5016;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    letter-spacing: 0.5px;
+    z-index: 2;
+  }
+
+  &__content {
+    padding: 1.5rem 1.5rem 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  &__quote {
+    font-size: 0.98rem;
+    color: #6d4c2c;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    min-height: 32px;
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #4b2e13;
+    margin: 0 0 0.25rem 0;
+  }
+
+  &__desc {
+    font-size: 1rem;
+    color: #7a5c3e;
+    margin-bottom: 1.25rem;
+    min-height: 40px;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+
+  &__price {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #a05a2c;
+    .experience-card__per {
+      font-size: 0.95rem;
+      color: #bfa07a;
+      font-weight: 400;
+    }
+  }
+
+  &__btn {
+    background: #a05a2c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    &:hover {
+      background: #7a3e1a;
+    }
+  }
+}

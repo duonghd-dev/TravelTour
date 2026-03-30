@@ -97,6 +97,38 @@ const experienceSchema = new Schema(
       type: Number,
       default: 0,
     },
+
+    location: {
+      type: String,
+      required: true,
+    },
+    // 🏷️ Phân loại/Series (Ví dụ: 'HERITAGE REVIVAL SERIES')
+    badge: {
+      type: String,
+      default: '',
+    },
+
+    // 💬 Câu quote truyền cảm hứng
+    quote: {
+      type: String,
+      default: '',
+    },
+
+    // 🗺️ Lộ trình trải nghiệm (The Curated Journey)
+    journey: [
+      {
+        title: { type: String, required: true },
+        description: { type: String, required: true },
+      },
+    ],
+
+    // ⏰ Danh sách các khung giờ cố định trong ngày (Ví dụ: ['08:00 AM', '02:00 PM'])
+    // Dùng cái này thay thế cho chuỗi `schedule: String` cũ để dễ query
+    timeSlots: [
+      {
+        type: String,
+      },
+    ],
   },
   {
     timestamps: true,

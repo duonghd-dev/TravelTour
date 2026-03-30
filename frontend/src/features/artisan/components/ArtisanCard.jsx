@@ -19,12 +19,13 @@ const ArtisanCard = ({ artisan, onFavoriteClick, isFavorited }) => {
           className="artisan-card__image"
         />
         {artisan.isVerified && (
-          <span className="artisan-card__badge">✓ HERITAGE VERIFIED</span>
+          <span className="artisan-card__badge">HERITAGE VERIFIED</span>
         )}
         <button
           className="artisan-card__favorite-btn"
           onClick={() => onFavoriteClick?.(artisan._id)}
           type="button"
+          title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart size={20} fill={isFavorited ? 'currentColor' : 'none'} />
         </button>
@@ -42,20 +43,28 @@ const ArtisanCard = ({ artisan, onFavoriteClick, isFavorited }) => {
             <span className="artisan-card__stat-value">
               {artisan.experienceYears || 0}+
             </span>
-            <span className="artisan-card__stat-label">Years</span>
+            <span className="artisan-card__stat-label">Years Experience</span>
           </div>
           <div className="artisan-card__stat">
             <span className="artisan-card__stat-value">
               ★ {artisan.ratingAverage ? artisan.ratingAverage.toFixed(1) : 0}
             </span>
             <span className="artisan-card__stat-label">
-              ({artisan.totalReviews || 0})
+              ({artisan.totalReviews || 0} reviews)
             </span>
           </div>
         </div>
 
         {artisan.bio && (
-          <p className="artisan-card__description">{artisan.bio}</p>
+          <p
+            className="artisan-card__description"
+            dangerouslySetInnerHTML={{
+              __html:
+                artisan.storytelling ||
+                artisan.bio ||
+                '<p>No information updated yet</p>',
+            }}
+          />
         )}
 
         <button

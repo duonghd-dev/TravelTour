@@ -1,7 +1,7 @@
 import axiosInstance from '@/services/axiosInstance';
 
-const API_BASE = '/v1/chat';
-const USER_API_BASE = '/v1/users';
+const API_BASE = '/api/v1/chat';
+const USER_API_BASE = '/api/v1/users';
 
 export const chatApi = {
   // Conversations

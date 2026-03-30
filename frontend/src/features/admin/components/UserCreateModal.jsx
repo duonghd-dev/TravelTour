@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useToast } from '../../../contexts/ToastContext';
 import { createUser } from '../api';
+import ArtisanFieldsForm from './ArtisanFieldsForm';
 import './UserCreateModal.scss';
 
 const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
@@ -17,12 +18,39 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
     role: 'customer',
   });
 
+  const [artisanData, setArtisanData] = useState({
+    category: '',
+    craft: '',
+    bio: '',
+    storytelling: '',
+    experienceYears: 0,
+    skills: [],
+    province: '',
+    village: '',
+    location: {
+      type: 'Point',
+      coordinates: [0, 0],
+    },
+    workshopLocation: {
+      address: '',
+      description: '',
+    },
+    isVerified: false,
+    title: '',
+    certifyingOrganization: '',
+    proofImages: [],
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleArtisanDataChange = (newArtisanData) => {
+    setArtisanData(newArtisanData);
   };
 
   const validateForm = () => {
@@ -51,6 +79,19 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
       setError('Password must be at least 6 characters');
       return false;
     }
+
+    // Validate artisan fields if role is artisan
+    if (formData.role === 'artisan') {
+      if (!artisanData.category?.trim()) {
+        setError('Category is required for artisan');
+        return false;
+      }
+      if (!artisanData.craft?.trim()) {
+        setError('Craft is required for artisan');
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -61,10 +102,15 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
     setLoading(true);
     setError('');
     try {
-      await createUser(formData);
+      const userData = {
+        ...formData,
+        ...(formData.role === 'artisan' && { artisanInfo: artisanData }),
+      };
+
+      await createUser(userData);
 
       // Show success toast
-      toast.success(`Tài khoản đã tạo thành công! `, 5000);
+      toast.success(`Tài khoản đã tạo thành công!`, 5000);
 
       // Reset form and close modal
       setFormData({
@@ -75,6 +121,28 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
         password: '',
         gender: '',
         role: 'customer',
+      });
+      setArtisanData({
+        category: '',
+        craft: '',
+        bio: '',
+        storytelling: '',
+        experienceYears: 0,
+        skills: [],
+        province: '',
+        village: '',
+        location: {
+          type: 'Point',
+          coordinates: [0, 0],
+        },
+        workshopLocation: {
+          address: '',
+          description: '',
+        },
+        isVerified: false,
+        title: '',
+        certifyingOrganization: '',
+        proofImages: [],
       });
       setError('');
 
@@ -100,6 +168,28 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
       password: '',
       gender: '',
       role: 'customer',
+    });
+    setArtisanData({
+      category: '',
+      craft: '',
+      bio: '',
+      storytelling: '',
+      experienceYears: 0,
+      skills: [],
+      province: '',
+      village: '',
+      location: {
+        type: 'Point',
+        coordinates: [0, 0],
+      },
+      workshopLocation: {
+        address: '',
+        description: '',
+      },
+      isVerified: false,
+      title: '',
+      certifyingOrganization: '',
+      proofImages: [],
     });
     setError('');
     onClose();
@@ -221,6 +311,15 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
               <option value="admin">Admin</option>
             </select>
           </div>
+
+          {/* Artisan Fields - Show only when role is artisan */}
+          {formData.role === 'artisan' && (
+            <ArtisanFieldsForm
+              artisanData={artisanData}
+              onArtisanDataChange={handleArtisanDataChange}
+              loading={loading}
+            />
+          )}
 
           <div className="modal-actions">
             <button

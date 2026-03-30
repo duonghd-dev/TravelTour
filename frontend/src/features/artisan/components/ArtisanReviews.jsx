@@ -1,6 +1,10 @@
 import './ArtisanReviews.scss';
 
 const ArtisanReviews = ({ reviews = [], ratingAverage = 0 }) => {
+  // SVG avatar placeholder
+  const avatarPlaceholder =
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><circle cx="25" cy="25" r="25" fill="%23cccccc"/><circle cx="25" cy="18" r="6" fill="%23666"/><path d="M15 35 Q25 30 35 35" fill="%23666"/></svg>';
+
   // Mock reviews nếu không có dữ liệu thực
   const mockReviews = [
     {
@@ -9,7 +13,7 @@ const ArtisanReviews = ({ reviews = [], ratingAverage = 0 }) => {
       rating: 5,
       comment:
         '"This was the highlight of my trip to Vietnam. Master An took the time to teach me the intricacies of silk weaving. I now deeply respect the heritage."',
-      avatar: 'https://via.placeholder.com/50',
+      avatar: avatarPlaceholder,
     },
     {
       _id: '2',
@@ -17,7 +21,7 @@ const ArtisanReviews = ({ reviews = [], ratingAverage = 0 }) => {
       rating: 5,
       comment:
         '"The workshop itself was well-organized and the artisan shared fascinating stories about the history of his craft. Highly recommended!"',
-      avatar: 'https://via.placeholder.com/50',
+      avatar: avatarPlaceholder,
     },
   ];
 
@@ -95,7 +99,7 @@ const ArtisanReviews = ({ reviews = [], ratingAverage = 0 }) => {
         </div>
 
         <div className="artisan-reviews__footer">
-          <button className="artisan-reviews__btn">Read All Reviews →</button>
+          <button className="artisan-reviews__btn">Read All Reviews</button>
         </div>
       </div>
     </section>
