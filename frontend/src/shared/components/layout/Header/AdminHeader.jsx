@@ -431,6 +431,9 @@ const AdminHeader = () => {
                       </span>
                     </div>
                     <div className="admin-header__profile-divider"></div>
+                    <Link to="/" className="admin-header__profile-link">
+                      Van Hoa Trinh
+                    </Link>
                     <Link to="/profile" className="admin-header__profile-link">
                       My Profile
                     </Link>

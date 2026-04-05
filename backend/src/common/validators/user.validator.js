@@ -14,7 +14,7 @@ import AppError from '../errors/AppError.js';
 
 // ✅ Validate Update Profile Data
 export const validateUpdateProfileData = (data) => {
-  const { firstName, lastName, phone, gender, bio, address } = data;
+  const { firstName, lastName, phone, gender, slogan, address } = data;
 
   // Fields to validate
   const updates = {};
@@ -42,11 +42,11 @@ export const validateUpdateProfileData = (data) => {
     updates.gender = gender.toLowerCase();
   }
 
-  if (bio !== undefined) {
-    if (bio.length > 500) {
-      throw new AppError('Bio must be at most 500 characters', 400);
+  if (slogan !== undefined) {
+    if (slogan.length > 500) {
+      throw new AppError('Slogan must be at most 500 characters', 400);
     }
-    updates.bio = bio;
+    updates.slogan = slogan;
   }
 
   if (address !== undefined) {

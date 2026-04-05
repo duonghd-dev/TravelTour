@@ -47,7 +47,7 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
   const [artisanData, setArtisanData] = useState({
     category: '',
     craft: '',
-    bio: '',
+    slogan: '',
     storytelling: '',
     experienceYears: 0,
     skills: [],
@@ -96,7 +96,7 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
         setArtisanData({
           category: artisan.category || '',
           craft: artisan.craft || '',
-          bio: artisan.bio || '',
+          slogan: artisan.slogan || '',
           storytelling: artisan.storytelling || '',
           experienceYears: artisan.experienceYears || 0,
           skills: artisan.skills || [],

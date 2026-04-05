@@ -1,78 +1,84 @@
-import { useNavigate } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import React from 'react';
+import { Heart, ShieldCheck, MapPin, Star, ArrowRight } from 'lucide-react';
 import './ArtisanCard.scss';
 
-const ArtisanCard = ({ artisan, onFavoriteClick, isFavorited }) => {
-  const navigate = useNavigate();
-  const fullName = `${artisan.userId.firstName} ${artisan.userId.lastName}`;
+const ArtisanCard = ({ artisan, onClick }) => {
+  const {
+    userId,
+    experiences,
+    ratingAverage,
+    totalReviews,
+    generation,
+    isVerified,
+    craft,
+    province,
+    village,
+  } = artisan;
 
-  const handleViewProfile = () => {
-    navigate(`/artisan/${artisan._id}`);
-  };
+  const firstName = userId?.firstName || '';
+  const lastName = userId?.lastName || '';
+  const fullName = `${firstName} ${lastName}`.trim();
+  const avatar = userId?.avatar || '';
 
   return (
-    <div className="artisan-card">
-      <div className="artisan-card__image-wrapper">
+    <div className="artisan-card" onClick={() => onClick(artisan._id)}>
+      <div className="artisan-card__image-wrap">
         <img
-          src={artisan.userId.avatar || '/avatar-default.png'}
+          src={artisan.images?.[0] || avatar}
           alt={fullName}
           className="artisan-card__image"
         />
-        {artisan.isVerified && (
-          <span className="artisan-card__badge">HERITAGE VERIFIED</span>
+        {isVerified && (
+          <div className="artisan-card__verified badge badge--verified">
+            <ShieldCheck size={14} /> Verified
+          </div>
         )}
         <button
-          className="artisan-card__favorite-btn"
-          onClick={() => onFavoriteClick?.(artisan._id)}
-          type="button"
-          title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+          className="artisan-card__fav"
+          onClick={(e) => {
+            e.stopPropagation();
+            alert('Đã lưu!');
+          }}
         >
-          <Heart size={20} fill={isFavorited ? 'currentColor' : 'none'} />
+          <Heart size={20} />
         </button>
+        {generation && (
+          <div className="artisan-card__generation">Đời thứ {generation}</div>
+        )}
       </div>
 
-      <div className="artisan-card__content">
+      <div className="artisan-card__body">
+        <div className="artisan-card__craft">{craft}</div>
         <h3 className="artisan-card__name">{fullName}</h3>
-        <p className="artisan-card__craft">{artisan.craft}</p>
-        {artisan.province && (
-          <p className="artisan-card__location">{artisan.province}</p>
-        )}
+        <div className="artisan-card__loc">
+          <MapPin size={16} /> {province}
+          {village ? `, ${village}` : ''}
+        </div>
 
         <div className="artisan-card__stats">
           <div className="artisan-card__stat">
-            <span className="artisan-card__stat-value">
-              {artisan.experienceYears || 0}+
-            </span>
-            <span className="artisan-card__stat-label">Years Experience</span>
+            <div className="artisan-card__stat-val">
+              <Star
+                size={16}
+                fill="var(--accent-gold)"
+                color="var(--accent-gold)"
+              />{' '}
+              {ratingAverage || 0}
+            </div>
+            <div className="artisan-card__stat-label">
+              {totalReviews || 0} đánh giá
+            </div>
           </div>
           <div className="artisan-card__stat">
-            <span className="artisan-card__stat-value">
-              ★ {artisan.ratingAverage ? artisan.ratingAverage.toFixed(1) : 0}
-            </span>
-            <span className="artisan-card__stat-label">
-              ({artisan.totalReviews || 0} reviews)
-            </span>
+            <div className="artisan-card__stat-val">
+              {artisan.responseRate || 100}%
+            </div>
+            <div className="artisan-card__stat-label">Phản hồi</div>
           </div>
         </div>
 
-        {artisan.bio && (
-          <p
-            className="artisan-card__description"
-            dangerouslySetInnerHTML={{
-              __html:
-                artisan.storytelling ||
-                artisan.bio ||
-                '<p>No information updated yet</p>',
-            }}
-          />
-        )}
-
-        <button
-          className="artisan-card__btn"
-          onClick={handleViewProfile}
-          type="button"
-        >
-          View Profile & Experiences
+        <button className="btn btn--outline" style={{ width: '100%' }}>
+          Xem Hồ Sơ <ArrowRight size={16} />
         </button>
       </div>
     </div>

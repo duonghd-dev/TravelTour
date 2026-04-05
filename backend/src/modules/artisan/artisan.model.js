@@ -23,7 +23,7 @@ const artisanSchema = new Schema(
     },
 
     // 🧾 Hồ sơ chuyên nghiệp
-    bio: {
+    slogan: {
       type: String,
       default: '',
     },
@@ -92,23 +92,6 @@ const artisanSchema = new Schema(
       default: 'approved',
     },
 
-    // 📈 Thống kê hoạt động
-    totalBookings: {
-      type: Number,
-      default: 0,
-    },
-    totalGuests: {
-      type: Number,
-      default: 0,
-    },
-    ratingAverage: {
-      type: Number,
-      default: 0,
-    },
-    totalReviews: {
-      type: Number,
-      default: 0,
-    },
     responseRate: {
       type: Number,
       default: 100,

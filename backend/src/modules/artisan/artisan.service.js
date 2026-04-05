@@ -1,10 +1,54 @@
 import Artisan from './artisan.model.js';
 import User from '../user/user.model.js';
-import Experience from '../Experience/experience.model.js';
+import Experience from '../experience/experience.model.js';
+import Review from '../review/review.model.js';
+import Booking from '../booking/booking.model.js';
 import logger from '../../common/utils/logger.js';
 
 /**
- * Lấy danh sách tất cả nghệ nhân
+ * @param {string} artisanId
+ * @returns {Promise<Object>}
+ */
+const computeArtisanStats = async (artisanId) => {
+  try {
+    // Lấy tổng bookings
+    const bookings = await Booking.find({ artisanId }).lean();
+    const totalBookings = bookings.length;
+    const totalGuests = bookings.reduce(
+      (sum, b) => sum + (b.guestsCount || 0),
+      0
+    );
+
+    // Lấy ratings từ reviews
+    const reviews = await Review.find({ artisanId }).lean();
+    const totalReviews = reviews.length;
+    const ratingAverage =
+      reviews.length > 0
+        ? (
+            reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+          ).toFixed(1)
+        : 0;
+
+    return {
+      totalBookings,
+      totalGuests,
+      totalReviews,
+      ratingAverage: parseFloat(ratingAverage),
+    };
+  } catch (error) {
+    logger.error('[computeArtisanStats] Error:', error.message);
+    // Return defaults nếu có lỗi
+    return {
+      totalBookings: 0,
+      totalGuests: 0,
+      totalReviews: 0,
+      ratingAverage: 0,
+    };
+  }
+};
+
+/**
+ * Lấy danh sách tất cả nghệ nhân (with computed stats)
  */
 export const getAllArtisans = async (filters = {}) => {
   try {
@@ -25,13 +69,28 @@ export const getAllArtisans = async (filters = {}) => {
 
     const artisans = await Artisan.find(query)
       .populate('userId', 'firstName lastName avatar email phone gender')
-      .sort({ ratingAverage: -1, totalReviews: -1 })
       .lean();
+
+    // Enrich với computed stats
+    const enrichedArtisans = await Promise.all(
+      artisans.map(async (artisan) => {
+        const stats = await computeArtisanStats(artisan._id);
+        return { ...artisan, ...stats };
+      })
+    );
+
+    // Sort theo stats
+    enrichedArtisans.sort((a, b) => {
+      if (b.ratingAverage !== a.ratingAverage) {
+        return b.ratingAverage - a.ratingAverage;
+      }
+      return b.totalReviews - a.totalReviews;
+    });
 
     return {
       success: true,
       message: 'Danh sách nghệ nhân',
-      data: artisans,
+      data: enrichedArtisans,
     };
   } catch (error) {
     logger.error('[getAllArtisans] Error:', error.message);
@@ -55,23 +114,44 @@ export const getArtisanDetail = async (artisanId) => {
       throw new Error('Không tìm thấy nghệ nhân');
     }
 
-    // Lấy danh sách trải nghiệm
+    // Compute stats từ Booking & Review
+    const stats = await computeArtisanStats(artisanId);
+
+    // 1. Lấy danh sách trải nghiệm của nghệ nhân
     const experiences = await Experience.find({
       artisanId: artisanId,
       status: 'active',
-    }).lean();
+    })
+      .populate('artisanId', 'userId title craft')
+      .lean();
 
-    // Lấy danh sách reviews từ Review model (nếu có)
-    // Tạm thời trả về dữ liệu mẫu
-    const reviews = [];
+    // 2. Lấy danh sách reviews cho nghệ nhân này
+    const reviews = await Review.find({
+      artisanId: artisanId,
+    })
+      .populate('userId', 'firstName lastName avatar')
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    // 3. Lấy recommended experiences từ các artisan khác (3 experiences)
+    const recommendedExperiences = await Experience.find({
+      artisanId: { $ne: artisanId },
+      status: 'active',
+    })
+      .populate('artisanId', 'userId title craft')
+      .limit(3)
+      .lean();
 
     return {
       success: true,
       message: 'Chi tiết nghệ nhân',
       data: {
         ...artisan,
+        ...stats, // Thêm stats được tính toán
         experiences,
         reviews,
+        recommendedExperiences,
       },
     };
   } catch (error) {
@@ -147,7 +227,7 @@ export const updateArtisanProfile = async (userId, updates) => {
 };
 
 /**
- * Lấy thống kê hoạt động của nghệ nhân
+ * Lấy thống kê hoạt động của nghệ nhân (computed in real-time)
  */
 export const getArtisanStats = async (userId) => {
   try {
@@ -156,15 +236,15 @@ export const getArtisanStats = async (userId) => {
       throw new Error('Không tìm thấy hồ sơ nghệ nhân');
     }
 
+    // Compute stats từ Booking & Review collections
+    const stats = await computeArtisanStats(artisan._id);
+
     return {
       success: true,
       message: 'Thống kê hoạt động',
       data: {
-        totalBookings: artisan.totalBookings,
-        totalGuests: artisan.totalGuests,
-        ratingAverage: artisan.ratingAverage,
-        totalReviews: artisan.totalReviews,
-        responseRate: artisan.responseRate,
+        ...stats,
+        responseRate: artisan.responseRate || 100,
       },
     };
   } catch (error) {
@@ -183,7 +263,7 @@ export const searchArtisans = async (keyword, filters = {}) => {
       $or: [
         { craft: { $regex: keyword, $options: 'i' } },
         { category: { $regex: keyword, $options: 'i' } },
-        { bio: { $regex: keyword, $options: 'i' } },
+        { slogan: { $regex: keyword, $options: 'i' } },
         { province: { $regex: keyword, $options: 'i' } },
         { village: { $regex: keyword, $options: 'i' } },
       ],

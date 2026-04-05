@@ -23,15 +23,7 @@
       rgba(0, 0, 0, 0.8) 100%
     );
     width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
-    padding-top: 60px;
-    padding-bottom: 40px;
-    padding-left: max(3rem, calc(50% - 700px));
-    padding-right: max(3rem, calc(50% - 700px));
+    padding: 60px 0 40px 64px;
     color: #fff;
   }
 

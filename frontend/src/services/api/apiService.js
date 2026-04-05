@@ -121,12 +121,11 @@ class ApiService {
 
       // Log error for debugging
       if (process.env.NODE_ENV === 'development') {
-        console.error('API Error:', {
-          status,
-          message: errorData.message,
-          code: errorData.code,
-          details: errorData.details,
-        });
+        console.error('API Error - Status:', status);
+        console.error('API Error - Message:', errorData.message);
+        console.error('API Error - Code:', errorData.code);
+        console.error('API Error - Details:', errorData.details);
+        console.error('API Error - Full Response:', data);
       }
     } else if (error.request) {
       // Request made but no response

@@ -154,7 +154,13 @@ export const verifyEmail = async (userId, otp) => {
 
   // Kiểm tra OTP (trim & convert to string for comparison)
   const otpString = String(otp).trim();
-  const savedOtp = String(user.emailOTP).trim();
+  const savedOtp = String(user.emailOTP || '').trim();
+
+  console.log('🔍 OTP Verification Debug:');
+  console.log('  Received OTP:', otpString);
+  console.log('  Saved OTP:', savedOtp);
+  console.log('  Match:', savedOtp === otpString);
+
   if (savedOtp !== otpString) throw new Error('Invalid OTP');
 
   // Kiểm tra OTP hết hạn

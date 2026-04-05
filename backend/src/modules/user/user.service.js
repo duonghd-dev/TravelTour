@@ -421,9 +421,9 @@ export const createUser = async (userData) => {
       avatar: defaultAvatar,
       role,
       password: hashedPassword,
-      isEmailVerified: false, // User must verify email first
+      isEmailVerified: role === 'artisan' ? true : false, // Artisan created by admin is auto-verified
       isFirstLogin: true, // User should complete profile on first login
-      isActive: role === 'artisan' ? false : false, // Not active until email is verified
+      isActive: role === 'artisan' ? true : false, // Artisan created by admin is auto-active
       emailOTP,
       emailOTPExpire,
     });
@@ -436,7 +436,7 @@ export const createUser = async (userData) => {
         userId: newUser._id,
         category: artisanInfo.category,
         craft: artisanInfo.craft,
-        bio: artisanInfo.bio || '',
+        slogan: artisanInfo.slogan || '',
         storytelling: artisanInfo.storytelling || '',
         experienceYears: artisanInfo.experienceYears || 0,
         skills: artisanInfo.skills || [],
@@ -454,6 +454,11 @@ export const createUser = async (userData) => {
         title: artisanInfo.title || '',
         certifyingOrganization: artisanInfo.certifyingOrganization || '',
         proofImages: artisanInfo.proofImages || [],
+        avatar: artisanInfo.avatar || defaultAvatar || '',
+        images: artisanInfo.images || [],
+        generation: artisanInfo.generation || 1,
+        status: artisanInfo.status || 'approved',
+        responseRate: 100, // Auto-calculated, start at 100% for new artisans
       });
 
       await newArtisan.save();
@@ -530,10 +535,10 @@ export const updateUserById = async (userId, updateData) => {
         Object.assign(existingArtisan, {
           category: artisanInfo.category || existingArtisan.category,
           craft: artisanInfo.craft || existingArtisan.craft,
-          bio:
-            artisanInfo.bio !== undefined
-              ? artisanInfo.bio
-              : existingArtisan.bio,
+          slogan:
+            artisanInfo.slogan !== undefined
+              ? artisanInfo.slogan
+              : existingArtisan.slogan,
           storytelling:
             artisanInfo.storytelling !== undefined
               ? artisanInfo.storytelling
@@ -576,7 +581,7 @@ export const updateUserById = async (userId, updateData) => {
           userId,
           category: artisanInfo.category,
           craft: artisanInfo.craft,
-          bio: artisanInfo.bio || '',
+          slogan: artisanInfo.slogan || '',
           storytelling: artisanInfo.storytelling || '',
           experienceYears: artisanInfo.experienceYears || 0,
           skills: artisanInfo.skills || [],

@@ -21,7 +21,7 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
   const [artisanData, setArtisanData] = useState({
     category: '',
     craft: '',
-    bio: '',
+    slogan: '',
     storytelling: '',
     experienceYears: 0,
     skills: [],
@@ -39,6 +39,9 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
     title: '',
     certifyingOrganization: '',
     proofImages: [],
+    images: [],
+    generation: 1,
+    status: 'approved',
   });
 
   const handleChange = (e) => {
@@ -113,7 +116,7 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
       toast.success(`Tài khoản đã tạo thành công!`, 5000);
 
       // Reset form and close modal
-      setFormData({
+      const resetFormData = {
         firstName: '',
         lastName: '',
         email: '',
@@ -121,11 +124,11 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
         password: '',
         gender: '',
         role: 'customer',
-      });
-      setArtisanData({
+      };
+      const resetArtisanData = {
         category: '',
         craft: '',
-        bio: '',
+        slogan: '',
         storytelling: '',
         experienceYears: 0,
         skills: [],
@@ -143,7 +146,13 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
         title: '',
         certifyingOrganization: '',
         proofImages: [],
-      });
+        images: [],
+        generation: 1,
+        status: 'approved',
+      };
+
+      setFormData(resetFormData);
+      setArtisanData(resetArtisanData);
       setError('');
 
       // Call onSuccess callback to refresh users list
@@ -160,7 +169,7 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const handleClose = () => {
-    setFormData({
+    const resetFormData = {
       firstName: '',
       lastName: '',
       email: '',
@@ -168,11 +177,11 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
       password: '',
       gender: '',
       role: 'customer',
-    });
-    setArtisanData({
+    };
+    const resetArtisanData = {
       category: '',
       craft: '',
-      bio: '',
+      slogan: '',
       storytelling: '',
       experienceYears: 0,
       skills: [],
@@ -190,7 +199,13 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
       title: '',
       certifyingOrganization: '',
       proofImages: [],
-    });
+      images: [],
+      generation: 1,
+      status: 'approved',
+    };
+
+    setFormData(resetFormData);
+    setArtisanData(resetArtisanData);
     setError('');
     onClose();
   };

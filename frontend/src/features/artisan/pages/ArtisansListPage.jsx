@@ -1,241 +1,305 @@
-import { useState, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useToast } from '@/contexts';
+import React, { useState, useEffect } from 'react';
+import { Search, ChevronLeft, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ArtisanCard from '../components/ArtisanCard';
-import ArtisanFilters from '../components/ArtisanFilters';
 import { artisanApi } from '../api/artisanApi';
 import './ArtisansListPage.scss';
 
+const removeAccents = (str) => {
+  if (!str) return '';
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim();
+};
+
 const ArtisansListPage = () => {
-  const toast = useToast();
+  const navigate = useNavigate();
   const [artisans, setArtisans] = useState([]);
-  const [filteredArtisans, setFilteredArtisans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
-    category: '',
-    craft: '',
-    province: '',
+    category: 'Tất cả',
+    province: 'Tất cả',
     isVerified: false,
-    sort: 'relevance',
   });
 
-  const itemsPerPage = 12;
-
-  // Fetch artisans on mount and when filters change
   useEffect(() => {
-    loadArtisans();
-  }, [filters]);
+    const fetchArtisans = async () => {
+      try {
+        setLoading(true);
+        const response = await artisanApi.getAllArtisans();
+        const data = response.data || response || [];
+        setArtisans(data);
+      } catch (error) {
+        console.error('Lỗi khi tải danh sách nghệ nhân:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filter and search artisans
-  useEffect(() => {
-    filterAndSearchArtisans();
-    setCurrentPage(1);
-  }, [artisans, searchQuery, filters]);
+    fetchArtisans();
+  }, []);
 
-  const loadArtisans = async () => {
-    try {
-      setLoading(true);
-      const response = await artisanApi.getAllArtisans({
-        category: filters.category,
-        craft: filters.craft,
-        province: filters.province,
-        isVerified: filters.isVerified || undefined,
-      });
+  const categories = [
+    'Tất cả',
+    'Silk Weaving',
+    'Ceramics',
+    'Woodworking',
+    'Embroidery',
+  ];
+  const provinces = ['Tất cả', 'Hà Nội', 'Huế', 'Đà Nẵng', 'Hội An'];
 
-      const data = response.data || [];
-      setArtisans(data);
-    } catch (error) {
-      console.error('Error loading artisans:', error);
-      toast?.error?.('Không thể tải danh sách nghệ nhân');
-      setArtisans([]);
-    } finally {
-      setLoading(false);
-    }
+  const filteredArtisans = artisans.filter((a) => {
+    const searchStr = removeAccents(search);
+    const targetStr = removeAccents(
+      `${a.userId?.firstName} ${a.userId?.lastName} ${a.craft} ${a.category} ${a.province} ${a.village || ''}`
+    );
+    const matchSearch = targetStr.includes(searchStr);
+
+    const matchCat =
+      filters.category === 'Tất cả' || a.category === filters.category;
+    const matchProv =
+      filters.province === 'Tất cả' || a.province === filters.province;
+    const matchVer = !filters.isVerified || a.isVerified;
+
+    return matchSearch && matchCat && matchProv && matchVer;
+  });
+
+  const clearFilters = () => {
+    setSearch('');
+    setFilters({ category: 'Tất cả', province: 'Tất cả', isVerified: false });
   };
 
-  const filterAndSearchArtisans = () => {
-    let filtered = [...artisans];
-
-    // Search by name or craft
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((artisan) => {
-        const fullName =
-          `${artisan.userId?.firstName} ${artisan.userId?.lastName}`.toLowerCase();
-        const craft = artisan.craft?.toLowerCase() || '';
-        return fullName.includes(query) || craft.includes(query);
-      });
-    }
-
-    // Sort
-    if (filters.sort === 'rating') {
-      filtered.sort((a, b) => (b.ratingAverage || 0) - (a.ratingAverage || 0));
-    } else if (filters.sort === 'experience') {
-      filtered.sort(
-        (a, b) => (b.yearsOfExperience || 0) - (a.yearsOfExperience || 0)
-      );
-    } else if (filters.sort === 'reviews') {
-      filtered.sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0));
-    }
-
-    setFilteredArtisans(filtered);
+  const handleNavigate = (id) => {
+    navigate(`/artisan/${id}`);
   };
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-  };
-
-  const handleResetFilters = () => {
-    setFilters({
-      category: '',
-      craft: '',
-      province: '',
-      isVerified: false,
-      sort: 'relevance',
-    });
-    setSearchQuery('');
-  };
-
-  const handleFavoriteClick = async (artisanId) => {
-    // TODO: Implement favorite functionality
-    toast?.success?.('Đã thêm vào danh sách yêu thích');
-  };
-
-  // Pagination
-  const totalPages = Math.ceil(filteredArtisans.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedArtisans = filteredArtisans.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
 
   return (
-    <div className="artisans-page">
-      {/* Hero Section */}
-      <section className="artisans-hero">
-        <div className="artisans-hero__content">
-          <h1 className="artisans-hero__title">Discovered Masters</h1>
-          <p className="artisans-hero__subtitle">
-            Kết nối với lịch sử sủ sắc của Việt Nam thông qua sự điều luyện bên
-            bi của các nghề nhân đi sâu, những người đang gìn giữ những kỳ thuật
-            được truyền qua nhiều thế hệ.
-          </p>
-        </div>
-      </section>
-
-      {/* Search Section */}
-      <div className="artisans-page__search-section">
-        <div className="artisans-page__search-wrapper">
-          <div className="artisans-page__search-input">
-            <Search size={20} />
-            <input
-              type="text"
-              placeholder="Search artisans by name or craft..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="artisans-page__container">
-        {/* Sidebar Filters */}
-        <aside className="artisans-page__sidebar">
-          <ArtisanFilters
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onReset={handleResetFilters}
+    <div
+      style={{
+        background: 'var(--bg-main)',
+        minHeight: '100vh',
+        paddingBottom: '100px',
+        overflowX: 'hidden',
+      }}
+    >
+      {/* Hero Header */}
+      <header className="hero-header" style={{ marginBottom: '60px' }}>
+        <div className="hero-header__cover" style={{ height: '350px' }}>
+          <img
+            src="https://images.unsplash.com/photo-1518060875936-cefa7d716270?auto=format&fit=crop&w=1920&q=80"
+            alt="Hero"
           />
-        </aside>
-
-        {/* Artisans Grid */}
-        <main className="artisans-page__main">
-          {/* Results Count */}
-          <div className="artisans-page__header">
-            <h2 className="artisans-page__count">
-              {filteredArtisans.length} artisans found
-            </h2>
+        </div>
+        <div
+          className="container"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+          }}
+        >
+          <div
+            style={{ textAlign: 'center', color: 'white', maxWidth: '800px' }}
+          >
+            <h1
+              style={{
+                fontSize: '3.5rem',
+                color: 'white',
+                textShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                marginBottom: '16px',
+                fontFamily: 'var(--font-heading)',
+              }}
+            >
+              Kết Nối Di Sản
+            </h1>
+            <p style={{ fontSize: '1.2rem', opacity: 0.9, lineHeight: 1.6 }}>
+              Khám phá các nghệ nhân ưu tú và tham gia vào những trải nghiệm thủ
+              công độc bản được thiết kế riêng.
+            </p>
           </div>
+        </div>
+      </header>
 
-          {/* Loading State */}
-          {loading && (
-            <div className="artisans-page__loading">
-              <div className="spinner"></div>
-              <p>Đang tải danh sách nghệ nhân...</p>
+      <main className="container">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '280px 1fr',
+            gap: '40px',
+            alignItems: 'start',
+          }}
+        >
+          {/* Filters Sidebar */}
+          <aside className="filters-wrapper">
+            <h3
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '1.2rem',
+                marginBottom: '24px',
+              }}
+            >
+              Khám Phá
+            </h3>
+
+            <div className="search-box">
+              <Search size={20} color="var(--text-muted)" />
+              <input
+                type="text"
+                placeholder="Tên, nghề, địa danh..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && (
+                <X
+                  size={16}
+                  color="var(--text-muted)"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setSearch('')}
+                />
+              )}
             </div>
-          )}
 
-          {/* Empty State */}
-          {!loading && filteredArtisans.length === 0 && (
-            <div className="artisans-page__empty">
-              <div className="artisans-page__empty-icon">🎭</div>
-              <h3>Không tìm thấy nghệ nhân</h3>
-              <p>Hãy thử điều chỉnh bộ lọc của bạn</p>
+            <div className="filter-group">
+              <span className="filter-label">Danh Mục Nghề</span>
+              {categories.map((cat) => (
+                <label key={cat} className="filter-option">
+                  <input
+                    type="radio"
+                    name="category"
+                    checked={filters.category === cat}
+                    onChange={() => setFilters({ ...filters, category: cat })}
+                  />
+                  {cat === 'Silk Weaving'
+                    ? 'Dệt Lụa'
+                    : cat === 'Ceramics'
+                      ? 'Gốm Sứ'
+                      : cat === 'Woodworking'
+                        ? 'Mộc Mỹ Nghệ'
+                        : cat === 'Embroidery'
+                          ? 'Thêu Tay'
+                          : cat}
+                </label>
+              ))}
             </div>
-          )}
 
-          {/* Artisans Grid */}
-          {!loading && filteredArtisans.length > 0 && (
-            <>
-              <div className="artisans-grid">
-                {paginatedArtisans.map((artisan) => (
+            <div className="filter-group">
+              <span className="filter-label">Tỉnh Thành</span>
+              {provinces.map((prov) => (
+                <label key={prov} className="filter-option">
+                  <input
+                    type="radio"
+                    name="province"
+                    checked={filters.province === prov}
+                    onChange={() => setFilters({ ...filters, province: prov })}
+                  />
+                  {prov}
+                </label>
+              ))}
+            </div>
+
+            <div className="filter-group" style={{ borderBottom: 'none' }}>
+              <label className="filter-option">
+                <input
+                  type="checkbox"
+                  checked={filters.isVerified}
+                  onChange={(e) =>
+                    setFilters({ ...filters, isVerified: e.target.checked })
+                  }
+                />
+                <span style={{ fontWeight: 500, color: 'var(--text-dark)' }}>
+                  Chỉ hiện Heritage Verified
+                </span>
+              </label>
+            </div>
+
+            {(search ||
+              filters.category !== 'Tất cả' ||
+              filters.province !== 'Tất cả' ||
+              filters.isVerified) && (
+              <button
+                className="btn btn--outline"
+                style={{
+                  width: '100%',
+                  marginTop: '16px',
+                  fontSize: '0.85rem',
+                }}
+                onClick={clearFilters}
+              >
+                Xóa Bộ Lọc
+              </button>
+            )}
+          </aside>
+
+          {/* Results Grid */}
+          <div>
+            <div
+              style={{
+                marginBottom: '24px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <h2 style={{ fontSize: '1.5rem', margin: 0 }}>
+                {!loading && filteredArtisans.length > 0
+                  ? `Đã tìm thấy ${filteredArtisans.length} nghệ nhân`
+                  : 'Không có kết quả'}
+              </h2>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gap: '32px',
+              }}
+            >
+              {loading ? (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    gridColumn: '1 / -1',
+                    padding: '50px 0',
+                  }}
+                >
+                  <h3>Đang tải danh sách nghệ nhân...</h3>
+                </div>
+              ) : filteredArtisans.length > 0 ? (
+                filteredArtisans.map((artisan) => (
                   <ArtisanCard
                     key={artisan._id}
                     artisan={artisan}
-                    onFavoriteClick={handleFavoriteClick}
-                    isFavorited={false}
+                    onClick={handleNavigate}
                   />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="artisans-page__pagination">
-                  <button
-                    className="artisans-page__pagination-btn"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    type="button"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-
-                  <div className="artisans-page__pagination-pages">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (page) => (
-                        <button
-                          key={page}
-                          className={`artisans-page__pagination-page ${
-                            currentPage === page ? 'active' : ''
-                          }`}
-                          onClick={() => setCurrentPage(page)}
-                          type="button"
-                        >
-                          {page}
-                        </button>
-                      )
-                    )}
-                  </div>
-
-                  <button
-                    className="artisans-page__pagination-btn"
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    type="button"
-                  >
-                    <ChevronRight size={18} />
+                ))
+              ) : (
+                <div className="empty-state">
+                  <Search size={48} strokeWidth={1} />
+                  <h3>Không tìm thấy nghệ nhân phù hợp</h3>
+                  <p>
+                    Hãy thử thay đổi từ khóa tìm kiếm (ví dụ: tên, tỉnh thành)
+                    hoặc bỏ bớt các bộ lọc để xem thêm kết quả nhé.
+                  </p>
+                  <button className="btn btn--outline" onClick={clearFilters}>
+                    Tải lại danh sách
                   </button>
                 </div>
               )}
-            </>
-          )}
-        </main>
-      </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

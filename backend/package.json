@@ -6,7 +6,17 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed": "node src/seed/seed.js"
+    "seed": "node seed.js",
+    "seed:test": "node src/common/seeds/testConnection.js",
+    "seed:realistic": "node src/common/seeds/realisticSetup.js",
+    "seed:complete": "node src/common/seeds/completeSetup.js",
+    "seed:final": "node src/common/seeds/finalSetup.js",
+    "seed:users": "node src/common/seeds/createUsersWithIds.js",
+    "seed:dummy": "node src/common/seeds/seedDummy.js",
+    "seed:setup": "node src/common/seeds/setupDatabase.js",
+    "seed:artisans": "node src/common/seeds/artisanSeed.js",
+    "seed:experiences": "node src/common/seeds/experienceSeed.js",
+    "seed:reviews": "node src/common/seeds/reviewSeed.js"
   },
   "keywords": [],
   "author": "",

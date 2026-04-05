@@ -346,7 +346,7 @@ const HomePage = () => {
 
               <p className={styles.artisanBio}>
                 "
-                {artisan?.bio ||
+                {artisan?.slogan ||
                   'Preserving traditions through authentic experiences.'}
                 "
               </p>

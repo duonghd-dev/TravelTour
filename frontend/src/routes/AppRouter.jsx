@@ -15,7 +15,6 @@ import VerifyEmail from '../features/auth/pages/VerifyEmail/VerifyEmail';
 import OAuthSuccess from '../features/auth/pages/OAuthSuccess';
 
 // Home Pages
-import HomePage from '../features/home/pages/HomePage';
 
 // Profile Pages
 import ProfilePage from '../features/profile/pages/ProfilePage';
@@ -37,7 +36,7 @@ import {
 
 // Error Pages
 import NotFound from '../pages/NotFound';
-
+import HomePage from '@/features/home/pages/HomePage';
 /**
  * App Router
  * Centralized routing component with role-based access control

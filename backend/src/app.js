@@ -14,6 +14,9 @@ import {
 import authRoutes from './modules/auth/index.js';
 import userRoutes from './modules/user/index.js';
 import artisanRoutes from './modules/artisan/index.js';
+import experienceRoutes from './modules/experience/index.js';
+import bookingRoutes from './modules/booking/index.js';
+import reviewRoutes from './modules/review/index.js';
 import { chatRoutes } from './modules/chat/index.js';
 
 const app = express();
@@ -61,6 +64,15 @@ app.use('/api/v1/users', userRoutes);
 
 // Artisan routes
 app.use('/api/v1/artisans', artisanRoutes);
+
+// Experience routes
+app.use('/api/v1/experiences', experienceRoutes);
+
+// Booking routes
+app.use('/api/v1/bookings', bookingRoutes);
+
+// Review routes
+app.use('/api/v1/reviews', reviewRoutes);
 
 // Chat routes
 app.use('/api/v1/chat', chatRoutes);

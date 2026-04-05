@@ -170,6 +170,12 @@ const Header = () => {
                       </span>
                     </div>
                     <div className="header__profile-divider"></div>
+
+                    {user.role === 'admin' && (
+                      <Link to="/admin" className="header__profile-link">
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <Link to="/profile" className="header__profile-link">
                       My Profile
                     </Link>

@@ -50,24 +50,6 @@ const userSchema = new Schema(
       type: String,
     },
 
-    // 🔐 OAuth Providers
-    googleId: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    facebookId: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-    googleEmail: {
-      type: String,
-    },
-    facebookEmail: {
-      type: String,
-    },
-
     // 🔐 Xác thực email
     isEmailVerified: {
       type: Boolean,
@@ -75,30 +57,25 @@ const userSchema = new Schema(
     },
     emailOTP: {
       type: String,
+      default: null,
     },
     emailOTPExpire: {
       type: Date,
+      default: null,
     },
 
-    // 🔐 OTP đăng nhập (2FA)
-    loginOTP: {
-      type: String,
-    },
-    loginOTPExpire: {
-      type: Date,
-    },
+    // 🔐 2FA Status
     twoFactorEnabled: {
       type: Boolean,
       default: false,
     },
 
-    // 🔁 Quên mật khẩu
-    resetPasswordOTP: {
-      type: String,
-    },
-    resetPasswordExpire: {
-      type: Date,
-    },
+    // ℹ️ NOTE: OTP & OAuth data moved to separate collections:
+    // - EmailOTP: for email verification OTP
+    // - LoginOTP: for 2FA login OTP
+    // - PasswordResetOTP: for password reset OTP
+    // - OAuthProvider: for OAuth provider data (Google, Facebook, etc.)
+    // This follows NF3 normalization to avoid data redundancy
 
     // 👤 Role
     role: {
