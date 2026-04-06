@@ -21,11 +21,16 @@ import ProfilePage from '../features/profile/pages/ProfilePage';
 
 import { ExperiencesPage, ExperiencesDetail } from '@/features/Experiences';
 
+// Explore Pages (Tours)
+import { ExploreVietnamPage, TourDetailPage } from '@/features/explore';
+
 // Admin Pages
 import { AdminDashboard, UsersPage, SupportPage } from '@/features/admin';
 
 // Artisan Pages
 import { ArtisanDetailPage, ArtisansListPage } from '@/features/artisan';
+
+import { HotelDetailPage, HotelListPage } from '@/features/hotel';
 
 // Layouts
 import {
@@ -109,6 +114,47 @@ const AppRouter = () => {
           element={
             <MainLayout>
               <ArtisanDetailPage />
+            </MainLayout>
+          }
+        />
+
+        {/* Artisans List Page */}
+        <Route
+          path="/hotels"
+          element={
+            <MainLayout>
+              <HotelListPage />
+            </MainLayout>
+          }
+        />
+
+        {/* Artisan Detail Page */}
+        <Route
+          path="/hotels/:id"
+          element={
+            <MainLayout>
+              <HotelDetailPage />
+            </MainLayout>
+          }
+        />
+
+        {/* ==================== PUBLIC ROUTES (Tour) ==================== */}
+        {/* Explore Vietnam List Page */}
+        <Route
+          path="/explore-vietnam"
+          element={
+            <MainLayout>
+              <ExploreVietnamPage />
+            </MainLayout>
+          }
+        />
+
+        {/* Tour Detail Page */}
+        <Route
+          path="/tours/:id"
+          element={
+            <MainLayout>
+              <TourDetailPage />
             </MainLayout>
           }
         />

@@ -1,4 +1,4 @@
-import Experience from '../experience.model.js';
+import Experience from './experience.model.js';
 import Artisan from '../artisan/artisan.model.js';
 import Review from '../review/review.model.js';
 import Booking from '../booking/booking.model.js';
@@ -189,8 +189,17 @@ const computeExperienceStats = async (experienceId) => {
  */
 export const getExperienceWithStats = async (experienceId) => {
   try {
+    const User = (await import('../user/user.model.js')).default;
+
     const experience = await Experience.findById(experienceId)
-      .populate('artisanId', 'userId title craft ratingAverage')
+      .populate({
+        path: 'artisanId',
+        select: 'userId title storytelling experienceYears generation avatar',
+        populate: {
+          path: 'userId',
+          select: 'firstName lastName avatar',
+        },
+      })
       .lean();
 
     if (!experience) {
@@ -200,12 +209,51 @@ export const getExperienceWithStats = async (experienceId) => {
     // Compute stats
     const stats = await computeExperienceStats(experienceId);
 
+    // Fetch reviews with user info
+    const reviews = await Review.find({ experienceId })
+      .populate({
+        path: 'userId',
+        select: 'firstName lastName avatar',
+      })
+      .lean();
+
+    // Format guide object từ artisan
+    let guide = null;
+    if (experience.artisanId && experience.artisanId.userId) {
+      const artisan = experience.artisanId;
+      const user = artisan.userId;
+      guide = {
+        name: artisan.title || `${user.firstName} ${user.lastName}`,
+        desc: artisan.storytelling || '',
+        years: artisan.experienceYears || 0,
+        generation: artisan.generation || 0,
+        image: artisan.avatar || user.avatar || '',
+        artisanId: experience.artisanId._id,
+      };
+    }
+
+    // Format reviews array
+    const formattedReviews = reviews.map((r) => ({
+      name: r.userId
+        ? `${r.userId.firstName} ${r.userId.lastName}`
+        : 'Anonymous',
+      avatar: r.userId?.avatar || '',
+      content: r.content,
+      rating: r.rating,
+    }));
+
+    // Use images as gallery
+    const gallery = experience.images || [];
+
     return {
       success: true,
       message: 'Chi tiết trải nghiệm',
       data: {
         ...experience,
         ...stats,
+        guide,
+        gallery,
+        reviews: formattedReviews,
       },
     };
   } catch (error) {

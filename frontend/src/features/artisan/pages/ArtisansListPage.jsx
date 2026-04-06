@@ -81,7 +81,7 @@ const ArtisansListPage = () => {
   return (
     <div
       style={{
-        background: 'var(--bg-main)',
+        background: '#fdf6f0',
         minHeight: '100vh',
         paddingBottom: '100px',
         overflowX: 'hidden',

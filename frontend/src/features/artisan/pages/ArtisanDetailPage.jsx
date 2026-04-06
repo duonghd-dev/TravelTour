@@ -94,7 +94,7 @@ const ArtisanDetailPage = () => {
   return (
     <div
       style={{
-        background: 'var(--bg-main)',
+        background: '#fdf6f0',
         minHeight: '100vh',
         paddingBottom: '100px',
         overflowX: 'hidden',
@@ -119,8 +119,11 @@ const ArtisanDetailPage = () => {
                   className="hero-header__avatar"
                 />
                 {artisan.isVerified && (
-                  <div className="hero-header__badge-pos badge badge--verified">
-                    ✓ HERITAGE VERIFIED
+                  <div className="hero-header__badge-pos">
+                    <span className="hero-header__badge-icon">✓</span>
+                    <span className="hero-header__badge-text">
+                      HERITAGE VERIFIED
+                    </span>
                   </div>
                 )}
               </div>

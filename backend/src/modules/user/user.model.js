@@ -102,6 +102,25 @@ const userSchema = new Schema(
       default: true,
     },
 
+    // ❤️ Favorites
+    favorites: [
+      {
+        itemId: {
+          type: Schema.Types.ObjectId,
+          required: true,
+        },
+        itemType: {
+          type: String,
+          enum: ['experience', 'hotel', 'tour', 'artisan'],
+          required: true,
+        },
+        savedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     // 🕒 Tracking
     lastLoginAt: {
       type: Date,

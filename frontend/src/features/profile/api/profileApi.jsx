@@ -59,35 +59,15 @@ export const profileApi = {
     }
   },
 
-  // Get activity log
-  getActivityLog: async () => {
+  // Add to favorites
+  addFavorite: async (itemId, itemType) => {
     try {
-      return await apiService.get('/api/v1/users/activity-log');
-    } catch (error) {
-      const err = handleApiError(error, 'Failed to fetch activity log');
-      throw new Error(err.message);
-    }
-  },
-
-  // Update password
-  updatePassword: async (currentPassword, newPassword) => {
-    try {
-      return await apiService.put('/api/v1/users/password', {
-        currentPassword,
-        newPassword,
+      return await apiService.post('/api/v1/users/favorites', {
+        itemId,
+        itemType,
       });
     } catch (error) {
-      const err = handleApiError(error, 'Failed to update password');
-      throw new Error(err.message);
-    }
-  },
-
-  // Enable/Disable two-factor auth
-  updateTwoFactorAuth: async (enabled) => {
-    try {
-      return await apiService.put('/api/v1/users/two-factor-auth', { enabled });
-    } catch (error) {
-      const err = handleApiError(error, 'Failed to update 2FA settings');
+      const err = handleApiError(error, 'Failed to add to favorites');
       throw new Error(err.message);
     }
   },

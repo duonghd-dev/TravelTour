@@ -115,6 +115,11 @@ const experienceSchema = new Schema(
       default: '',
     },
 
+    story: {
+      type: String,
+      default: '',
+    },
+
     journey: [
       {
         title: { type: String, required: true },

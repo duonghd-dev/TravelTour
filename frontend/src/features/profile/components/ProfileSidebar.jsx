@@ -9,8 +9,8 @@ const getAvatarUrl = (avatar, gender) => {
   if (avatar && avatar.startsWith('data:')) {
     return avatar;
   }
-  // If avatar is a path string (e.g., 'assets/images/avatarDefault/maleAvatar.png')
-  if (avatar && typeof avatar === 'string') {
+  // If avatar is a valid string path, use it with / prefix
+  if (avatar && typeof avatar === 'string' && avatar.length > 0) {
     return `/${avatar}`;
   }
   // If avatar is null or empty, use default by gender
@@ -19,16 +19,36 @@ const getAvatarUrl = (avatar, gender) => {
   return maleAvatarImg; // Default to male avatar
 };
 
+// Fallback avatar based on gender
+const getDefaultAvatarByGender = (gender) => {
+  if (gender === 'male') return maleAvatarImg;
+  if (gender === 'female') return femaleAvatarImg;
+  return maleAvatarImg;
+};
+
 const ProfileSidebar = ({ user, activeSection, onSectionChange }) => {
+  const [avatarError, setAvatarError] = useState(false);
+
+  // Handle image load error - fallback to default avatar
+  const handleAvatarError = () => {
+    setAvatarError(true);
+  };
+
+  // Get avatar source
+  const avatarSrc = avatarError
+    ? getDefaultAvatarByGender(user?.gender)
+    : getAvatarUrl(user?.avatar, user?.gender);
+
   return (
     <div className={styles.sidebar}>
       {/* Profile Header */}
       <div className={styles.profileHeader}>
         <div className={styles.avatarContainer}>
           <img
-            src={getAvatarUrl(user?.avatar, user?.gender)}
+            src={avatarSrc}
             alt={user?.firstName}
             className={styles.avatar}
+            onError={handleAvatarError}
           />
           <div className={styles.badge}>✓</div>
         </div>

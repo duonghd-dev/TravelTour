@@ -1,5 +1,8 @@
 import User from './user.model.js';
 import Artisan from '../artisan/artisan.model.js';
+import Experience from '../experience/experience.model.js';
+import Hotel from '../hotel/hotel.model.js';
+import Tour from '../tour/tour.model.js';
 import { hashPassword, comparePassword } from '../../common/utils/hash.js';
 import logger from '../../common/utils/logger.js';
 import { sendOTPEmail, sendVerifyEmailLink } from '../../common/utils/email.js';
@@ -188,14 +191,99 @@ export const getHeritageJourneys = async (userId) => {
 };
 
 /**
- * Lấy danh sách favorites của user
+ * Lấy danh sách favorites của user với chi tiết đầy đủ
  */
 export const getFavorites = async (userId) => {
-  // This will be implemented when you add favorites module
-  // For now, return empty array
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const favorites = user.favorites || [];
+
+  // Populate chi tiết cho mỗi favorite dựa vào itemType
+  const populatedFavorites = await Promise.all(
+    favorites.map(async (favorite) => {
+      try {
+        let itemDetail = null;
+
+        switch (favorite.itemType) {
+          case 'experience':
+            itemDetail = await Experience.findById(favorite.itemId).lean();
+            break;
+          case 'hotel':
+            itemDetail = await Hotel.findById(favorite.itemId).lean();
+            break;
+          case 'tour':
+            itemDetail = await Tour.findById(favorite.itemId).lean();
+            break;
+          case 'artisan':
+            itemDetail = await Artisan.findById(favorite.itemId).lean();
+            break;
+        }
+
+        return {
+          _id: favorite._id,
+          itemId: favorite.itemId,
+          itemType: favorite.itemType,
+          savedAt: favorite.savedAt,
+          itemDetail: itemDetail || null,
+        };
+      } catch (error) {
+        logger.error(`Error fetching ${favorite.itemType}:`, error.message);
+        return {
+          _id: favorite._id,
+          itemId: favorite.itemId,
+          itemType: favorite.itemType,
+          savedAt: favorite.savedAt,
+          itemDetail: null,
+        };
+      }
+    })
+  );
+
   return {
     success: true,
-    data: [],
+    data: populatedFavorites,
+  };
+};
+
+/**
+ * Thêm vào favorites
+ */
+export const addFavorite = async (userId, itemId, itemType) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Kiểm tra xem favorite đó đã tồn tại chưa
+  const existingFavorite = user.favorites?.find(
+    (fav) => fav.itemId.toString() === itemId && fav.itemType === itemType
+  );
+
+  if (existingFavorite) {
+    return {
+      success: false,
+      message: 'Item already in favorites',
+    };
+  }
+
+  // Thêm favorite mới
+  user.favorites.push({
+    itemId,
+    itemType,
+    savedAt: new Date(),
+  });
+
+  await user.save();
+
+  return {
+    success: true,
+    message: 'Added to favorites successfully',
+    data: user.favorites,
   };
 };
 
@@ -203,10 +291,22 @@ export const getFavorites = async (userId) => {
  * Xóa favorite
  */
 export const removeFavorite = async (userId, favoriteId) => {
-  // This will be implemented when you add favorites module
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Tìm và xóa favorite
+  user.favorites =
+    user.favorites?.filter((fav) => fav._id.toString() !== favoriteId) || [];
+
+  await user.save();
+
   return {
     success: true,
-    message: 'Favorite removed successfully',
+    message: 'Removed from favorites successfully',
+    data: user.favorites,
   };
 };
 
@@ -394,14 +494,10 @@ export const createUser = async (userData) => {
     throw new Error('Email already exists');
   }
 
-  // Set default avatar based on gender
+  // Set default avatar based on gender (null - frontend will use imported images)
   const userGender = gender || 'other';
-  let defaultAvatar = null;
-  if (userGender === 'male') {
-    defaultAvatar = 'assets/images/avatarDefault/maleAvatar.png';
-  } else if (userGender === 'female') {
-    defaultAvatar = 'assets/images/avatarDefault/femaleAvatar.png';
-  }
+  // Avatar will be null - frontend handles default avatar by gender
+  const avatar = null;
 
   try {
     // Hash password
@@ -418,7 +514,7 @@ export const createUser = async (userData) => {
       email,
       phone: phone || '',
       gender: userGender,
-      avatar: defaultAvatar,
+      avatar: avatar,
       role,
       password: hashedPassword,
       isEmailVerified: role === 'artisan' ? true : false, // Artisan created by admin is auto-verified
@@ -454,7 +550,7 @@ export const createUser = async (userData) => {
         title: artisanInfo.title || '',
         certifyingOrganization: artisanInfo.certifyingOrganization || '',
         proofImages: artisanInfo.proofImages || [],
-        avatar: artisanInfo.avatar || defaultAvatar || '',
+        avatar: artisanInfo.avatar || null, // Use null for default avatar
         images: artisanInfo.images || [],
         generation: artisanInfo.generation || 1,
         status: artisanInfo.status || 'approved',

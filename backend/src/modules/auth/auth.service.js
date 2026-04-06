@@ -97,14 +97,10 @@ export const register = async (data) => {
   // Hash password
   const hashedPassword = await hashPassword(password);
 
-  // Set default avatar based on gender
+  // Set default avatar based on gender (null - frontend will use imported images)
   const userGender = gender || 'other';
-  let defaultAvatar = null;
-  if (userGender === 'male') {
-    defaultAvatar = 'assets/images/avatarDefault/maleAvatar.png';
-  } else if (userGender === 'female') {
-    defaultAvatar = 'assets/images/avatarDefault/femaleAvatar.png';
-  }
+  // Avatar will be null - frontend handles default avatar by gender
+  const avatar = null;
 
   try {
     // Tạo user với trạng thái chưa verify email
@@ -115,7 +111,7 @@ export const register = async (data) => {
       lastName,
       phone: phone || null,
       gender: userGender,
-      avatar: defaultAvatar,
+      avatar: avatar,
       emailOTP: otp,
       emailOTPExpire: otpExpire,
       isEmailVerified: false,

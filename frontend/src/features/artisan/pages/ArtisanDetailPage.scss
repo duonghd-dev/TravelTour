@@ -110,6 +110,39 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+
+    &:hover {
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  &__badge-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.9em;
+  }
+
+  &__badge-text {
+    display: inline-block;
   }
 
   &__info {
@@ -136,7 +169,6 @@
     font-weight: 400;
     color: #2a2a2a;
     line-height: 1;
-    font-family: 'Georgia', 'Noto Serif', serif;
     letter-spacing: -1px;
 
     @media (max-width: 768px) {
@@ -288,7 +320,6 @@
         top: -8px;
         left: 8px;
         opacity: 0.5;
-        font-family: Georgia, serif;
         line-height: 1;
       }
 
@@ -301,7 +332,6 @@
         bottom: -15px;
         right: 8px;
         opacity: 0.5;
-        font-family: Georgia, serif;
         line-height: 1;
       }
 
@@ -386,7 +416,6 @@
       top: -10px;
       left: 8px;
       opacity: 0.4;
-      font-family: Georgia, serif;
       line-height: 1;
     }
 
@@ -398,7 +427,6 @@
       bottom: -15px;
       right: 8px;
       opacity: 0.4;
-      font-family: Georgia, serif;
       line-height: 1;
     }
 
@@ -466,7 +494,6 @@
     position: absolute;
     top: -5px;
     left: 12px;
-    font-family: Georgia, serif;
     line-height: 1;
   }
 
@@ -477,7 +504,6 @@
     position: absolute;
     bottom: -15px;
     right: 12px;
-    font-family: Georgia, serif;
     line-height: 1;
   }
 }
@@ -747,7 +773,6 @@
     color: artisan.$artisan-primary;
     font-weight: 700;
     line-height: 1.4;
-    font-family: 'Serif', serif;
   }
 
   strong {
@@ -784,7 +809,6 @@
       top: -10px;
       left: 12px;
       opacity: 0.6;
-      font-family: Georgia, serif;
       line-height: 1;
     }
 
@@ -797,14 +821,12 @@
       bottom: -20px;
       right: 12px;
       opacity: 0.6;
-      font-family: Georgia, serif;
       line-height: 1;
     }
   }
 
   blockquote {
     position: relative;
-    margin: 40px 0;
     padding: 36px 44px;
     background: linear-gradient(
       135deg,
@@ -813,7 +835,6 @@
     );
     border-radius: 8px;
     border-left: 4px solid artisan.$artisan-primary;
-    font-family: 'Georgia', serif;
     font-size: 1.3rem;
     font-style: italic;
     color: artisan.$artisan-primary;
@@ -829,7 +850,6 @@
       top: -10px;
       left: 12px;
       opacity: 0.6;
-      font-family: Georgia, serif;
       line-height: 1;
     }
   }

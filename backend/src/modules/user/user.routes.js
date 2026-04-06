@@ -45,6 +45,14 @@ router.get('/activity-log', asyncHandler(userController.getActivityLog));
 // 📊 Get user stats (MUST be before /:id)
 router.get('/stats/overview', asyncHandler(userController.getUserStats));
 
+// ==================== FAVORITES ====================
+// ❤️ Get user's favorites
+router.get('/favorites', asyncHandler(userController.getFavorites));
+// ➕ Add to favorites
+router.post('/favorites', asyncHandler(userController.addFavorite));
+// ❌ Remove from favorites
+router.delete('/favorites/:id', asyncHandler(userController.removeFavorite));
+
 // ==================== ADMIN ROUTES ====================
 // 👥 Get admin user for support chat
 router.get(

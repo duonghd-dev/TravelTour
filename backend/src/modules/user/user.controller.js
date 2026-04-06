@@ -205,6 +205,32 @@ export const getFavorites = async (req, res) => {
 };
 
 /**
+ * POST /api/v1/users/favorites - Thêm vào favorites
+ */
+export const addFavorite = async (req, res) => {
+  try {
+    const { itemId, itemType } = req.body;
+
+    if (!itemId || !itemType) {
+      return res.status(400).json({
+        success: false,
+        message: 'itemId và itemType là bắt buộc',
+      });
+    }
+
+    const result = await userService.addFavorite(
+      req.user.userId,
+      itemId,
+      itemType
+    );
+    res.status(201).json(result);
+  } catch (err) {
+    logger.error('[addFavorite] Error:', err.message);
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+/**
  * DELETE /api/v1/users/favorites/:id - Xóa favorite
  */
 export const removeFavorite = async (req, res) => {

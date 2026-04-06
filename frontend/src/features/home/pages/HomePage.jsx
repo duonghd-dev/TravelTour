@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.scss';
+import axiosInstance from '@/services/axiosInstance';
 
 import bannerVideo from '@assets/video/DiscoverForVN.mp4';
 
@@ -13,6 +15,7 @@ const toDurationLabel = (minutes) => {
 };
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [experiences, setExperiences] = useState([]);
   const [artisans, setArtisans] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -21,8 +24,29 @@ const HomePage = () => {
   const [selectedCraft, setSelectedCraft] = useState('');
 
   useEffect(() => {
-    // TODO: Load data from API when available
-    setLoading(false);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch experiences, artisans, và hotels
+        const [experiencesRes, artisansRes, hotelsRes] = await Promise.all([
+          axiosInstance.get('/api/v1/experiences'),
+          axiosInstance.get('/api/v1/artisans'),
+          axiosInstance.get('/api/v1/hotels'),
+        ]);
+
+        // Set data
+        setExperiences(experiencesRes.data?.data || []);
+        setArtisans(artisansRes.data?.data || []);
+        setLocations(hotelsRes.data?.data || []);
+      } catch (error) {
+        console.error('Error fetching home data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const featuredExperiences = useMemo(
@@ -73,11 +97,44 @@ const HomePage = () => {
   }, [experiences, artisans, locations]);
 
   const handleExplore = () => {
-    // Navigate to explore/search page
+    const searchParams = new URLSearchParams();
+    if (selectedRegion) searchParams.append('region', selectedRegion);
+    if (selectedCraft) searchParams.append('craft', selectedCraft);
+    navigate(`/explore-vietnam?${searchParams.toString()}`);
   };
 
-  const getExperienceImage = (exp) => exp?.mainImage || FALLBACK_IMAGE;
-  const getExperienceLocation = (exp) => exp?.locationId?.province || 'Vietnam';
+  const handleViewAllExperiences = () => {
+    navigate('/explore-vietnam');
+  };
+
+  const handleBookExperience = (experienceId) => {
+    navigate(`/experiences/${experienceId}`);
+  };
+
+  const handleViewDetails = (experienceId) => {
+    navigate(`/experiences/${experienceId}`);
+  };
+
+  const handleArtisanClick = (artisanId) => {
+    navigate(`/artisans/${artisanId}`);
+  };
+
+  const handleExploreNow = () => {
+    navigate('/explore-vietnam');
+  };
+
+  const getExperienceImage = (exp) => {
+    return exp?.images?.[0] || exp?.mainImage || exp?.image || FALLBACK_IMAGE;
+  };
+
+  const getExperienceLocation = (exp) => {
+    return (
+      exp?.locationId?.province ||
+      exp?.location?.province ||
+      exp?.location ||
+      'Vietnam'
+    );
+  };
 
   return (
     <div className={styles.homePage}>
@@ -242,7 +299,12 @@ const HomePage = () => {
               A journey that touches the soul of traditional craft villages.
             </p>
           </div>
-          <button className={styles.viewAllButton}>View All</button>
+          <button
+            onClick={handleViewAllExperiences}
+            className={styles.viewAllButton}
+          >
+            View All
+          </button>
         </div>
 
         <div className={styles.experienceGrid}>
@@ -266,7 +328,12 @@ const HomePage = () => {
                   </span>
                 </div>
 
-                <button className={styles.bookButton}>Book Experience</button>
+                <button
+                  onClick={() => handleBookExperience(item._id)}
+                  className={styles.bookButton}
+                >
+                  Book Experience
+                </button>
               </div>
             </div>
           ))}
@@ -309,7 +376,10 @@ const HomePage = () => {
                         {exp.totalReviews || 0}+ travelers
                       </span>
                     </div>
-                    <button className={styles.detailsButton}>
+                    <button
+                      onClick={() => handleViewDetails(exp._id)}
+                      className={styles.detailsButton}
+                    >
                       View Details
                     </button>
                   </div>
@@ -328,7 +398,12 @@ const HomePage = () => {
 
         <div className={styles.artisansGrid}>
           {displayArtisans.map((artisan) => (
-            <div key={artisan._id} className={styles.artisanCard}>
+            <div
+              key={artisan._id}
+              onClick={() => handleArtisanClick(artisan._id)}
+              className={styles.artisanCard}
+              style={{ cursor: 'pointer' }}
+            >
               <div className={styles.artisanImage}>
                 <img
                   src={artisan?.userId?.avatar || FALLBACK_IMAGE}
@@ -397,7 +472,9 @@ const HomePage = () => {
             Continue the story <br /> with artisans
           </h2>
 
-          <button className={styles.ctaButton}>Explore Experiences Now</button>
+          <button onClick={handleExploreNow} className={styles.ctaButton}>
+            Explore Experiences Now
+          </button>
         </div>
       </section>
 

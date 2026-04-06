@@ -1,4 +1,5 @@
 import Experience from './experience.model.js';
+import { getExperienceWithStats } from './experience.service.js';
 import logger from '../../common/utils/logger.js';
 
 /**
@@ -39,27 +40,14 @@ export const getExperienceDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const experience = await Experience.findById(id)
-      .populate('artisanId', 'userId title craft')
-      .lean();
+    const result = await getExperienceWithStats(id);
 
-    if (!experience) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy trải nghiệm',
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Chi tiết trải nghiệm',
-      data: experience,
-    });
+    res.json(result);
   } catch (err) {
     logger.error('[getExperienceDetail] Error:', err.message);
-    res.status(500).json({
+    res.status(404).json({
       success: false,
-      message: err.message,
+      message: err.message || 'Không tìm thấy trải nghiệm',
     });
   }
 };

@@ -17,6 +17,8 @@ import artisanRoutes from './modules/artisan/index.js';
 import experienceRoutes from './modules/experience/index.js';
 import bookingRoutes from './modules/booking/index.js';
 import reviewRoutes from './modules/review/index.js';
+import hotelRoutes from './modules/hotel/index.js';
+import tourRoutes from './modules/tour/index.js';
 import { chatRoutes } from './modules/chat/index.js';
 
 const app = express();
@@ -67,6 +69,12 @@ app.use('/api/v1/artisans', artisanRoutes);
 
 // Experience routes
 app.use('/api/v1/experiences', experienceRoutes);
+
+// Hotel routes
+app.use('/api/v1/hotels', hotelRoutes);
+
+// Tour routes
+app.use('/api/v1/tours', tourRoutes);
 
 // Booking routes
 app.use('/api/v1/bookings', bookingRoutes);
