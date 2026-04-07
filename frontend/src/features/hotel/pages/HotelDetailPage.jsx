@@ -38,6 +38,31 @@ export default function HotelDetailPage() {
     return <div className="hotel-detail__error">Hotel not found</div>;
   }
 
+  const handleBooking = () => {
+    if (checkInDate && checkOutDate && guests && hotel) {
+      // Calculate nights
+      const checkIn = new Date(checkInDate);
+      const checkOut = new Date(checkOutDate);
+      const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+      const totalPrice =
+        (hotel.pricePerNight || hotel.price || 0) * nights * guests;
+
+      navigate('/checkout', {
+        state: {
+          bookingData: {
+            itemId: hotel._id,
+            itemType: 'hotel',
+            itemName: hotel.name,
+            bookingDate: checkInDate,
+            timeSlot: null,
+            guestsCount: parseInt(guests),
+            totalPrice: totalPrice,
+          },
+        },
+      });
+    }
+  };
+
   return (
     <div className="hotel-detail">
       {/* Hero Banner */}
@@ -149,7 +174,9 @@ export default function HotelDetailPage() {
           <div className="booking-box">
             <div className="booking-price">
               <span className="label">Price per night</span>
-              <span className="value">${hotel.price}</span>
+              <span className="value">
+                {new Intl.NumberFormat('vi-VN').format(hotel.price)} đ
+              </span>
             </div>
 
             <div className="booking-form">
@@ -185,7 +212,9 @@ export default function HotelDetailPage() {
               </div>
             </div>
 
-            <button className="btn-reserve">Reserve Your Stay</button>
+            <button className="btn-reserve" onClick={handleBooking}>
+              Reserve Your Stay
+            </button>
 
             <div className="booking-benefits">
               <div className="benefit">

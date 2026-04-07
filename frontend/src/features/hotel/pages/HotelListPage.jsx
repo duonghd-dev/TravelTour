@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, MapPin } from 'lucide-react';
 import { hotelService } from '../api/hotelService';
 import HotelCard from '../components/HotelCard';
@@ -7,12 +7,17 @@ import './HotelListPage.scss';
 
 export default function HotelListPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [hotels, setHotels] = useState([]);
   const [filteredHotels, setFilteredHotels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [priceRange, setPriceRange] = useState(500);
+  const [priceRange, setPriceRange] = useState(25000000);
+
+  // Check if coming from checkout
+  const fromCheckout = location.state?.fromCheckout || false;
+  const currentItems = location.state?.currentItems || [];
 
   const categories = [
     'All',
@@ -150,15 +155,15 @@ export default function HotelListPage() {
             <h4>Price Range</h4>
             <input
               type="range"
-              min="100"
-              max="500"
+              min="100000"
+              max="50000000"
               value={priceRange}
               onChange={(e) => setPriceRange(Number(e.target.value))}
               className="price-slider"
             />
             <div className="price-display">
-              <span>$100</span>
-              <span>${priceRange}</span>
+              <span>{new Intl.NumberFormat('vi-VN').format(100000)} đ</span>
+              <span>{new Intl.NumberFormat('vi-VN').format(priceRange)} đ</span>
             </div>
           </div>
 
@@ -211,6 +216,8 @@ export default function HotelListPage() {
                   key={hotel._id}
                   hotel={hotel}
                   onClick={handleNavigate}
+                  fromCheckout={fromCheckout}
+                  currentItems={currentItems}
                 />
               ))}
             </div>

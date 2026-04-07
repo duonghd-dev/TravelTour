@@ -17,6 +17,7 @@ router.patch(
 
 // Messages
 router.post('/messages', chatController.sendMessage);
+router.post('/messages/ai-response', chatController.sendAIResponse);
 router.get(
   '/conversations/:conversationId/messages',
   chatController.getMessages

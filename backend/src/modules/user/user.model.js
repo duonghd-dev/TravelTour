@@ -70,12 +70,21 @@ const userSchema = new Schema(
       default: false,
     },
 
-    // ℹ️ NOTE: OTP & OAuth data moved to separate collections:
-    // - EmailOTP: for email verification OTP
-    // - LoginOTP: for 2FA login OTP
-    // - PasswordResetOTP: for password reset OTP
-    // - OAuthProvider: for OAuth provider data (Google, Facebook, etc.)
-    // This follows NF3 normalization to avoid data redundancy
+    // 🔐 Reset Password OTP
+    resetPasswordOTP: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpire: {
+      type: Date,
+      default: null,
+    },
+
+    // ℹ️ NOTE: OTP & OAuth data architecture:
+    // - EmailOTP/EmailOTPExpire: for email verification OTP (stored on User)
+    // - resetPasswordOTP/resetPasswordExpire: for password reset OTP (stored on User)
+    // - LoginOTP: for 2FA login OTP (can be moved to separate collection if needed)
+    // - OAuthProvider: for OAuth provider data (Google, Facebook, etc.) (can be moved if needed)
 
     // 👤 Role
     role: {

@@ -18,8 +18,7 @@ export default function TourDetailPage() {
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkInDate, setCheckInDate] = useState('');
-  const [checkOutDate, setCheckOutDate] = useState('');
-  const [guests, setGuests] = useState('1');
+  const [guests, setGuests] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
@@ -28,6 +27,8 @@ export default function TourDetailPage() {
       try {
         const data = await tourService.getTourDetail(id);
         setTour(data);
+        // Set initial guests to minimum participants
+        setGuests(String(data.minParticipants || 1));
       } catch (error) {
         console.error('Error fetching tour:', error);
       } finally {
@@ -45,6 +46,44 @@ export default function TourDetailPage() {
   if (!tour) {
     return <div className="tour-detail__error">Tour not found</div>;
   }
+
+  const handleBooking = () => {
+    const guestsNumber = parseInt(guests);
+
+    // Validate guests count against tour limits
+    if (guestsNumber < tour.minParticipants) {
+      alert(`Tối thiểu ${tour.minParticipants} khách mỗi tour`);
+      return;
+    }
+
+    if (guestsNumber > tour.maxParticipants) {
+      alert(`Tối đa ${tour.maxParticipants} khách mỗi tour`);
+      return;
+    }
+
+    if (checkInDate && guests && tour) {
+      // Calculate total price based on tour duration and guests
+      const durationDays = tour.duration?.value || 1;
+      const totalPrice =
+        (tour.pricePerPerson || tour.price || 0) * durationDays * guestsNumber;
+
+      navigate('/checkout', {
+        state: {
+          bookingData: {
+            itemId: tour._id,
+            itemType: 'tour',
+            itemName: tour.title || tour.name,
+            bookingDate: checkInDate,
+            timeSlot: null,
+            guestsCount: guestsNumber,
+            totalPrice: totalPrice,
+            minParticipants: tour.minParticipants || 1,
+            maxParticipants: tour.maxParticipants || 20,
+          },
+        },
+      });
+    }
+  };
 
   return (
     <div className="tour-detail">
@@ -340,7 +379,9 @@ export default function TourDetailPage() {
           <div className="booking-box">
             <div className="booking-price">
               <span className="label">Price per person</span>
-              <span className="value">${tour.price}</span>
+              <span className="value">
+                {new Intl.NumberFormat('vi-VN').format(tour.price)} đ
+              </span>
             </div>
 
             <div className="booking-form">
@@ -354,29 +395,30 @@ export default function TourDetailPage() {
               </div>
 
               <div className="form-group">
-                <label>End Date</label>
-                <input
-                  type="date"
-                  value={checkOutDate}
-                  onChange={(e) => setCheckOutDate(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Guests</label>
+                <label>
+                  Guests ({tour.minParticipants}-{tour.maxParticipants})
+                </label>
                 <select
                   value={guests}
                   onChange={(e) => setGuests(e.target.value)}
                 >
-                  <option value="1">1 Guest</option>
-                  <option value="2">2 Guests</option>
-                  <option value="3">3 Guests</option>
-                  <option value="4">4+ Guests</option>
+                  {Array.from(
+                    {
+                      length: tour.maxParticipants - tour.minParticipants + 1,
+                    },
+                    (_, i) => tour.minParticipants + i
+                  ).map((num) => (
+                    <option key={num} value={num}>
+                      {num} {num === 1 ? 'Guest' : 'Guests'}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
-            <button className="btn-reserve">Book Tour</button>
+            <button className="btn-reserve" onClick={handleBooking}>
+              Book Tour
+            </button>
 
             <div className="booking-benefits">
               <div className="benefit">

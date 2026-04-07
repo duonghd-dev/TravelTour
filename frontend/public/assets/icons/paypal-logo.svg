@@ -1,0 +1,18 @@
+<svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <!-- PayPal background -->
+  <rect width="200" height="60" fill="none"/>
+  
+  <!-- PayPal main text -->
+  <text x="10" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#003087">
+    Pay
+  </text>
+  
+  <!-- PayPal accent -->
+  <text x="80" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#009cde">
+    Pal
+  </text>
+  
+  <!-- Decorative element -->
+  <circle cx="160" cy="25" r="8" fill="#003087"/>
+  <circle cx="175" cy="25" r="8" fill="#009cde"/>
+</svg>

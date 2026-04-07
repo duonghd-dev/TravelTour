@@ -7,14 +7,32 @@
  */
 export const validateCreateBooking = async (req, res, next) => {
   try {
-    const { experienceId, bookingDate, timeSlot, guestsCount } = req.body;
+    const {
+      tourId,
+      experienceId,
+      hotelId,
+      bookingDate,
+      timeSlot,
+      guestsCount,
+    } = req.body;
 
-    // Validate required fields
-    if (!experienceId || !bookingDate || !timeSlot || !guestsCount) {
+    // Validate required fields - need one of: tourId, experienceId, or hotelId
+    const hasItemId = tourId || experienceId || hotelId;
+
+    // Check required fields - timeSlot only required for experiences
+    if (!hasItemId || !bookingDate || !guestsCount) {
       return res.status(400).json({
         success: false,
         message:
-          'Missing required fields: experienceId, bookingDate, timeSlot, guestsCount',
+          'Missing required fields: (tourId OR experienceId OR hotelId), bookingDate, guestsCount',
+      });
+    }
+
+    // timeSlot is only required for experiences
+    if (experienceId && !timeSlot) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required field: timeSlot (required for experiences)',
       });
     }
 
@@ -35,12 +53,14 @@ export const validateCreateBooking = async (req, res, next) => {
       });
     }
 
-    // Validate timeSlot
-    if (typeof timeSlot !== 'string' || timeSlot.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        message: 'timeSlot must be a non-empty string (e.g., "08:00 AM")',
-      });
+    // Validate timeSlot - only for experiences
+    if (experienceId) {
+      if (typeof timeSlot !== 'string' || timeSlot.trim() === '') {
+        return res.status(400).json({
+          success: false,
+          message: 'timeSlot must be a non-empty string (e.g., "08:00 AM")',
+        });
+      }
     }
 
     next();

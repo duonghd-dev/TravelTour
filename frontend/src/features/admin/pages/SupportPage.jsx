@@ -272,6 +272,7 @@ const SupportPage = () => {
               disabled={sending}
               onTyping={handleTyping}
               currentUser={user}
+              conversationId={selectedConversation?._id}
             />
           </>
         ) : (

@@ -206,6 +206,8 @@ const ChatBox = () => {
                     disabled={sending}
                     onTyping={handleTyping}
                     currentUser={user}
+                    conversationId={activeConversation?._id}
+                    adminUser={adminUser}
                   />
                 </>
               )}
@@ -271,6 +273,8 @@ const ChatBox = () => {
                     onSend={handleSendMessage}
                     disabled={sending}
                     onTyping={handleTyping}
+                    currentUser={user}
+                    conversationId={activeConversation?._id}
                   />
                 </>
               )}

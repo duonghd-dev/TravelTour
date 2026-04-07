@@ -16,10 +16,12 @@ import userRoutes from './modules/user/index.js';
 import artisanRoutes from './modules/artisan/index.js';
 import experienceRoutes from './modules/experience/index.js';
 import bookingRoutes from './modules/booking/index.js';
+import paymentRoutes from './modules/payment/payment.routes.js';
 import reviewRoutes from './modules/review/index.js';
 import hotelRoutes from './modules/hotel/index.js';
 import tourRoutes from './modules/tour/index.js';
 import { chatRoutes } from './modules/chat/index.js';
+import { aiRoutes } from './modules/ai/index.js';
 
 const app = express();
 
@@ -79,11 +81,17 @@ app.use('/api/v1/tours', tourRoutes);
 // Booking routes
 app.use('/api/v1/bookings', bookingRoutes);
 
+// Payment routes
+app.use('/api/v1/payments', paymentRoutes);
+
 // Review routes
 app.use('/api/v1/reviews', reviewRoutes);
 
 // Chat routes
 app.use('/api/v1/chat', chatRoutes);
+
+// AI routes
+app.use('/api/v1/ai', aiRoutes);
 
 // 404 Handler
 app.use((req, res) => {

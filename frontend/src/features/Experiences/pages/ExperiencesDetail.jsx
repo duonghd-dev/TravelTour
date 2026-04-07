@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './ExperiencesDetail.scss';
 
 const ExperiencesDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [experience, setExperience] = useState(null);
   const [artisan, setArtisan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,6 +13,8 @@ const ExperiencesDetail = () => {
   const [date, setDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [count, setCount] = useState(1);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   // Fetch experience detail từ API
   useEffect(() => {
@@ -65,31 +68,26 @@ const ExperiencesDetail = () => {
       </div>
     );
 
-  // Generate time slots
-  const getSlotsForDate = (dateStr) => {
-    if (!dateStr) return [];
-    const day = new Date(dateStr).getDate() || 1;
-    const totalSlots = experience.maxGuests;
-
-    if (day % 3 === 0) {
-      return [
-        { id: 's1', time: '08:00 AM', available: 0, total: totalSlots },
-        { id: 's2', time: '02:00 PM', available: 4, total: totalSlots },
-      ];
-    } else if (day % 3 === 1) {
-      return [
-        { id: 's1', time: '08:00 AM', available: 8, total: totalSlots },
-        { id: 's2', time: '02:00 PM', available: 2, total: totalSlots },
-      ];
-    } else {
-      return [
-        { id: 's1', time: '08:00 AM', available: 0, total: totalSlots },
-        { id: 's2', time: '02:00 PM', available: 0, total: totalSlots },
-      ];
+  // Fetch available slots from API
+  const fetchAvailableSlots = async (selectedDate) => {
+    try {
+      setLoadingSlots(true);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const response = await fetch(
+        `${apiUrl}/api/v1/bookings/available-slots/${id}/${selectedDate}`
+      );
+      if (!response.ok) throw new Error('Failed to fetch available slots');
+      const data = await response.json();
+      setAvailableSlots(data.data || []);
+      setSelectedSlot(null); // Reset slot selection when date changes
+    } catch (err) {
+      console.error('Error fetching available slots:', err);
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
     }
   };
 
-  const availableSlots = getSlotsForDate(date);
   const isDaySoldOut =
     date &&
     availableSlots.length > 0 &&
@@ -105,9 +103,17 @@ const ExperiencesDetail = () => {
   );
 
   const handleDateChange = (e) => {
-    setDate(e.target.value);
+    const selectedDate = e.target.value;
+    setDate(selectedDate);
     setSelectedSlot(null);
     setCount(experience.minGuests);
+
+    // Fetch available slots from API for selected date
+    if (selectedDate) {
+      fetchAvailableSlots(selectedDate);
+    } else {
+      setAvailableSlots([]);
+    }
   };
 
   const handleSlotSelect = (slot) => {
@@ -119,6 +125,24 @@ const ExperiencesDetail = () => {
 
   const canBook =
     date && selectedSlot && count > 0 && experience.status === 'active';
+
+  const handleBooking = () => {
+    if (canBook && experience) {
+      navigate('/checkout', {
+        state: {
+          bookingData: {
+            itemId: experience._id,
+            itemType: 'experience',
+            itemName: experience.title,
+            bookingDate: date,
+            timeSlot: selectedSlot.time,
+            guestsCount: count,
+            totalPrice: experience.price * count,
+          },
+        },
+      });
+    }
+  };
 
   return (
     <div className="expdetail">
@@ -293,7 +317,7 @@ const ExperiencesDetail = () => {
               <div className="expdetail__booking-price">
                 <span>Total Experience</span>
                 <span className="expdetail__booking-amount">
-                  ${experience.price}
+                  {new Intl.NumberFormat('vi-VN').format(experience.price)} đ
                 </span>
                 <span className="expdetail__booking-unit">per person</span>
               </div>
@@ -336,20 +360,28 @@ const ExperiencesDetail = () => {
                 <div className="expdetail__booking-field">
                   <label>2. Select Time Slot</label>
 
-                  {isDaySoldOut ? (
+                  {loadingSlots ? (
+                    <div className="expdetail__loading-slots">
+                      ⏳ Loading available slots...
+                    </div>
+                  ) : isDaySoldOut ? (
                     <div className="expdetail__soldout-msg">
                       All slots for this day are fully booked. Please select
                       another date.
                     </div>
+                  ) : availableSlots.length === 0 ? (
+                    <div className="expdetail__no-slots-msg">
+                      No slots available for this date.
+                    </div>
                   ) : (
                     <div className="expdetail__slots">
-                      {availableSlots.map((slot) => (
+                      {availableSlots.map((slot, index) => (
                         <button
-                          key={slot.id}
+                          key={`${id}-${slot.time}-${index}`}
                           type="button"
                           disabled={slot.available === 0}
                           className={`expdetail__slot-btn ${
-                            selectedSlot?.id === slot.id
+                            selectedSlot?.time === slot.time
                               ? 'expdetail__slot-btn--selected'
                               : ''
                           }`}
@@ -359,9 +391,7 @@ const ExperiencesDetail = () => {
                             {slot.time}
                           </span>
                           <span className="expdetail__slot-spots">
-                            {slot.available === 0
-                              ? 'Sold Out'
-                              : `${slot.available}/${slot.total} slots`}
+                            {`${slot.available}/${slot.capacity} slots`}
                           </span>
                         </button>
                       ))}
@@ -398,6 +428,7 @@ const ExperiencesDetail = () => {
                   !canBook ? 'expdetail__booking-btn--disabled' : ''
                 }`}
                 disabled={!canBook}
+                onClick={handleBooking}
               >
                 {!date
                   ? 'Select a Date'

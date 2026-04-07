@@ -4,4 +4,3 @@ export { default as AdminHeader } from './Header/AdminHeader';
 export { default as Footer } from './Footer/Footer';
 export { default as MainLayout } from './MainLayout';
 export { default as AdminLayout } from './AdminLayout';
-export { default as ClientLayout } from './ClientLayout';

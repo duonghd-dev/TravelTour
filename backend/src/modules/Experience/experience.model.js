@@ -129,7 +129,15 @@ const experienceSchema = new Schema(
 
     timeSlots: [
       {
-        type: String,
+        time: {
+          type: String,
+          required: true,
+        },
+        capacity: {
+          type: Number,
+          required: true,
+          default: 8,
+        },
       },
     ],
   },

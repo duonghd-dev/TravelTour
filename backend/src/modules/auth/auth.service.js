@@ -157,7 +157,12 @@ export const verifyEmail = async (userId, otp) => {
   console.log('  Saved OTP:', savedOtp);
   console.log('  Match:', savedOtp === otpString);
 
-  if (savedOtp !== otpString) throw new Error('Invalid OTP');
+  // Allow bypass in development mode with testOTP
+  const isValidOTP =
+    savedOtp === otpString ||
+    (process.env.NODE_ENV === 'development' && otpString === '000000');
+
+  if (!isValidOTP) throw new Error('Invalid OTP');
 
   // Kiểm tra OTP hết hạn
   if (new Date() > user.emailOTPExpire) throw new Error('OTP has expired');

@@ -15,6 +15,17 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('[axiosInstance] Token added to request:', {
+        endpoint: config.url,
+        tokenExists: !!token,
+        tokenLength: token.length,
+        authHeader: config.headers.Authorization.substring(0, 20) + '...',
+      });
+    } else {
+      console.warn(
+        '[axiosInstance] No token found in localStorage for endpoint:',
+        config.url
+      );
     }
     return config;
   },

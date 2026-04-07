@@ -1,0 +1,729 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: calc(100vh - 80px);
+  background: #ffffff;
+}
+
+.header {
+  margin-bottom: 40px;
+  text-align: center;
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 0;
+  }
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+
+  .loadingSpinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #a65d43;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    color: #6b7280;
+    font-size: 16px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorMessage {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  p {
+    margin: 0;
+    flex: 1;
+  }
+
+  .retryBtn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+    white-space: nowrap;
+    margin-left: 16px;
+
+    &:hover {
+      background: #b91c1c;
+    }
+  }
+}
+
+.filterTabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+
+  .filterTab {
+    padding: 10px 20px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #a65d43;
+      color: #a65d43;
+    }
+
+    &.active {
+      background: #a65d43;
+      border-color: #a65d43;
+      color: white;
+    }
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  .emptyIcon {
+    font-size: 64px;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 12px 0;
+  }
+
+  p {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 0 0 32px 0;
+  }
+
+  .exploreBtn {
+    background: #a65d43;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #8b4a36;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(166, 93, 67, 0.2);
+    }
+  }
+}
+
+.bookingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    gap: 20px;
+  }
+}
+
+.bookingCard {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 5px solid #a65d43;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  // Border color based on status
+  &.statusPending {
+    border-left-color: #f59e0b;
+  }
+
+  &.statusConfirmed {
+    border-left-color: #10b981;
+  }
+
+  &.statusCompleted {
+    border-left-color: #6366f1;
+  }
+
+  &.statusCancelled {
+    border-left-color: #ef4444;
+  }
+
+  .cardHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    min-width: 150px;
+    border-right: 1px solid #f3f4f6;
+
+    .titleSection {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .itemTitle {
+        font-size: 12px;
+        font-weight: 700;
+        color: #6b7280;
+        margin: 0;
+        text-transform: uppercase;
+      }
+
+      .bookingId {
+        font-size: 14px;
+        color: #1f2937;
+        font-family: 'Courier New', monospace;
+        font-weight: 600;
+      }
+    }
+
+    .statusBadge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      align-self: flex-start;
+      margin-top: 4px;
+
+      &.statusPending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      &.statusConfirmed {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      &.statusCompleted {
+        background: #c7d2fe;
+        color: #3730a3;
+      }
+
+      &.statusCancelled {
+        background: #fee2e2;
+        color: #7f1d1d;
+      }
+    }
+  }
+
+  .cardContent {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid #f3f4f6;
+
+    .infoGrid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px 32px;
+      margin: 0;
+      padding: 0;
+      border: none;
+
+      .infoItem {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 0 0 auto;
+
+        .icon {
+          display: none;
+        }
+
+        .content {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+
+          .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+          }
+
+          .value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1f2937;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+
+            &.paymentStatusCompleted {
+              background: #d1fae5;
+              color: #065f46;
+            }
+
+            &.paymentStatusPending {
+              background: #fef3c7;
+              color: #92400e;
+            }
+
+            &.paymentStatusFailed {
+              background: #fee2e2;
+              color: #dc2626;
+            }
+          }
+        }
+      }
+    }
+
+    .paymentRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      border: none;
+
+      .icon {
+        display: none;
+      }
+
+      .content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+
+        .label {
+          display: none;
+        }
+
+        .value {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .paymentStatus {
+          display: inline-flex;
+          padding: 3px 10px;
+          border-radius: 3px;
+          font-weight: 700;
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          margin-left: 0;
+
+          &.completed {
+            background: #d1fae5;
+            color: #065f46;
+          }
+
+          &.pending {
+            background: #fef3c7;
+            color: #92400e;
+          }
+        }
+      }
+    }
+
+    .billingInfoSection {
+      display: none;
+    }
+  }
+
+  .cardFooter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 20px;
+    min-width: 180px;
+    gap: 12px;
+
+    .priceSection {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+
+      .priceLabel {
+        font-size: 10px;
+        color: #9ca3af;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .priceValue {
+        font-size: 18px;
+        font-weight: 700;
+        color: #a65d43;
+      }
+    }
+
+    .actionButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+
+      button {
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .viewBtn {
+        background: #1f2937;
+        color: white;
+
+        &:hover {
+          background: #111827;
+        }
+      }
+
+      .cancelBtn {
+        background: #fee2e2;
+        color: #dc2626;
+
+        &:hover {
+          background: #fecaca;
+        }
+      }
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .bookingCard {
+    flex-direction: column;
+
+    .cardHeader {
+      border-right: none;
+      border-bottom: 1px solid #f3f4f6;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+
+      .titleSection {
+        flex-direction: row;
+        gap: 12px;
+        align-items: center;
+
+        .itemTitle {
+          font-size: 12px;
+        }
+
+        .bookingId {
+          font-size: 13px;
+        }
+
+        .statusBadge {
+          font-size: 10px;
+          padding: 4px 10px;
+        }
+      }
+    }
+
+    .cardContent {
+      border-right: none;
+      border-bottom: 1px solid #f3f4f6;
+      padding: 16px;
+
+      .infoGrid {
+        flex-wrap: wrap;
+        gap: 16px 24px;
+      }
+    }
+
+    .cardFooter {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+
+      .priceSection {
+        align-items: flex-start;
+
+        .priceValue {
+          font-size: 18px;
+        }
+      }
+
+      .actionButtons {
+        flex-direction: row;
+        gap: 8px;
+        width: auto;
+
+        button {
+          flex: 0 0 auto;
+          padding: 8px 16px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 16px;
+  }
+
+  .header {
+    h1 {
+      font-size: 24px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+  }
+
+  .filterTabs {
+    gap: 8px;
+
+    .filterTab {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+  }
+
+  .bookingsList {
+    gap: 16px;
+  }
+
+  .bookingCard {
+    .cardHeader {
+      padding: 14px;
+
+      .titleSection {
+        .itemTitle {
+          font-size: 11px;
+        }
+
+        .bookingId {
+          font-size: 12px;
+        }
+
+        .statusBadge {
+          font-size: 9px;
+          padding: 3px 8px;
+        }
+      }
+    }
+
+    .cardContent {
+      padding: 14px;
+
+      .infoGrid {
+        gap: 12px 20px;
+
+        .infoItem {
+          .content {
+            .label {
+              font-size: 9px;
+            }
+
+            .value {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+
+    .cardFooter {
+      padding: 12px 14px;
+      gap: 10px;
+
+      .priceSection {
+        .priceValue {
+          font-size: 16px;
+        }
+      }
+
+      .actionButtons {
+        gap: 6px;
+
+        button {
+          padding: 6px 12px;
+          font-size: 11px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    h1 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+    }
+  }
+
+  .filterTabs {
+    gap: 6px;
+    margin-bottom: 20px;
+
+    .filterTab {
+      padding: 6px 12px;
+      font-size: 11px;
+    }
+  }
+
+  .bookingsList {
+    gap: 12px;
+  }
+
+  .bookingCard {
+    border-radius: 6px;
+
+    .cardHeader {
+      padding: 12px;
+      min-width: auto;
+
+      .titleSection {
+        .itemTitle {
+          font-size: 10px;
+        }
+
+        .bookingId {
+          font-size: 11px;
+        }
+
+        .statusBadge {
+          font-size: 8px;
+          padding: 2px 6px;
+        }
+      }
+    }
+
+    .cardContent {
+      padding: 12px;
+
+      .infoGrid {
+        flex-direction: column;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        border: none;
+
+        .infoItem {
+          flex: 1 1 auto;
+
+          .content {
+            .label {
+              font-size: 8px;
+            }
+
+            .value {
+              font-size: 11px;
+            }
+          }
+        }
+      }
+    }
+
+    .cardFooter {
+      min-width: auto;
+      padding: 10px 12px;
+
+      .priceSection {
+        order: 1;
+        width: 100%;
+
+        .priceValue {
+          font-size: 14px;
+        }
+      }
+
+      .actionButtons {
+        order: 2;
+        width: 100%;
+        flex-direction: row;
+        gap: 6px;
+
+        button {
+          flex: 1;
+          padding: 6px 10px;
+          font-size: 10px;
+        }
+      }
+    }
+  }
+}

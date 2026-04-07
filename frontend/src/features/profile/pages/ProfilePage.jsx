@@ -6,6 +6,7 @@ import { profileApi } from '../api/profileApi';
 import ProfileSidebar from '../components/ProfileSidebar';
 import PersonalInformationSection from '../components/PersonalInformationSection';
 import MyHeritageJourneysSection from '../components/MyHeritageJourneysSection';
+import MyBookingsSection from '../components/MyBookingsSection';
 import SecuritySettingsSection from '../components/SecuritySettingsSection';
 import MyFavoritesSection from '../components/MyFavoritesSection';
 import styles from './ProfilePage.module.scss';
@@ -95,6 +96,7 @@ const ProfilePage = () => {
             <PersonalInformationSection user={profileData} />
           )}
           {activeSection === 'journeys' && <MyHeritageJourneysSection />}
+          {activeSection === 'bookings' && <MyBookingsSection />}
           {activeSection === 'security' && (
             <SecuritySettingsSection
               user={profileData}

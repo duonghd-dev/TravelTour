@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, MapPin, Clock, Users, Star } from 'lucide-react';
 import { profileApi } from '@/features/profile/api/profileApi';
 import './TourCard.scss';
 
 export default function TourCard({ tour, onNavigate }) {
+  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [favoriteId, setFavoriteId] = useState(null);
@@ -64,6 +66,22 @@ export default function TourCard({ tour, onNavigate }) {
     }
   };
 
+  const handleBookNow = (e) => {
+    e.stopPropagation();
+    navigate('/checkout', {
+      state: {
+        bookingData: {
+          itemId: tour._id,
+          itemType: 'tour',
+          itemName: tour.title || tour.name,
+          price: tour.price || tour.pricePerPerson,
+          minParticipants: tour.minParticipants || 1,
+          maxParticipants: tour.maxParticipants || 20,
+        },
+      },
+    });
+  };
+
   return (
     <div
       className="tour-card"
@@ -118,10 +136,14 @@ export default function TourCard({ tour, onNavigate }) {
         <div className="tour-card__price-footer">
           <div className="tour-card__price">
             <span className="tour-card__price-label">From</span>
-            <span className="tour-card__price-value">${tour.price}</span>
-            <span className="tour-card__price-unit">/{tour.priceUnit}</span>
+            <span className="tour-card__price-value">
+              {new Intl.NumberFormat('vi-VN').format(tour.price)} đ
+            </span>
+            <span className="tour-card__price-unit">{tour.priceUnit}</span>
           </div>
-          <button className="tour-card__btn-book">Book Now</button>
+          <button className="tour-card__btn-book" onClick={handleBookNow}>
+            Book Now
+          </button>
         </div>
       </div>
     </div>

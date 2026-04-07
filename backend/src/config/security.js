@@ -48,6 +48,7 @@ export const authLimiter = rateLimit({
 // General Rate Limiter
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // max requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 500 : 10000, // Higher limit for development
   message: 'Quá nhiều yêu cầu, vui lòng thử lại sau.',
+  skip: (req, res) => process.env.NODE_ENV !== 'production', // Skip rate limiting in development
 });

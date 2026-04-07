@@ -1,0 +1,958 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  background: #f8f8f8;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+    flex: 1;
+  }
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: #a65d43;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(166, 93, 67, 0.1);
+  }
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 30px;
+
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============ CART SECTION ============
+
+.cartSection {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  h2 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+  }
+}
+
+.cartItem {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fafafa;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.itemTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.titleSection {
+  flex: 1;
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 700;
+  }
+}
+
+.quickInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+
+  .icon {
+    margin-right: 4px;
+  }
+
+  .infoItem {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #666;
+
+    .icon {
+      font-size: 14px;
+    }
+  }
+}
+
+.priceSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+
+  @media (max-width: 600px) {
+    align-items: flex-start;
+  }
+}
+
+.priceValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: #a65d43;
+}
+
+.formFieldsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  input,
+  select {
+    padding: 8px 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+    color: #333;
+    text-align: center;
+    height: 36px;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #a65d43;
+      box-shadow: 0 0 0 2px rgba(166, 93, 67, 0.08);
+    }
+  }
+
+  select {
+    text-align: left;
+  }
+}
+
+.counterInput {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  background: white;
+  height: 36px;
+  box-sizing: border-box;
+
+  button {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 12px;
+    transition: all 0.2s;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: #a65d43;
+    }
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-weight: 600;
+    padding: 0;
+    font-size: 14px;
+    height: 100%;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.removeBtn {
+  background: transparent;
+  border: none;
+  color: #d32f2f;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #ffebee;
+  }
+}
+
+.badge {
+  display: inline-block;
+  background: #e8f4f8;
+  color: #0277bd;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.addMoreBtn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  background: #f5f5f5;
+  border: 2px dashed #d0d0d0;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #a65d43;
+    color: #a65d43;
+    background: #fff8f6;
+  }
+}
+
+.emptyCart {
+  background: white;
+  padding: 60px 24px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  p {
+    margin: 0 0 20px 0;
+    color: #666;
+    font-size: 16px;
+  }
+}
+
+.addBtn {
+  background: #a65d43;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #8b4a35;
+  }
+}
+
+// ============ HOTEL DETAILS SECTION ============
+
+.hotelDetailsSection {
+  background: linear-gradient(135deg, #f5f1ed 0%, #fff8f5 100%);
+  border: 1px solid #e8dcd3;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.detailsTitle {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b4a35;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hotelInfo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid #a65d43;
+
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #a65d43;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .value {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+  }
+}
+
+.amenitiesBlock {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e8dcd3;
+
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #a65d43;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: block;
+    margin-bottom: 8px;
+  }
+}
+
+.amenitiesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.amenityTag {
+  display: inline-block;
+  background: white;
+  color: #5a5a5a;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #e0d5cc;
+  white-space: nowrap;
+}
+
+// ============ TOUR DETAILS SECTION ============
+
+.tourDetailsSection {
+  background: linear-gradient(135deg, #f0f3f7 0%, #f7f9fc 100%);
+  border: 1px solid #d4dde8;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.tourOverview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.overviewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid #2c5aa0;
+}
+
+.overviewLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2c5aa0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.overviewValue {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+}
+
+.highlightsBlock,
+.itineraryBlock,
+.includedBlock,
+.bringBlock {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #d4dde8;
+}
+
+.blockTitle {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2c5aa0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.highlightsList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.highlightItem {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: white;
+  border-radius: 4px;
+  border-left: 2px solid #2c5aa0;
+  font-size: 12px;
+}
+
+.highlightIcon {
+  font-size: 16px;
+  min-width: 20px;
+}
+
+.highlightName {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.highlightDesc {
+  display: block;
+  color: #666;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.itineraryList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itineraryDay {
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  border-left: 3px solid #2c5aa0;
+  font-size: 12px;
+}
+
+.dayNumber {
+  display: inline-block;
+  background: #2c5aa0;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.dayTitle {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.dayDesc {
+  margin: 0 0 6px 0;
+  color: #666;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.activitiesList {
+  margin: 4px 0 0 12px;
+  padding-left: 0;
+  font-size: 11px;
+  color: #666;
+  list-style: none;
+
+  li {
+    margin-bottom: 2px;
+    position: relative;
+    padding-left: 12px;
+
+    &:before {
+      content: '•';
+      position: absolute;
+      left: 0;
+    }
+  }
+}
+
+.moreItinerary {
+  padding: 4px 6px;
+  background: #f0f3f7;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #2c5aa0;
+  font-weight: 600;
+  text-align: center;
+}
+
+.includedList,
+.bringList {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12px;
+  color: #333;
+  list-style: disc;
+
+  li {
+    margin-bottom: 4px;
+    color: #666;
+  }
+}
+
+// ============ MODAL SECTION ============
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modalContent {
+  position: relative;
+  z-index: 1001;
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin: 0 0 24px 0;
+    font-size: 20px;
+    color: #333;
+    text-align: center;
+    font-weight: 600;
+  }
+}
+
+.modalOptions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.optionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+
+  &:hover {
+    border-color: #a65d43;
+    background: #fff8f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(166, 93, 67, 0.15);
+  }
+}
+
+.optionIcon {
+  font-size: 40px;
+}
+
+.optionLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.optionDesc {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.4;
+}
+
+.modalClose {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #e8e8e8;
+    border-color: #999;
+  }
+}
+
+// ============ FORM SECTION ============
+
+.formSection {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.billSection {
+  margin-bottom: 32px;
+
+  h2 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+  }
+}
+
+.paymentSection {
+  margin-bottom: 32px;
+
+  h2 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+  }
+}
+
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fee;
+  color: #c33;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+
+  label {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  input {
+    padding: 12px 14px;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #a65d43;
+      box-shadow: 0 0 0 3px rgba(166, 93, 67, 0.1);
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+}
+
+.paymentMethods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+
+  input[type='radio'] {
+    cursor: pointer;
+    accent-color: #a65d43;
+    margin: 0;
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &:has(input[type='radio']:checked) {
+    border-color: #a65d43;
+    background: #fff8f6;
+  }
+
+  &:hover {
+    border-color: #a65d43;
+  }
+}
+
+// Bank transfer sub-options
+.bankTransferOptions {
+  background: #f5f0ed;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  animation: slideDown 0.3s ease;
+
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bankMethods {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bankOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+
+  input[type='radio'] {
+    cursor: pointer;
+    accent-color: #a65d43;
+    margin: 0;
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &:has(input[type='radio']:checked) {
+    border-color: #a65d43;
+    background: #fff8f6;
+  }
+
+  &:hover {
+    border-color: #a65d43;
+  }
+}
+
+.bankLogo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.totalSection {
+  border-top: 2px solid #e0e0e0;
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  span {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+  }
+}
+
+.totalAmount {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: #a65d43 !important;
+}
+
+.submitBtn {
+  padding: 14px 24px;
+  background: #a65d43;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    background: #8b4a35;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(166, 93, 67, 0.3);
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}

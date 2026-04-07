@@ -6,7 +6,7 @@ import logger from '../../common/utils/logger.js';
  */
 export const getUserBookings = async (req, res) => {
   try {
-    const { userId } = req.user._id;
+    const userId = req.user._id;
     const result = await bookingService.getUserBookings(userId);
 
     res.json(result);
@@ -85,6 +85,49 @@ export const cancelBooking = async (req, res) => {
     res.json(result);
   } catch (err) {
     logger.error('[cancelBooking] Error:', err.message);
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+/**
+ * Confirm payment for booking
+ */
+export const confirmPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { transactionId, paymentMethod } = req.body;
+    const userId = req.user._id;
+
+    const result = await bookingService.confirmPayment(id, userId, {
+      transactionId,
+      paymentMethod,
+    });
+
+    res.json(result);
+  } catch (err) {
+    logger.error('[confirmPayment] Error:', err.message);
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+/**
+ * Lấy số slot còn trống cho một ngày cụ thể
+ * GET /api/v1/bookings/available-slots/:experienceId/:date
+ */
+export const getAvailableSlots = async (req, res) => {
+  try {
+    const { experienceId, date } = req.params;
+    const result = await bookingService.getAvailableSlots(experienceId, date);
+
+    res.json(result);
+  } catch (err) {
+    logger.error('[getAvailableSlots] Error:', err.message);
     res.status(400).json({
       success: false,
       message: err.message,

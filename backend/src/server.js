@@ -1,9 +1,15 @@
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load .env TRƯỚC import app
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Dynamic import để đảm bảo .env được load trước
 const { default: app } = await import('./app.js');

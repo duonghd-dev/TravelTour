@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Star, MapPin, Clock, Users, Heart } from 'lucide-react';
 import { getAllExperiences } from '../../../services/api/experienceService.js';
 import { profileApi } from '@/features/profile/api/profileApi';
+import { useToast } from '@/contexts';
 import './ExperiencesPage.scss';
 
 // ==========================================
 // COMPONENT EXPERIENCE CARD
 // ==========================================
-const ExperienceCard = ({ experience }) => {
+const ExperienceCard = ({
+  experience,
+  fromCheckout = false,
+  currentItems = [],
+}) => {
   const navigate = useNavigate();
+  const { showWarning } = useToast();
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteId, setFavoriteId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -83,6 +89,48 @@ const ExperienceCard = ({ experience }) => {
     navigate(`/experiences/${experience._id}`);
   };
 
+  const handleBookNow = (e) => {
+    e.stopPropagation();
+
+    // Check if adding experience when tour already exists
+    if (fromCheckout && currentItems && currentItems.length > 0) {
+      const hasTour = currentItems.some((item) => item.itemType === 'tour');
+
+      if (hasTour) {
+        showWarning(
+          '⚠️ Tour đã bao gồm lịch trình đầy đủ. Bạn không thể thêm trải nghiệm khác!',
+          5000
+        );
+        return; // Don't proceed
+      }
+    }
+
+    const bookingData = {
+      itemId: experience._id,
+      itemType: 'experience',
+      itemName: experience.title,
+      price: experience.price,
+    };
+
+    if (fromCheckout) {
+      // Add to existing cart instead of replacing
+      navigate('/checkout', {
+        state: {
+          bookingData,
+          addToCart: true,
+          currentItems: currentItems,
+        },
+      });
+    } else {
+      // Normal booking - replace the cart
+      navigate('/checkout', {
+        state: {
+          bookingData,
+        },
+      });
+    }
+  };
+
   // Xử lý dữ liệu từ backend
   const rating = experience.ratingAverage || 4.5;
   const reviewCount = experience.totalReviews || 0;
@@ -150,7 +198,7 @@ const ExperienceCard = ({ experience }) => {
           <div className="experience-card__timeslots">
             {experience.timeSlots.map((slot, index) => (
               <span key={index} className="slot">
-                {slot}
+                {typeof slot === 'string' ? slot : slot.time}
               </span>
             ))}
           </div>
@@ -167,11 +215,13 @@ const ExperienceCard = ({ experience }) => {
           <div className="experience-card__price">
             <span className="label">Giá từ</span>
             <div className="value">
-              ${experience.price}
+              {new Intl.NumberFormat('vi-VN').format(experience.price)} đ
               <span className="unit">/người</span>
             </div>
           </div>
-          <button className="experience-card__book-btn">Đặt Chỗ Ngay</button>
+          <button className="experience-card__book-btn" onClick={handleBookNow}>
+            Đặt Chỗ Ngay
+          </button>
         </div>
       </div>
     </div>
@@ -182,9 +232,14 @@ const ExperienceCard = ({ experience }) => {
 // MAIN PAGE COMPONENT
 // ==========================================
 export default function ExperiencesPage() {
+  const location = useLocation();
   const [experiences, setExperiences] = useState([]);
   const [filteredExperiences, setFilteredExperiences] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Check if coming from checkout
+  const fromCheckout = location.state?.fromCheckout || false;
+  const currentItems = location.state?.currentItems || [];
 
   // Filter states
   const [activeCategory, setActiveCategory] = useState('Tất cả');
@@ -400,7 +455,12 @@ export default function ExperiencesPage() {
             <>
               <div className="experiences-page__grid">
                 {filteredExperiences.slice(0, displayCount).map((exp) => (
-                  <ExperienceCard key={exp._id} experience={exp} />
+                  <ExperienceCard
+                    key={exp._id}
+                    experience={exp}
+                    fromCheckout={fromCheckout}
+                    currentItems={currentItems}
+                  />
                 ))}
               </div>
             </>

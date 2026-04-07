@@ -112,7 +112,7 @@ const ExperienceCard = ({ experience }) => {
         </p>
         <div className="experience-card__footer">
           <span className="experience-card__price">
-            ${experience.price}{' '}
+            {new Intl.NumberFormat('vi-VN').format(experience.price)} đ{' '}
             <span className="experience-card__per">/ person</span>
           </span>
           <button className="experience-card__btn">Book Experience</button>

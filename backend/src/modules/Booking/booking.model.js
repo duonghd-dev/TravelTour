@@ -4,10 +4,21 @@ const { Schema, model } = mongoose;
 
 const bookingSchema = new Schema(
   {
+    // Item references - support experiences, tours, hotels
     experienceId: {
       type: Schema.Types.ObjectId,
       ref: 'Experience',
-      required: true,
+      default: null, // Optional - can be null for tours/hotels
+    },
+    tourId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Tour',
+      default: null, // Optional - only for tour bookings
+    },
+    hotelId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Hotel',
+      default: null, // Optional - only for hotel bookings
     },
     userId: {
       type: Schema.Types.ObjectId,
@@ -17,17 +28,18 @@ const bookingSchema = new Schema(
     artisanId: {
       type: Schema.Types.ObjectId,
       ref: 'Artisan',
-      required: true,
+      default: null, // Optional - only for experiences with artisans
     },
     // Ngày khách chọn đi tour
     bookingDate: {
       type: Date,
       required: true,
     },
-    // Khung giờ khách chọn (VD: '08:00 AM')
+    // Khung giờ khách chọn (VD: '08:00 AM') - only for experiences
     timeSlot: {
       type: String,
-      required: true,
+      default: null, // Optional - only required for experiences
+      required: false,
     },
     // Số lượng khách
     guestsCount: {
@@ -45,6 +57,46 @@ const bookingSchema = new Schema(
       type: String,
       enum: ['pending', 'confirmed', 'cancelled', 'completed'],
       default: 'pending',
+    },
+    // 💳 PAYMENT FIELDS
+    paymentMethod: {
+      type: String,
+      enum: ['credit_card', 'bank_transfer', 'cash', 'vnpay', 'paypal'],
+      required: true,
+    },
+    paymentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Payment',
+      default: null,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'completed', 'failed', 'refunded'],
+      default: 'pending',
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
+
+    // 📋 BILLING INFO
+    billingInfo: {
+      fullName: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+      phone: {
+        type: String,
+        required: true,
+      },
+      address: {
+        type: String,
+        default: '',
+      },
     },
   },
   { timestamps: true }

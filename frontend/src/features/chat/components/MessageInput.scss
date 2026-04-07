@@ -89,6 +89,35 @@
       }
     }
 
+    .ai-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover:not(:disabled) {
+        transform: scale(1.25) rotate(-10deg);
+        filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.3));
+      }
+
+      &:active:not(:disabled) {
+        transform: scale(1.15) rotate(-10deg);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
     .send-btn {
       width: 32px;
       height: 32px;

@@ -10,8 +10,13 @@ import AppRouter from '@/routes/AppRouter';
 import { useAuth } from '@/hooks';
 
 function AppContent() {
-  const { token, user } = useAuth();
+  const { token, user, isLoading } = useAuth();
   const enableChatBox = import.meta.env.VITE_ENABLE_CHATBOX !== 'false';
+
+  // Chờ token load từ localStorage trước khi render SocketProvider
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ChatProvider>

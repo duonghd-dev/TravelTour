@@ -13,7 +13,7 @@ export default function ExploreVietnamPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('All');
   const [selectedDuration, setSelectedDuration] = useState('All');
-  const [priceRange, setPriceRange] = useState(300);
+  const [priceRange, setPriceRange] = useState(15000000);
 
   const regions = ['All', 'North', 'Central', 'South'];
   const durations = [
@@ -142,15 +142,15 @@ export default function ExploreVietnamPage() {
             <h4>Price Range</h4>
             <input
               type="range"
-              min="0"
-              max="300"
+              min="300000"
+              max="30000000"
               value={priceRange}
               onChange={(e) => setPriceRange(Number(e.target.value))}
               className="price-slider"
             />
             <div className="price-display">
-              <span>${0}</span>
-              <span>${priceRange}</span>
+              <span>{new Intl.NumberFormat('vi-VN').format(300000)} đ</span>
+              <span>{new Intl.NumberFormat('vi-VN').format(priceRange)} đ</span>
             </div>
           </div>
 

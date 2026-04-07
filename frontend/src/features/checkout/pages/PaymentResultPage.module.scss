@@ -1,0 +1,267 @@
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  15% {
+    transform: rotate(-5deg);
+  }
+  30% {
+    transform: rotate(5deg);
+  }
+  45% {
+    transform: rotate(-5deg);
+  }
+  60% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f5f1ed 0%, #faf8f6 100%);
+
+  &.container-processing {
+    background: linear-gradient(135deg, #f5f1ed 0%, #faf8f6 100%);
+  }
+
+  &.container-success {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  }
+
+  &.container-failed {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  }
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 50px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.iconWrapper {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.icon {
+  color: #a65d43;
+}
+
+.container-success {
+  .icon {
+    color: #10b981;
+    animation: bounce 1s ease-in-out infinite;
+  }
+}
+
+.container-failed {
+  .icon {
+    color: #ef4444;
+    animation: shake 0.5s ease-in-out;
+  }
+}
+
+.status-success {
+  font-size: 32px;
+  font-weight: 700;
+  color: #10b981;
+  margin: 0 0 12px 0;
+}
+
+.status-failed {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ef4444;
+  margin: 0 0 12px 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0 0 30px 0;
+  line-height: 1.6;
+}
+
+.confirmationId {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 30px 0;
+  width: 100%;
+
+  p {
+    font-size: 12px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px 0;
+  }
+
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    word-break: break-all;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .hint {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 12px 0 0 0;
+    line-height: 1.5;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 30px;
+}
+
+.primaryBtn {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.container-failed {
+  .primaryBtn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+
+    &:hover {
+      box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+    }
+  }
+}
+
+.secondaryBtn {
+  width: 100%;
+  padding: 14px 24px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  background: white;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #a65d43;
+    color: #a65d43;
+    background: #faf9f8;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.helpText {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 20px;
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .container {
+    padding: 20px 16px;
+    min-height: auto;
+  }
+
+  .card {
+    padding: 30px 20px;
+    border-radius: 12px;
+  }
+
+  .iconWrapper {
+    margin-bottom: 20px;
+  }
+
+  .status-success,
+  .status-failed {
+    font-size: 26px;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .confirmationId {
+    padding: 16px;
+    margin: 20px 0;
+
+    code {
+      font-size: 14px;
+    }
+  }
+
+  .actions {
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  .helpText {
+    font-size: 12px;
+    margin-top: 16px;
+  }
+}

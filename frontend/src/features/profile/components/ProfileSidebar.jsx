@@ -85,6 +85,13 @@ const ProfileSidebar = ({ user, activeSection, onSectionChange }) => {
           My Heritage Journeys
         </button>
         <button
+          className={`${styles.menuItem} ${activeSection === 'bookings' ? styles.active : ''}`}
+          onClick={() => onSectionChange('bookings')}
+        >
+          <span className={styles.icon}>📅</span>
+          My Bookings
+        </button>
+        <button
           className={`${styles.menuItem} ${activeSection === 'favorites' ? styles.active : ''}`}
           onClick={() => onSectionChange('favorites')}
         >

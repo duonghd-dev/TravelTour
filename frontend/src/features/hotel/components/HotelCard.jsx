@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, MapPin, Star } from 'lucide-react';
 import { profileApi } from '@/features/profile/api/profileApi';
+import { useToast } from '@/contexts';
 import './HotelCard.scss';
 
-const HotelCard = ({ hotel, onClick }) => {
+const HotelCard = ({
+  hotel,
+  onClick,
+  fromCheckout = false,
+  currentItems = [],
+}) => {
+  const navigate = useNavigate();
+  const { showWarning } = useToast();
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [favoriteId, setFavoriteId] = useState(null);
@@ -65,6 +74,48 @@ const HotelCard = ({ hotel, onClick }) => {
     }
   };
 
+  const handleBookNow = (e) => {
+    e.stopPropagation();
+
+    // Check if adding hotel when tour already exists
+    if (fromCheckout && currentItems && currentItems.length > 0) {
+      const hasTour = currentItems.some((item) => item.itemType === 'tour');
+
+      if (hasTour) {
+        showWarning(
+          '⚠️ Tour đã bao gồm khách sạn và lịch trình đầy đủ. Bạn không thể thêm khách sạn khác!',
+          5000
+        );
+        return; // Don't proceed
+      }
+    }
+
+    const bookingData = {
+      itemId: hotel._id,
+      itemType: 'hotel',
+      itemName: hotel.name,
+      price: hotel.price,
+    };
+
+    if (fromCheckout) {
+      // Add to existing cart instead of replacing
+      navigate('/checkout', {
+        state: {
+          bookingData,
+          addToCart: true,
+          currentItems: currentItems,
+        },
+      });
+    } else {
+      // Normal booking - replace the cart
+      navigate('/checkout', {
+        state: {
+          bookingData,
+        },
+      });
+    }
+  };
+
   return (
     <div className="hotel-card" onClick={() => onClick(hotel._id)}>
       <div className="hotel-card__image-wrap">
@@ -99,10 +150,14 @@ const HotelCard = ({ hotel, onClick }) => {
         <div className="hotel-card__footer">
           <div className="hotel-card__price">
             <span className="label">From</span>
-            <span className="value">${hotel.price}</span>
+            <span className="value">
+              {new Intl.NumberFormat('vi-VN').format(hotel.price)} đ
+            </span>
             <span className="unit">/{hotel.priceUnit}</span>
           </div>
-          <button className="hotel-card__book-btn">Book Now</button>
+          <button className="hotel-card__book-btn" onClick={handleBookNow}>
+            Book Now
+          </button>
         </div>
       </div>
     </div>

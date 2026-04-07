@@ -149,6 +149,7 @@ $accent-gold: #d4af37;
 
 .tour-card__price-footer {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
@@ -158,7 +159,9 @@ $accent-gold: #d4af37;
 
 .tour-card__price {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
+
   gap: 4px;
 }
 

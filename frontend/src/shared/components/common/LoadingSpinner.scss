@@ -2,14 +2,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 100px;
+  margin-bottom: 20px;
 }
 
 .spinner {
   width: 50px;
   height: 50px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #a67566;
+  border-top: 4px solid #a65d43;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

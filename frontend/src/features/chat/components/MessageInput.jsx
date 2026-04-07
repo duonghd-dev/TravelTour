@@ -1,7 +1,15 @@
 import React, { useState, useRef } from 'react';
+import aiService from '@/services/api/aiService';
 import './MessageInput.scss';
 
-const MessageInput = ({ onSend, disabled = false, onTyping, currentUser }) => {
+const MessageInput = ({
+  onSend,
+  disabled = false,
+  onTyping,
+  currentUser,
+  conversationId,
+  adminUser,
+}) => {
   const [message, setMessage] = useState('');
   const [attachments, setAttachments] = useState([]);
   const fileInputRef = useRef(null);

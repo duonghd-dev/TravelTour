@@ -12,6 +12,7 @@ import RegisterPage from '../features/auth/pages/Register/RegisterPage';
 import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPassword';
 import OTPVerification from '../features/auth/pages/OTPVerification/OTPVerification';
 import VerifyEmail from '../features/auth/pages/VerifyEmail/VerifyEmail';
+import VerifyResetPassword from '../features/auth/pages/VerifyResetPassword/VerifyResetPassword';
 import OAuthSuccess from '../features/auth/pages/OAuthSuccess';
 
 // Home Pages
@@ -32,16 +33,22 @@ import { ArtisanDetailPage, ArtisansListPage } from '@/features/artisan';
 
 import { HotelDetailPage, HotelListPage } from '@/features/hotel';
 
+// Checkout Pages
+import CheckoutPage from '../features/checkout/pages/CheckoutPage';
+import PaymentProcessingPage from '../features/checkout/pages/PaymentProcessingPage';
+import PaymentResultPage from '../features/checkout/pages/PaymentResultPage';
+import PaymentSuccessPage from '../features/checkout/pages/PaymentSuccessPage';
+
+// Booking Pages
+import { MyBookingsPage } from '@/features/booking';
+
 // Layouts
-import {
-  MainLayout,
-  AdminLayout,
-  ClientLayout,
-} from '@/shared/components/layout';
+import { MainLayout, AdminLayout } from '@/shared/components/layout';
 
 // Error Pages
 import NotFound from '../pages/NotFound';
 import HomePage from '@/features/home/pages/HomePage';
+import AITestPage from '../pages/AITestPage';
 /**
  * App Router
  * Centralized routing component with role-based access control
@@ -58,9 +65,16 @@ const AppRouter = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route
+          path="/verify-reset-password"
+          element={<VerifyResetPassword />}
+        />
         <Route path="/auth/oauth-success" element={<OAuthSuccess />} />
 
         {/* ==================== PUBLIC ROUTES (Main) ==================== */}
+        {/* AI Test Page */}
+        <Route path="/ai-test" element={<AITestPage />} />
+
         <Route
           path="/"
           element={
@@ -230,6 +244,67 @@ const AppRouter = () => {
             <ProtectedRoute requiredRoles={['customer', 'artisan', 'admin']}>
               <MainLayout>
                 <ProfilePage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* My Bookings */}
+        <Route
+          path="/bookings"
+          element={
+            <ProtectedRoute requiredRoles={['customer', 'artisan', 'admin']}>
+              <MainLayout>
+                <MyBookingsPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ==================== CHECKOUT ROUTES ==================== */}
+        {/* Checkout Page */}
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute requiredRoles={['customer', 'artisan', 'admin']}>
+              <MainLayout>
+                <CheckoutPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payment Processing */}
+        <Route
+          path="/checkout/payment-processing"
+          element={
+            <ProtectedRoute requiredRoles={['customer', 'artisan', 'admin']}>
+              <MainLayout>
+                <PaymentProcessingPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payment Result */}
+        <Route
+          path="/checkout/payment-result"
+          element={
+            <ProtectedRoute requiredRoles={['customer', 'artisan', 'admin']}>
+              <MainLayout>
+                <PaymentResultPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payment Success */}
+        <Route
+          path="/payment-success"
+          element={
+            <ProtectedRoute requiredRoles={['customer', 'artisan', 'admin']}>
+              <MainLayout>
+                <PaymentSuccessPage />
               </MainLayout>
             </ProtectedRoute>
           }

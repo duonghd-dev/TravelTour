@@ -60,9 +60,6 @@ const Header = () => {
   const roleDisplay = userRole.charAt(0).toUpperCase() + userRole.slice(1);
 
   // Get user gender display
-  const userGender = user?.gender || 'other';
-  const genderDisplay =
-    userGender.charAt(0).toUpperCase() + userGender.slice(1);
 
   const getAvatarUrl = (avatar, gender) => {
     // If avatar is a data URL (base64), use it directly
@@ -164,9 +161,6 @@ const Header = () => {
                       <span className="header__menu-user-info">
                         <strong>{displayName}</strong>
                         <small>{roleDisplay}</small>
-                        <small className="header__menu-user-gender">
-                          {genderDisplay}
-                        </small>
                       </span>
                     </div>
                     <div className="header__profile-divider"></div>
