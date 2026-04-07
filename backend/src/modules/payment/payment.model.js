@@ -57,13 +57,14 @@ const paymentSchema = new Schema(
       default: 'pending',
     },
 
-    // 📝 DETAILS
+    // 📝 DETAILS (mã hóa nhạy cảm: last4Digits, cardBrand, bankCode, bankName)
     paymentDetails: {
-      last4Digits: String, // For credit card
-      cardBrand: String, // visa, mastercard, etc
-      bankCode: String, // For bank transfer
-      bankName: String,
-      notes: String,
+      type: mongoose.Schema.Types.Mixed, // { encryptedData, iv, authTag } - encrypted
+      default: null,
+    },
+    isEncrypted: {
+      type: Boolean,
+      default: false, // Flag để track nếu paymentDetails đã encrypted
     },
 
     // ⏰ TIMESTAMPS

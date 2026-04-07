@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 import logger from '../../common/utils/logger.js';
+import { decryptObject } from '../../common/utils/encryption.js';
 import Payment from './payment.model.js';
 import Booking from '../booking/booking.model.js';
 
@@ -63,19 +64,54 @@ const getAccessToken = async () => {
       )
     );
 
-    const response = await Promise.race([fetchPromise, timeoutPromise]);
+    let response;
+    try {
+      response = await Promise.race([fetchPromise, timeoutPromise]);
+    } catch (raceError) {
+      logger.error('[getAccessToken] Request failed:', raceError.message);
+      throw new Error(`PayPal OAuth request failed: ${raceError.message}`);
+    }
 
-    const responseText = await response.text();
+    let responseText;
+    try {
+      responseText = await response.text();
+    } catch (textError) {
+      logger.error(
+        '[getAccessToken] Failed to read response:',
+        textError.message
+      );
+      throw new Error('Failed to read PayPal OAuth response');
+    }
+
     console.log('[PayPal OAuth] Response status:', response.status);
     console.log('[PayPal OAuth] Response text:', responseText);
 
     if (!response.ok) {
+      logger.error('[getAccessToken] OAuth failed:', {
+        status: response.status,
+        body: responseText,
+      });
       throw new Error(
         `PayPal OAuth failed: ${response.status} - ${responseText}`
       );
     }
 
-    const data = JSON.parse(responseText);
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      logger.error(
+        '[getAccessToken] Failed to parse response:',
+        parseError.message
+      );
+      throw new Error('Failed to parse PayPal OAuth response');
+    }
+
+    if (!data.access_token) {
+      logger.error('[getAccessToken] No access token in response:', data);
+      throw new Error('PayPal OAuth did not return access token');
+    }
+
     return data.access_token;
   } catch (error) {
     logger.error('[getAccessToken] Error:', error.message);
@@ -118,16 +154,28 @@ export const createPayPalPayment = async (paymentData) => {
     console.log('  - totalPrice:', booking.totalPrice);
     console.log('  - billingInfo:', JSON.stringify(booking.billingInfo));
 
-    // Validate billing info exists
-    if (
-      !booking.billingInfo ||
-      !booking.billingInfo.email ||
-      !booking.billingInfo.fullName
-    ) {
-      console.error(
-        '[createPayPalPayment] Invalid billing info:',
-        booking.billingInfo
-      );
+    // Decrypt billing info if encrypted
+    let billingInfo = booking.billingInfo;
+    if (billingInfo && billingInfo.encryptedData) {
+      try {
+        console.log('[createPayPalPayment] Decrypting billing info...');
+        billingInfo = decryptObject(billingInfo);
+        console.log(
+          '[createPayPalPayment] Billing info decrypted successfully'
+        );
+      } catch (decryptError) {
+        logger.error('[createPayPalPayment] Decryption failed:', {
+          message: decryptError.message,
+        });
+        throw new Error(
+          `Failed to decrypt billing information: ${decryptError.message}`
+        );
+      }
+    }
+
+    // Validate billing info exists and has required fields
+    if (!billingInfo || !billingInfo.email || !billingInfo.fullName) {
+      console.error('[createPayPalPayment] Invalid billing info:', billingInfo);
       throw new Error(
         'Booking missing complete billing information (email and fullName required)'
       );
@@ -190,13 +238,11 @@ export const createPayPalPayment = async (paymentData) => {
         },
       ],
       payer: {
-        email_address: booking.billingInfo?.email || 'customer@example.com',
+        email_address: billingInfo?.email || 'customer@example.com',
         name: {
-          given_name:
-            booking.billingInfo?.fullName?.split(' ')[0] || 'Customer',
+          given_name: billingInfo?.fullName?.split(' ')[0] || 'Customer',
           surname:
-            booking.billingInfo?.fullName?.split(' ').slice(1).join(' ') ||
-            'Traveler',
+            billingInfo?.fullName?.split(' ').slice(1).join(' ') || 'Traveler',
         },
       },
       application_context: {
@@ -214,22 +260,53 @@ export const createPayPalPayment = async (paymentData) => {
       JSON.stringify(paypalOrder, null, 2)
     );
 
-    // Call PayPal Create Order API
-    const response = await fetch(`${getPayPalApiUrl()}/v2/checkout/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(paypalOrder),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`PayPal API error: ${JSON.stringify(errorData)}`);
+    let response;
+    try {
+      // Call PayPal Create Order API with error handling
+      response = await fetch(`${getPayPalApiUrl()}/v2/checkout/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(paypalOrder),
+        timeout: 10000, // 10 second timeout
+      });
+    } catch (fetchError) {
+      logger.error('[createPayPalPayment] Fetch error:', {
+        message: fetchError.message,
+        code: fetchError.code,
+      });
+      throw new Error(
+        `Network error calling PayPal API: ${fetchError.message}`
+      );
     }
 
-    const data = await response.json();
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { error: response.statusText };
+      }
+      logger.error('[createPayPalPayment] PayPal API returned error:', {
+        status: response.status,
+        error: errorData,
+      });
+      throw new Error(
+        `PayPal API error (${response.status}): ${JSON.stringify(errorData)}`
+      );
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      logger.error('[createPayPalPayment] Failed to parse PayPal response:', {
+        message: parseError.message,
+      });
+      throw new Error('Failed to parse PayPal API response');
+    }
 
     // Find approval link from links array
     const approvalUrl = data.links.find((link) => link.rel === 'approve')?.href;

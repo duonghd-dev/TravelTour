@@ -233,8 +233,9 @@ const SupportPage = () => {
 
                   <div className="conversation-preview-wrapper">
                     <p className="conversation-preview">
-                      {conv.lastMessage?.content?.substring(0, 50) ||
-                        'No messages yet'}
+                      {typeof conv.lastMessage?.content === 'string'
+                        ? conv.lastMessage.content.substring(0, 50)
+                        : 'No messages yet'}
                     </p>
 
                     {conv.unreadCount > 0 && (

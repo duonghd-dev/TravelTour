@@ -1,10 +1,22 @@
 import { Router } from 'express';
 import * as paymentController from './payment.controller.js';
 import { authenticateToken } from '../../common/middleware/auth.middleware.js';
+import {
+  enforceHttps,
+  rateLimitPayment,
+  logPaymentRequest,
+} from '../../common/middleware/security.middleware.js';
 
 const router = Router();
 
-// VNPay routes (some don't require auth)
+// 🔐 Apply security middleware to all payment routes
+router.use(logPaymentRequest); // Log all payment requests
+router.use(rateLimitPayment(10, 15 * 60 * 1000)); // Max 10 requests per 15 minutes per IP
+
+// Development mode check
+if (process.env.NODE_ENV === 'production') {
+  router.use(enforceHttps); // Enforce HTTPS in production
+}
 /**
  * POST /api/v1/payments/vnpay/create
  * Create VNPay payment URL (requires auth)

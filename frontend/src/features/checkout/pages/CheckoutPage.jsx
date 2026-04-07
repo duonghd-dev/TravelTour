@@ -384,27 +384,9 @@ const CheckoutPage = () => {
               bookingId,
               totalPrice
             );
-            console.log('[DEBUG] VNPay Response:', vnpayResponse);
-            console.log(
-              '[DEBUG] VNPay Response Keys:',
-              Object.keys(vnpayResponse || {})
-            );
             if (vnpayResponse && vnpayResponse.paymentUrl) {
-              // Redirect to VNPay payment gateway using form-based approach
-              // This is more reliable than window.location.href
-              console.log('[VNPay] Redirecting to:', vnpayResponse.paymentUrl);
-
-              // Create a temporary anchor element and click it
-              const link = document.createElement('a');
-              link.href = vnpayResponse.paymentUrl;
-              link.setAttribute('style', 'display: none;');
-              document.body.appendChild(link);
-
-              // Small delay to ensure element is in DOM
-              setTimeout(() => {
-                link.click();
-                document.body.removeChild(link);
-              }, 50);
+              // ✅ SECURE: Use direct redirect instead of createElement
+              window.location.href = vnpayResponse.paymentUrl;
             } else {
               throw new Error('VNPay payment URL not received');
             }
@@ -419,29 +401,10 @@ const CheckoutPage = () => {
               totalPrice, // Send VND amount
               'VND'
             );
-            console.log('[PayPal] Full Response:', paypalResponse);
-            console.log(
-              '[PayPal] Response Keys:',
-              Object.keys(paypalResponse || {})
-            );
-            console.log('[PayPal] approvalUrl:', paypalResponse?.approvalUrl);
 
             if (paypalResponse && paypalResponse.approvalUrl) {
-              // Redirect to PayPal using same reliable approach
-              console.log(
-                '[PayPal] Redirecting to:',
-                paypalResponse.approvalUrl
-              );
-
-              const link = document.createElement('a');
-              link.href = paypalResponse.approvalUrl;
-              link.setAttribute('style', 'display: none;');
-              document.body.appendChild(link);
-
-              setTimeout(() => {
-                link.click();
-                document.body.removeChild(link);
-              }, 50);
+              // ✅ SECURE: Use direct redirect instead of createElement
+              window.location.href = paypalResponse.approvalUrl;
             } else {
               throw new Error(
                 `PayPal approval URL not received. Response: ${JSON.stringify(paypalResponse)}`

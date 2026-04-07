@@ -3,6 +3,42 @@ import Experience from '../experience/experience.model.js';
 import User from '../user/user.model.js';
 import Artisan from '../artisan/artisan.model.js';
 import logger from '../../common/utils/logger.js';
+import { encrypt, decrypt } from '../../common/utils/encryption.js';
+
+/**
+ * Helper: Encrypt billing info
+ * @param {object} billingInfo - { fullName, email, phone, address }
+ * @returns {object} - Encrypted object { encryptedData, iv, authTag }
+ */
+const encryptBillingInfo = (billingInfo) => {
+  if (!billingInfo) return null;
+
+  try {
+    return encrypt(JSON.stringify(billingInfo));
+  } catch (error) {
+    logger.error('Failed to encrypt billing info:', error.message);
+    return billingInfo; // Fallback
+  }
+};
+
+/**
+ * Helper: Decrypt billing info
+ * @param {object} encryptedData - { encryptedData, iv, authTag }
+ * @returns {object} - Decrypted billing info
+ */
+const decryptBillingInfo = (encryptedData) => {
+  if (!encryptedData || typeof encryptedData === 'string') {
+    return encryptedData; // Fallback
+  }
+
+  try {
+    const decrypted = decrypt(encryptedData);
+    return JSON.parse(decrypted);
+  } catch (error) {
+    logger.error('Failed to decrypt billing info:', error.message);
+    return null;
+  }
+};
 
 /**
  * Lấy danh sách bookings của user
@@ -15,10 +51,23 @@ export const getUserBookings = async (userId) => {
       .sort({ createdAt: -1 })
       .lean();
 
+    // 🔐 Decrypt billing info
+    const decryptedBookings = bookings.map((booking) => {
+      if (booking.isEncrypted && booking.billingInfo) {
+        const decrypted = decryptBillingInfo(booking.billingInfo);
+        // Mask phone number khi trả về cho client
+        if (decrypted && decrypted.phone) {
+          decrypted.phone = decrypted.phone.slice(-4); // Chỉ hiển thị 4 số cuối
+        }
+        booking.billingInfo = decrypted || booking.billingInfo;
+      }
+      return booking;
+    });
+
     return {
       success: true,
       message: 'Danh sách bookings',
-      data: bookings,
+      data: decryptedBookings,
     };
   } catch (error) {
     logger.error('[getUserBookings] Error:', error.message);
@@ -89,6 +138,9 @@ export const createBooking = async (userId, bookingData) => {
     // For tours and hotels, ignore timeSlot if it's empty or undefined
     const finalTimeSlot = itemType === 'experience' ? timeSlot : undefined;
 
+    // 🔐 Encrypt billing info
+    const encryptedBillingInfo = encryptBillingInfo(billingInfo);
+
     // Handle different booking types
     if (itemType === 'experience') {
       // Kiểm tra experience tồn tại
@@ -120,7 +172,8 @@ export const createBooking = async (userId, bookingData) => {
         paymentMethod,
         paymentStatus: 'pending',
         isPaid: false,
-        billingInfo,
+        billingInfo: encryptedBillingInfo,
+        isEncrypted: true,
       });
 
       await booking.save();
@@ -151,7 +204,8 @@ export const createBooking = async (userId, bookingData) => {
         paymentMethod,
         paymentStatus: 'pending',
         isPaid: false,
-        billingInfo,
+        billingInfo: encryptedBillingInfo,
+        isEncrypted: true,
       });
 
       await booking.save();
@@ -178,7 +232,8 @@ export const createBooking = async (userId, bookingData) => {
         paymentMethod,
         paymentStatus: 'pending',
         isPaid: false,
-        billingInfo,
+        billingInfo: encryptedBillingInfo,
+        isEncrypted: true,
       });
 
       // Store checkoutDate in custom field or metadata

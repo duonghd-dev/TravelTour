@@ -119,21 +119,53 @@ export const handleWebhook = asyncHandler(async (req, res) => {
 export const createVNPayPayment = asyncHandler(async (req, res) => {
   const { bookingId, amount, clientIp, returnUrl } = req.body;
 
+  logger.info('[createVNPayPayment Controller] Received request:', {
+    bookingId,
+    amount,
+    clientIp: clientIp || req.ip,
+  });
+
   if (!bookingId || !amount) {
+    logger.warn('[createVNPayPayment] Missing required fields:', {
+      bookingId,
+      amount,
+    });
     return res.status(400).json({
       success: false,
+      code: 'INVALID_REQUEST',
       message: 'bookingId and amount are required',
     });
   }
 
-  const result = await vnpayService.createVNPayPayment({
-    bookingId,
-    amount,
-    ipAddress: clientIp || req.ip,
-    returnUrl: returnUrl,
-  });
+  try {
+    const result = await vnpayService.createVNPayPayment({
+      bookingId,
+      amount,
+      ipAddress: clientIp || req.ip,
+      returnUrl: returnUrl,
+    });
 
-  res.json(result);
+    logger.info('[createVNPayPayment] Success:', {
+      paymentId: result.paymentId,
+    });
+
+    res.json(result);
+  } catch (error) {
+    logger.error('[createVNPayPayment] Payment creation failed:', {
+      message: error.message,
+      stack: error.stack,
+      bookingId,
+      amount,
+    });
+
+    // Return detailed error to frontend for debugging
+    res.status(500).json({
+      success: false,
+      code: 'VNPAY_ERROR',
+      message: error.message || 'Failed to create VNPay payment',
+      details: process.env.NODE_ENV === 'development' ? error.message : null,
+    });
+  }
 });
 
 /**
@@ -162,22 +194,55 @@ export const verifyVNPayPayment = asyncHandler(async (req, res) => {
 export const createPayPalPayment = asyncHandler(async (req, res) => {
   const { bookingId, amount, clientIp, returnUrl, cancelUrl } = req.body;
 
+  logger.info('[createPayPalPayment Controller] Received request:', {
+    bookingId,
+    amount,
+    clientIp: clientIp || req.ip,
+  });
+
   if (!bookingId || !amount) {
+    logger.warn('[createPayPalPayment] Missing required fields:', {
+      bookingId,
+      amount,
+    });
     return res.status(400).json({
       success: false,
+      code: 'INVALID_REQUEST',
       message: 'bookingId and amount are required',
     });
   }
 
-  const result = await paypalService.createPayPalPayment({
-    bookingId,
-    amount,
-    ipAddress: clientIp || req.ip,
-    returnUrl: returnUrl,
-    cancelUrl: cancelUrl,
-  });
+  try {
+    const result = await paypalService.createPayPalPayment({
+      bookingId,
+      amount,
+      ipAddress: clientIp || req.ip,
+      returnUrl: returnUrl,
+      cancelUrl: cancelUrl,
+    });
 
-  res.json(result);
+    logger.info('[createPayPalPayment] Success:', {
+      paymentId: result.paymentId,
+      paypalOrderId: result.paypalOrderId,
+    });
+
+    res.json(result);
+  } catch (error) {
+    logger.error('[createPayPalPayment] Payment creation failed:', {
+      message: error.message,
+      stack: error.stack,
+      bookingId,
+      amount,
+    });
+
+    // Return detailed error to frontend for debugging
+    res.status(500).json({
+      success: false,
+      code: 'PAYPAL_ERROR',
+      message: error.message || 'Failed to create PayPal payment',
+      details: process.env.NODE_ENV === 'development' ? error.message : null,
+    });
+  }
 });
 
 /**

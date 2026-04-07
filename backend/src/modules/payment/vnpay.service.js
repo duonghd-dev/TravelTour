@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import querystring from 'querystring';
 import logger from '../../common/utils/logger.js';
+import { encrypt as encryptData } from '../../common/utils/encryption.js';
 import Payment from './payment.model.js';
 import Booking from '../booking/booking.model.js';
 
@@ -9,16 +10,29 @@ import Booking from '../booking/booking.model.js';
  * Handles VNPay payment gateway integration
  */
 
-// VNPay Configuration (should be from environment variables)
+// VNPay Configuration
 const VNPAY_CONFIG = {
-  vnp_TmnCode: process.env.VNP_TMN_CODE || 'HMSJ5PHJ', // Sandbox TMN code
-  vnp_HashSecret:
-    process.env.VNP_HASH_SECRET || 'AIK9R58Z6N3YPFP78XT672FYMN7E6L0G', // Sandbox hash secret
+  vnp_TmnCode: process.env.VNP_TMN_CODE,
+  vnp_HashSecret: process.env.VNP_HASH_SECRET,
   vnp_Url: 'https://vnpayment.vn',
   vnp_ReturnUrl:
     process.env.VNP_RETURN_URL ||
     'http://localhost:5173/checkout/payment-result',
 };
+
+// 🔐 Validate VNPay credentials on startup
+const validateVNPayConfig = () => {
+  if (!VNPAY_CONFIG.vnp_TmnCode || !VNPAY_CONFIG.vnp_HashSecret) {
+    const error =
+      'VNPay credentials not configured! Set VNP_TMN_CODE and VNP_HASH_SECRET in .env';
+    logger.error('❌ ' + error);
+    throw new Error(error);
+  }
+  logger.info('✅ VNPay credentials configured successfully');
+};
+
+// Validate on import
+validateVNPayConfig();
 
 /**
  * Create VNPay payment URL
@@ -93,7 +107,7 @@ export const createVNPayPayment = async (paymentData) => {
     const paymentUrl = `${VNPAY_CONFIG.vnp_Url}?${signData}&vnp_SecureHash=${hmac}`;
 
     logger.info(
-      `VNPay payment created: ${payment._id} for booking: ${bookingId}`
+      `VNPay payment created: ${payment._id} for booking: ${bookingId}, amount: ${amount}`
     );
 
     const responseData = {
@@ -103,8 +117,6 @@ export const createVNPayPayment = async (paymentData) => {
       paymentId: payment._id,
       amount: amount,
     };
-
-    logger.info('[VNPay Response]:', JSON.stringify(responseData));
 
     return responseData;
   } catch (error) {
@@ -125,6 +137,7 @@ export const verifyVNPayPayment = async (queryParams) => {
       vnp_BankCode,
       vnp_BankTranNo,
       vnp_CardType,
+      vnp_CurrCode,
       vnp_OrderInfo,
       vnp_PayDate,
       vnp_ResponseCode,
@@ -134,7 +147,25 @@ export const verifyVNPayPayment = async (queryParams) => {
       vnp_TxnRef,
     } = queryParams;
 
-    // Verify secure hash
+    // ✅ 1. VALIDATE TMN CODE (must match config)
+    if (vnp_TmnCode !== VNPAY_CONFIG.vnp_TmnCode) {
+      logger.warn('[verifyVNPayPayment] TMN Code mismatch');
+      return {
+        success: false,
+        message: 'Invalid merchant code',
+      };
+    }
+
+    // ✅ 2. VALIDATE CURRENCY CODE
+    if (vnp_CurrCode !== 'VND') {
+      logger.warn('[verifyVNPayPayment] Invalid currency code');
+      return {
+        success: false,
+        message: 'Invalid currency',
+      };
+    }
+
+    // ✅ 3. VERIFY SECURE HASH (check signature)
     const signData = Object.keys(queryParams)
       .filter((key) => key !== 'vnp_SecureHash' && key !== 'vnp_SecureHashType')
       .sort()
@@ -146,18 +177,19 @@ export const verifyVNPayPayment = async (queryParams) => {
       .update(Buffer.from(signData, 'utf-8'))
       .digest('hex');
 
-    // If hash doesn't match, payment is invalid
     if (hmac !== vnp_SecureHash) {
-      logger.warn('[verifyVNPayPayment] Invalid secure hash');
+      logger.warn(
+        '[verifyVNPayPayment] Invalid secure hash - possible tampering'
+      );
       return {
         success: false,
-        message: 'Invalid secure hash',
+        message: 'Invalid signature',
       };
     }
 
-    // Check response code
+    // ✅ 4. CHECK RESPONSE CODE
     if (vnp_ResponseCode !== '00') {
-      logger.warn(
+      logger.info(
         `[verifyVNPayPayment] Payment failed with code: ${vnp_ResponseCode}`
       );
       return {
@@ -167,41 +199,115 @@ export const verifyVNPayPayment = async (queryParams) => {
       };
     }
 
-    // Update payment record
+    // ✅ 5. FIND PAYMENT RECORD
     const payment = await Payment.findById(vnp_TxnRef);
     if (!payment) {
-      throw new Error('Payment record not found');
+      logger.error(
+        '[verifyVNPayPayment] Payment record not found:',
+        vnp_TxnRef
+      );
+      return {
+        success: false,
+        message: 'Payment record not found',
+      };
     }
 
+    // ✅ 6. IDEMPOTENCY CHECK (prevent duplicate confirmation)
+    if (payment.status === 'completed') {
+      logger.info(
+        `[verifyVNPayPayment] Payment already confirmed: ${payment._id}`
+      );
+      return {
+        success: true,
+        message: 'Payment already confirmed',
+        transactionId: payment.transactionId,
+        amount: payment.amount,
+        paymentId: payment._id,
+      };
+    }
+
+    // ✅ 7. VALIDATE AMOUNT (check if amount matches booking)
+    const expectedAmount = Math.round(payment.amount * 100); // VNPay uses smallest unit
+
+    if (parseInt(vnp_Amount) !== expectedAmount) {
+      logger.error(
+        `[verifyVNPayPayment] Amount mismatch for payment ${vnp_TxnRef}: expected ${expectedAmount}, got ${vnp_Amount}`
+      );
+
+      // Mark as failed due to amount mismatch
+      payment.status = 'failed';
+      payment.failureReason = 'Amount mismatch';
+      await payment.save();
+
+      return {
+        success: false,
+        message: 'Payment amount mismatch',
+      };
+    }
+
+    // ✅ 8. VALIDATE TRANSACTION NO EXISTS
+    if (!vnp_TransactionNo && !vnp_BankTranNo) {
+      logger.warn('[verifyVNPayPayment] No transaction number from VNPay');
+      return {
+        success: false,
+        message: 'Invalid transaction data',
+      };
+    }
+
+    // ✅ 9. ENCRYPT SENSITIVE PAYMENT DETAILS
+    let encryptedPaymentDetails = null;
+    let isEncrypted = false;
+
+    try {
+      const paymentDetails = {
+        bankCode: vnp_BankCode || '',
+        cardType: vnp_CardType || '',
+        responseCode: vnp_ResponseCode,
+        transactionDate: vnp_PayDate,
+      };
+
+      // Filter out empty values before encryption
+      Object.keys(paymentDetails).forEach((key) => {
+        if (!paymentDetails[key]) delete paymentDetails[key];
+      });
+
+      if (Object.keys(paymentDetails).length > 0) {
+        encryptedPaymentDetails = encryptData(JSON.stringify(paymentDetails));
+        isEncrypted = true;
+      }
+    } catch (encryptError) {
+      logger.error('Failed to encrypt payment details:', encryptError.message);
+      // Continue without encryption rather than fail
+      isEncrypted = false;
+    }
+
+    // ✅ 10. UPDATE PAYMENT RECORD
     payment.status = 'completed';
     payment.transactionId = vnp_TransactionNo || vnp_BankTranNo;
-    payment.transactionDate = new Date();
-    payment.paymentDetails = {
-      bankCode: vnp_BankCode,
-      cardType: vnp_CardType,
-      responseCode: vnp_ResponseCode,
-      transactionDate: vnp_PayDate,
-    };
+    payment.completedAt = new Date();
+    payment.paymentDetails = encryptedPaymentDetails;
+    payment.isEncrypted = isEncrypted;
 
     await payment.save();
 
-    // Update booking status
+    // ✅ 11. UPDATE BOOKING STATUS
     const booking = await Booking.findById(payment.bookingId);
     if (booking) {
       booking.paymentStatus = 'completed';
+      booking.isPaid = true;
       booking.status = 'confirmed';
       await booking.save();
     }
 
     logger.info(
-      `VNPay payment verified: ${payment._id}, Transaction: ${vnp_TransactionNo}`
+      `✅ VNPay payment verified: ${payment._id}, Transaction: ${vnp_TransactionNo || vnp_BankTranNo}`
     );
 
     return {
       success: true,
       message: 'Payment verified successfully',
       transactionId: vnp_TransactionNo || vnp_BankTranNo,
-      amount: parseInt(vnp_Amount) / 100,
+      amount: Math.round(parseInt(vnp_Amount) / 100),
       paymentId: payment._id,
     };
   } catch (error) {
@@ -255,23 +361,49 @@ export const refundVNPayPayment = async (paymentId, refundData) => {
       throw new Error('Only completed payments can be refunded');
     }
 
-    // In real scenario, you would call VNPay refund API here
-    // For now, we'll just update the status
-    payment.status = 'refunded';
-    payment.refundDetails = {
-      reason: refundData.reason || 'Customer requested refund',
-      amount: refundData.amount || payment.amount,
-      refundDate: new Date(),
-    };
+    if (!payment.transactionId) {
+      throw new Error('No transaction ID for refund');
+    }
 
+    // TODO: In production, implement actual VNPay Refund API call
+    // This requires additional VNPay API setup for QueryDR (query/refund)
+    // For now, we'll mark as refunded locally with detailed logging
+
+    logger.info(
+      `[RefundRequest] Payment ${paymentId}, Amount: ${refundData.amount || payment.amount}, Reason: ${refundData.reason || 'Not specified'}`
+    );
+
+    // ⚠️ IMPORTANT: VNPay refund should be called here when API is ready
+    // Format: Send request to VNPay with transaction details
+    // const refundResult = await callVNPayRefundAPI({
+    //   transactionNo: payment.transactionId,
+    //   amount: refundData.amount || payment.amount,
+    //   createDate: Math.floor(payment.createdAt.getTime() / 1000),
+    //   transactionDate: // extracted from DB
+    // });
+
+    payment.status = 'refunded';
+    payment.failureReason = refundData.reason || 'Customer requested refund';
     await payment.save();
 
-    logger.info(`VNPay payment refunded: ${paymentId}`);
+    // Update booking status
+    const booking = await Booking.findById(payment.bookingId);
+    if (booking) {
+      booking.status = 'cancelled';
+      booking.paymentStatus = 'refunded';
+      booking.isPaid = false;
+      await booking.save();
+    }
+
+    logger.info(
+      `✅ VNPay payment refund processed: ${paymentId}, Amount: ${refundData.amount || payment.amount}`
+    );
 
     return {
       success: true,
-      message: 'Payment refunded',
+      message: 'Refund request submitted successfully',
       paymentId: paymentId,
+      refundAmount: refundData.amount || payment.amount,
     };
   } catch (error) {
     logger.error('[refundVNPayPayment] Error:', error.message);

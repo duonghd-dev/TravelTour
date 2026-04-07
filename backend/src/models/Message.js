@@ -12,9 +12,16 @@ const messageSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    // Nội dung tin nhắn (mã hóa)
+    // Cấu trúc: { encryptedData, iv, authTag } hoặc plaintext (fallback nếu string)
     content: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed, // Có thể là string hoặc object encrypted
       trim: true,
+    },
+    // Flag để indicate content đã được mã hóa
+    isEncrypted: {
+      type: Boolean,
+      default: false,
     },
     // Hỗ trợ file/image
     attachments: [

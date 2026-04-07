@@ -7,6 +7,7 @@ import {
   sendWelcomeEmail,
   sendPasswordResetEmail,
 } from '../../common/utils/email.js';
+import { hashData, verifyHash } from '../../common/utils/encryption.js';
 import * as authValidator from './auth.validator.js';
 import { OTP_CONFIG } from '../../config/constants.js';
 
@@ -94,6 +95,9 @@ export const register = async (data) => {
   const otp = generateOTP();
   const otpExpire = getOTPExpiration();
 
+  // 🔐 Hash OTP để lưu safely trong DB
+  const hashedOTP = hashData(otp);
+
   // Hash password
   const hashedPassword = await hashPassword(password);
 
@@ -112,7 +116,7 @@ export const register = async (data) => {
       phone: phone || null,
       gender: userGender,
       avatar: avatar,
-      emailOTP: otp,
+      emailOTP: hashedOTP, // 🔐 Lưu hash của OTP
       emailOTPExpire: otpExpire,
       isEmailVerified: false,
       role: 'customer',
@@ -148,21 +152,15 @@ export const verifyEmail = async (userId, otp) => {
 
   if (user.isEmailVerified) throw new Error('Email already verified');
 
-  // Kiểm tra OTP (trim & convert to string for comparison)
+  // Kiểm tra OTP (so sánh hash)
   const otpString = String(otp).trim();
-  const savedOtp = String(user.emailOTP || '').trim();
-
-  console.log('🔍 OTP Verification Debug:');
-  console.log('  Received OTP:', otpString);
-  console.log('  Saved OTP:', savedOtp);
-  console.log('  Match:', savedOtp === otpString);
+  const isValidOTP = verifyHash(otpString, user.emailOTP);
 
   // Allow bypass in development mode with testOTP
-  const isValidOTP =
-    savedOtp === otpString ||
-    (process.env.NODE_ENV === 'development' && otpString === '000000');
+  const isValidDev =
+    process.env.NODE_ENV === 'development' && otpString === '000000';
 
-  if (!isValidOTP) throw new Error('Invalid OTP');
+  if (!isValidOTP && !isValidDev) throw new Error('Invalid OTP');
 
   // Kiểm tra OTP hết hạn
   if (new Date() > user.emailOTPExpire) throw new Error('OTP has expired');
@@ -189,7 +187,7 @@ export const verifyEmail = async (userId, otp) => {
       lastName: user.lastName,
       avatar: user.avatar || null,
       gender: user.gender || 'other',
-      role: user.role, // ✅ ADD ROLE
+      role: user.role,
     },
   };
 };
@@ -246,7 +244,10 @@ export const login = async (data) => {
   const otp = generateOTP();
   const otpExpire = getOTPExpiration();
 
-  user.loginOTP = otp;
+  // 🔐 Hash OTP
+  const hashedOTP = hashData(otp);
+
+  user.loginOTP = hashedOTP; // Lưu hash của OTP
   user.loginOTPExpire = otpExpire;
 
   // Update OTP send tracking
@@ -270,10 +271,11 @@ export const verifyLoginOTP = async (userId, otp) => {
   const user = await User.findById(userId);
   if (!user) throw new Error('User not found');
 
-  // Kiểm tra OTP (trim & convert to string for comparison)
+  // Kiểm tra OTP (so sánh hash)
   const otpString = String(otp).trim();
-  const savedOtp = String(user.loginOTP).trim();
-  if (savedOtp !== otpString) throw new Error('Invalid OTP');
+  const isValidOTP = verifyHash(otpString, user.loginOTP);
+
+  if (!isValidOTP) throw new Error('Invalid OTP');
 
   // Kiểm tra OTP hết hạn
   if (new Date() > user.loginOTPExpire) throw new Error('OTP has expired');
@@ -316,7 +318,10 @@ export const forgotPassword = async (email) => {
   const otp = generateOTP();
   const otpExpire = getOTPExpiration();
 
-  user.resetPasswordOTP = otp;
+  // 🔐 Hash OTP
+  const hashedOTP = hashData(otp);
+
+  user.resetPasswordOTP = hashedOTP; // Lưu hash của OTP
   user.resetPasswordExpire = otpExpire;
 
   // Update OTP send tracking
@@ -338,10 +343,11 @@ export const verifyResetPasswordOTP = async (email, otp) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('User not found');
 
-  // Kiểm tra OTP (trim & convert to string for comparison)
+  // Kiểm tra OTP (so sánh hash)
   const otpString = String(otp).trim();
-  const savedOtp = String(user.resetPasswordOTP).trim();
-  if (savedOtp !== otpString) throw new Error('Invalid OTP');
+  const isValidOTP = verifyHash(otpString, user.resetPasswordOTP);
+
+  if (!isValidOTP) throw new Error('Invalid OTP');
 
   // Kiểm tra OTP hết hạn
   if (new Date() > user.resetPasswordExpire) throw new Error('OTP has expired');
@@ -357,10 +363,11 @@ export const resetPassword = async (email, otp, newPassword) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('User not found');
 
-  // Kiểm tra OTP lại (security check - trim & convert to string)
+  // Kiểm tra OTP lại (security check - so sánh hash)
   const otpString = String(otp).trim();
-  const savedOtp = String(user.resetPasswordOTP).trim();
-  if (savedOtp !== otpString) throw new Error('Invalid OTP');
+  const isValidOTP = verifyHash(otpString, user.resetPasswordOTP);
+
+  if (!isValidOTP) throw new Error('Invalid OTP');
 
   // Kiểm tra OTP hết hạn
   if (new Date() > user.resetPasswordExpire) throw new Error('OTP has expired');

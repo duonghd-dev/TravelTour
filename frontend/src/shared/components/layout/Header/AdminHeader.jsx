@@ -94,7 +94,10 @@ const AdminHeader = () => {
     conversationId: conv._id,
     sender:
       `${conv.otherParticipant?.firstName || ''} ${conv.otherParticipant?.lastName || ''}`.trim(),
-    preview: conv.lastMessage?.content?.substring(0, 50) || 'No messages yet',
+    preview:
+      typeof conv.lastMessage?.content === 'string'
+        ? conv.lastMessage.content.substring(0, 50)
+        : 'No messages yet',
     time: conv.lastMessageAt ? getTimeAgo(conv.lastMessageAt) : 'N/A',
     unreadCount: conv.unreadCount || 0,
   }));

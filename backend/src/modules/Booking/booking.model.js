@@ -79,24 +79,15 @@ const bookingSchema = new Schema(
       default: false,
     },
 
-    // 📋 BILLING INFO
+    // 📋 BILLING INFO (mã hóa: fullName, email, phone, address)
     billingInfo: {
-      fullName: {
-        type: String,
-        required: true,
-      },
-      email: {
-        type: String,
-        required: true,
-      },
-      phone: {
-        type: String,
-        required: true,
-      },
-      address: {
-        type: String,
-        default: '',
-      },
+      type: mongoose.Schema.Types.Mixed, // { encryptedData, iv, authTag } - encrypted
+      required: true,
+    },
+    // Flag để track nếu billingInfo đã encrypted
+    isEncrypted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

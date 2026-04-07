@@ -1,6 +1,7 @@
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
 import User from '../modules/user/user.model.js';
+import { encrypt, decrypt } from '../common/utils/encryption.js';
 
 class ChatService {
   // Lấy hoặc tạo conversation giữa 2 users
@@ -45,11 +46,28 @@ class ChatService {
   // Gửi message
   async sendMessage(conversationId, senderId, content, attachments = []) {
     try {
+      // 🔐 Encrypt message content
+      let encryptedContent = null;
+      let isEncrypted = false;
+
+      if (content && content.trim()) {
+        try {
+          encryptedContent = encrypt(content);
+          isEncrypted = true;
+        } catch (encryptError) {
+          // Fallback: nếu encryption fail, lưu plaintext (không nên xảy ra)
+          console.error('Encryption failed:', encryptError);
+          encryptedContent = content;
+          isEncrypted = false;
+        }
+      }
+
       const message = new Message({
         conversationId,
         sender: senderId,
-        content,
+        content: encryptedContent,
         attachments,
+        isEncrypted,
         readBy: [{ userId: senderId, readAt: new Date() }],
       });
 
@@ -66,7 +84,17 @@ class ChatService {
         { new: true }
       );
 
-      return message;
+      // Return message với decrypted content cho client
+      const messageObj = message.toObject();
+      if (isEncrypted) {
+        try {
+          messageObj.content = decrypt(encryptedContent);
+        } catch (decryptError) {
+          messageObj.content = '[Decryption failed]';
+        }
+      }
+
+      return messageObj;
     } catch (error) {
       throw new Error(`Error sending message: ${error.message}`);
     }
@@ -109,8 +137,30 @@ class ChatService {
         });
       }
 
+      // 🔐 DECRYPT content của messages
+      const decryptedMessages = filteredMessages.map((msg) => {
+        const msgObj = msg.toObject();
+
+        if (msgObj.isEncrypted && msgObj.content) {
+          try {
+            // Decrypt content từ encrypted object
+            msgObj.content = decrypt(msgObj.content);
+          } catch (decryptError) {
+            console.error(
+              'Decryption error for message:',
+              msg._id,
+              decryptError
+            );
+            msgObj.content =
+              '[Decryption failed - Message content unavailable]';
+          }
+        }
+
+        return msgObj;
+      });
+
       return {
-        messages: filteredMessages.reverse(),
+        messages: decryptedMessages.reverse(),
         pagination: {
           page,
           limit,
@@ -244,30 +294,62 @@ class ChatService {
         throw new Error('Only message sender can delete');
       }
 
+      // 🔐 Encrypt deletion message
+      const deletionMessage = '[Message deleted]';
+      const encryptedContent = encrypt(deletionMessage);
+
       // Edit content thay vì xóa
-      message.content = '[Message deleted]';
+      message.content = encryptedContent;
+      message.isEncrypted = true;
       message.attachments = [];
       message.isEdited = true;
       message.editedAt = new Date();
 
       await message.save();
-      return message;
+
+      // Return message với decrypted content
+      const msgObj = message.toObject();
+      msgObj.content = deletionMessage;
+
+      return msgObj;
     } catch (error) {
       throw new Error(`Error deleting message: ${error.message}`);
     }
   }
 
   // Tìm kiếm messages
+  // ⚠️ LƯU Ý: Với encrypted content, không thể search trên DB trực tiếp
+  // Giải pháp: Decrypt tất cả messages rồi search in-memory (slow) hoặc
+  // Tạo searchable plaintext index riêng (nếu cần)
   async searchMessages(conversationId, keyword) {
     try {
-      const messages = await Message.find({
-        conversationId,
-        content: { $regex: keyword, $options: 'i' },
-      })
+      // Lấy tất cả messages (tidak filter vì không thể filter encrypted data)
+      const messages = await Message.find({ conversationId })
         .populate('sender', '_id firstName lastName avatar')
         .sort({ createdAt: -1 });
 
-      return messages;
+      // Decrypt tất cả messages để search in-memory
+      const decryptedMessages = messages.map((msg) => {
+        const msgObj = msg.toObject();
+
+        if (msgObj.isEncrypted && msgObj.content) {
+          try {
+            msgObj.content = decrypt(msgObj.content);
+          } catch (decryptError) {
+            msgObj.content = '';
+          }
+        }
+
+        return msgObj;
+      });
+
+      // Search in decrypted content
+      const results = decryptedMessages.filter((msg) => {
+        const content = typeof msg.content === 'string' ? msg.content : '';
+        return content.toLowerCase().includes(keyword.toLowerCase());
+      });
+
+      return results;
     } catch (error) {
       throw new Error(`Error searching messages: ${error.message}`);
     }
