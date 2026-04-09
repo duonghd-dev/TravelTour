@@ -1,6 +1,4 @@
-/**
- * Validate update profile data
- */
+
 export const validateUpdateProfile = (data) => {
   const { firstName, lastName, email, phoneNumber, avatar, gender } = data;
 
@@ -46,9 +44,7 @@ export const validateUpdateProfile = (data) => {
   }
 };
 
-/**
- * Validate password update
- */
+
 export const validatePasswordUpdate = (data) => {
   const { currentPassword, newPassword } = data;
 
@@ -69,9 +65,7 @@ export const validatePasswordUpdate = (data) => {
   }
 };
 
-/**
- * Validate 2FA update
- */
+
 export const validateTwoFactorAuth = (data) => {
   const { enabled } = data;
 

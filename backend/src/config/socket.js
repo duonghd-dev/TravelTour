@@ -4,15 +4,15 @@ import User from '../modules/user/user.model.js';
 class SocketHandler {
   constructor(io) {
     this.io = io;
-    this.userSockets = new Map(); // userId -> Set of socketIds
-    this.socketUsers = new Map(); // socketId -> userId
-    this.conversationRooms = new Map(); // conversationId -> Set of userIds
+    this.userSockets = new Map(); 
+    this.socketUsers = new Map(); 
+    this.conversationRooms = new Map(); 
 
     this.setupMiddleware();
     this.setupConnections();
   }
 
-  // Middleware để verify JWT token
+  
   setupMiddleware() {
     this.io.use(async (socket, next) => {
       try {
@@ -33,7 +33,7 @@ class SocketHandler {
           return next(new Error('Invalid token'));
         }
 
-        // Support multiple JWT payload structures
+        
         const userId = decoded.userId || decoded.id || decoded._id;
         if (!userId) {
           return next(new Error('User ID not found in token'));
@@ -59,27 +59,27 @@ class SocketHandler {
     });
   }
 
-  // Setup socket connection handlers
+  
   setupConnections() {
     this.io.on('connection', (socket) => {
       const userId = socket.userId;
       console.log(`[Socket] User ${userId} connected: ${socket.id}`);
 
-      // Track user connection
+      
       if (!this.userSockets.has(userId)) {
         this.userSockets.set(userId, new Set());
       }
       this.userSockets.get(userId).add(socket.id);
       this.socketUsers.set(socket.id, userId);
 
-      // Broadcast user is online
+      
       this.io.emit('user:online', {
         userId,
         isOnline: true,
         timestamp: new Date(),
       });
 
-      // ===== CONVERSATION EVENTS =====
+      
       socket.on('conversation:join', (conversationId) => {
         const room = `conversation:${conversationId}`;
         socket.join(room);
@@ -93,7 +93,7 @@ class SocketHandler {
           `[Socket] User ${userId} joined conversation ${conversationId}`
         );
 
-        // Notify others that user is in conversation
+        
         socket.to(room).emit('conversation:user-joined', {
           conversationId,
           userId,
@@ -124,7 +124,7 @@ class SocketHandler {
         });
       });
 
-      // ===== TYPING EVENTS =====
+      
       socket.on('typing:start', (conversationId) => {
         const room = `conversation:${conversationId}`;
         const users = this.conversationRooms.get(conversationId) || new Set();
@@ -149,7 +149,7 @@ class SocketHandler {
         });
       });
 
-      // ===== MESSAGE EVENTS =====
+      
       socket.on('message:read', (data) => {
         try {
           const { messageId, conversationId } = data;
@@ -166,17 +166,17 @@ class SocketHandler {
         }
       });
 
-      // ===== DISCONNECT =====
+      
       socket.on('disconnect', () => {
         console.log(`[Socket] User ${userId} disconnected: ${socket.id}`);
 
-        // Remove from tracking
+        
         const userSockets = this.userSockets.get(userId);
         if (userSockets) {
           userSockets.delete(socket.id);
           if (userSockets.size === 0) {
             this.userSockets.delete(userId);
-            // Broadcast user is offline
+            
             this.io.emit('user:offline', {
               userId,
               isOnline: false,
@@ -186,7 +186,7 @@ class SocketHandler {
         }
         this.socketUsers.delete(socket.id);
 
-        // Remove from all conversation rooms
+        
         this.conversationRooms.forEach((users, conversationId) => {
           users.delete(userId);
         });
@@ -194,13 +194,13 @@ class SocketHandler {
     });
   }
 
-  // Emit to conversation except sender
+  
   emitToConversationExceptSender(conversationId, senderId, eventName, data) {
     const room = `conversation:${conversationId}`;
     this.io.to(room).emit(eventName, data);
   }
 
-  // Emit to specific user
+  
   emitToUser(userId, eventName, data) {
     const socketIds = this.userSockets.get(userId);
     if (socketIds) {
@@ -210,23 +210,23 @@ class SocketHandler {
     }
   }
 
-  // Emit to conversation room
+  
   emitToConversation(conversationId, eventName, data) {
     const room = `conversation:${conversationId}`;
     this.io.to(room).emit(eventName, data);
   }
 
-  // Get users in conversation
+  
   getUsersInConversation(conversationId) {
     return Array.from(this.conversationRooms.get(conversationId) || new Set());
   }
 
-  // Check if user is online
+  
   isUserOnline(userId) {
     return this.userSockets.has(userId);
   }
 
-  // Get all online users
+  
   getOnlineUsers() {
     return Array.from(this.userSockets.keys());
   }

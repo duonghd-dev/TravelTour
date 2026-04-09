@@ -3,7 +3,6 @@ import axiosInstance from '../../../services/axiosInstance.js';
 const BASE_URL = '/api/v1/tours';
 
 export const tourService = {
-  // 📖 Lấy tất cả tours (với filter, search, pagination)
   getAllTours: async (filters = {}) => {
     try {
       const {
@@ -30,80 +29,73 @@ export const tourService = {
       const response = await axiosInstance.get(
         `${BASE_URL}?${params.toString()}`
       );
-      return response.data.data || [];
+      return response?.data?.data || [];
     } catch (error) {
       console.error('Error fetching tours:', error);
       return [];
     }
   },
 
-  // 🔍 Lấy chi tiết 1 tour
   getTourDetail: async (id) => {
     try {
       const response = await axiosInstance.get(`${BASE_URL}/${id}`);
-      return response.data.data;
+      return response?.data?.data;
     } catch (error) {
       console.error('Error fetching tour detail:', error);
       return null;
     }
   },
 
-  // 🔎 Tìm kiếm tours
   searchTours: async (query) => {
     try {
       const response = await axiosInstance.get(`${BASE_URL}/search?q=${query}`);
-      return response.data.data || [];
+      return response?.data?.data || [];
     } catch (error) {
       console.error('Error searching tours:', error);
       return [];
     }
   },
 
-  // 📊 Lấy tours theo region
   getByRegion: async (region) => {
     try {
       const response = await axiosInstance.get(`${BASE_URL}/region/${region}`);
-      return response.data.data || [];
+      return response?.data?.data || [];
     } catch (error) {
       console.error('Error fetching tours by region:', error);
       return [];
     }
   },
 
-  // ⏱️ Lấy tours theo duration (số ngày)
   getByDuration: async (days) => {
     try {
       const response = await axiosInstance.get(`${BASE_URL}/duration/${days}`);
-      return response.data.data || [];
+      return response?.data?.data || [];
     } catch (error) {
       console.error('Error fetching tours by duration:', error);
       return [];
     }
   },
 
-  // ➕ Tạo tour mới (admin)
   createTour: async (data) => {
     try {
       const response = await axiosInstance.post(BASE_URL, data);
-      return response.data.data;
+      return response?.data?.data;
     } catch (error) {
       console.error('Error creating tour:', error);
       throw error;
     }
   },
 
-  // ✏️ Cập nhật tour
   updateTour: async (id, data) => {
     try {
       const response = await axiosInstance.patch(`${BASE_URL}/${id}`, data);
-      return response.data.data;
+      return response?.data?.data;
     } catch (error) {
       console.error('Error updating tour:', error);
       throw error;
     }
   },
 
-  // 🗑️ Xóa tour
   deleteTour: async (id) => {
     try {
       await axiosInstance.delete(`${BASE_URL}/${id}`);

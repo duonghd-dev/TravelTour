@@ -11,7 +11,7 @@ const ExperienceCard = ({ experience }) => {
   const FALLBACK_IMAGE =
     'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80';
 
-  // Check favorite status on mount
+  
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       try {
@@ -36,7 +36,7 @@ const ExperienceCard = ({ experience }) => {
     checkFavoriteStatus();
   }, [experience._id]);
 
-  // Handle favorite toggle
+  
   const handleFavoriteClick = async (e) => {
     e.stopPropagation();
 
@@ -44,19 +44,19 @@ const ExperienceCard = ({ experience }) => {
       setLoading(true);
 
       if (isFavorite && favoriteId) {
-        // Remove from favorites
+        
         await profileApi.removeFavorite(favoriteId);
         setIsFavorite(false);
         setFavoriteId(null);
       } else {
-        // Add to favorites
+        
         const response = await profileApi.addFavorite(
           experience._id,
           'experience'
         );
         if (response.success) {
           setIsFavorite(true);
-          // Get the new favorites to find the ID
+          
           const favorites = response.data || [];
           const newFavorite = favorites.find(
             (fav) =>

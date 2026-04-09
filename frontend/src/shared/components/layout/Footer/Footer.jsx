@@ -8,7 +8,7 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-content">
-          {/* Logo/Brand Column */}
+          {}
           <div className="footer-column footer-brand">
             <Link to="/" className="footer-brand-link">
               <div className="footer-logo">
@@ -26,7 +26,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Hành Trình Column */}
+          {}
           <div className="footer-column">
             <h4 className="footer-heading">HÀNH TRÌNH</h4>
             <ul className="footer-links">
@@ -42,7 +42,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Liên Kết Column */}
+          {}
           <div className="footer-column">
             <h4 className="footer-heading">LIÊN KẾT</h4>
             <ul className="footer-links">
@@ -58,7 +58,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Liên Hệ Column */}
+          {}
           <div className="footer-column">
             <h4 className="footer-heading">LIÊN HỆ</h4>
             <p className="contact-address">72 Nguyễn Sinh Sắc - Đà Nẵng</p>
@@ -68,7 +68,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Footer Bottom */}
+        {}
         <div className="footer-bottom">
           <p className="copyright">© 2026 VIỆT NAM HERITAGE PROJECT</p>
           <nav className="footer-legal-links">

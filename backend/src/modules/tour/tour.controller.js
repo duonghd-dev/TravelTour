@@ -1,7 +1,7 @@
 import { tourService } from './tour.service.js';
 import asyncHandler from '../../common/utils/asyncHandler.js';
 
-// 📖 Lấy tất cả tour
+
 export const getAllTours = asyncHandler(async (req, res) => {
   const {
     search,
@@ -32,7 +32,7 @@ export const getAllTours = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔍 Lấy chi tiết 1 tour
+
 export const getTourById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const tour = await tourService.getTourById(id);
@@ -43,7 +43,7 @@ export const getTourById = asyncHandler(async (req, res) => {
   });
 });
 
-// ➕ Tạo tour mới (admin)
+
 export const createTour = asyncHandler(async (req, res) => {
   const tour = await tourService.createTour(req.body);
 
@@ -54,7 +54,7 @@ export const createTour = asyncHandler(async (req, res) => {
   });
 });
 
-// ✏️ Cập nhật tour
+
 export const updateTour = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const tour = await tourService.updateTour(id, req.body);
@@ -66,7 +66,7 @@ export const updateTour = asyncHandler(async (req, res) => {
   });
 });
 
-// 🗑️ Xóa tour
+
 export const deleteTour = asyncHandler(async (req, res) => {
   const { id } = req.params;
   await tourService.deleteTour(id);
@@ -77,7 +77,7 @@ export const deleteTour = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔎 Tìm kiếm tour
+
 export const searchTours = asyncHandler(async (req, res) => {
   const { q } = req.query;
   if (!q) {
@@ -95,7 +95,7 @@ export const searchTours = asyncHandler(async (req, res) => {
   });
 });
 
-// 📊 Lấy tour theo region
+
 export const getByRegion = asyncHandler(async (req, res) => {
   const { region } = req.params;
   const tours = await tourService.getByRegion(region);
@@ -106,7 +106,7 @@ export const getByRegion = asyncHandler(async (req, res) => {
   });
 });
 
-// ⏱️ Lấy tour theo duration
+
 export const getByDuration = asyncHandler(async (req, res) => {
   const { days } = req.params;
   const tours = await tourService.getByDuration(Number(days));

@@ -3,17 +3,7 @@ import * as XLSX from 'xlsx';
 
 const usersAPI = '/api/v1/users';
 
-/**
- * Fetch all users with filters
- * @param {Object} params - Query parameters
- * @param {number} params.page - Page number
- * @param {number} params.limit - Items per page
- * @param {string} params.role - Filter by role
- * @param {string} params.status - Filter by status (active/inactive/pending)
- * @param {string} params.search - Search by name/email
- * @param {string} params.sort - Sort field
- * @returns {Promise}
- */
+
 export const fetchUsers = async (params = {}) => {
   try {
     const response = await axiosInstance.get(usersAPI, {
@@ -33,11 +23,7 @@ export const fetchUsers = async (params = {}) => {
   }
 };
 
-/**
- * Get user by ID
- * @param {string} id - User ID
- * @returns {Promise}
- */
+
 export const fetchUserById = async (id) => {
   try {
     const response = await axiosInstance.get(`${usersAPI}/${id}`);
@@ -48,11 +34,7 @@ export const fetchUserById = async (id) => {
   }
 };
 
-/**
- * Create new user (Admin only)
- * @param {Object} userData - User data
- * @returns {Promise}
- */
+
 export const createUser = async (userData) => {
   try {
     const response = await axiosInstance.post(usersAPI, userData);
@@ -63,12 +45,7 @@ export const createUser = async (userData) => {
   }
 };
 
-/**
- * Update user
- * @param {string} id - User ID
- * @param {Object} updateData - Data to update
- * @returns {Promise}
- */
+
 export const updateUser = async (id, updateData) => {
   try {
     const response = await axiosInstance.put(`${usersAPI}/${id}`, updateData);
@@ -79,11 +56,7 @@ export const updateUser = async (id, updateData) => {
   }
 };
 
-/**
- * Delete user
- * @param {string} id - User ID
- * @returns {Promise}
- */
+
 export const deleteUser = async (id) => {
   try {
     const response = await axiosInstance.delete(`${usersAPI}/${id}`);
@@ -94,17 +67,14 @@ export const deleteUser = async (id) => {
   }
 };
 
-/**
- * Get user statistics
- * @returns {Promise}
- */
+
 export const fetchUserStats = async () => {
   try {
     const response = await axiosInstance.get(`${usersAPI}/stats/overview`);
     return response.data.data || response.data;
   } catch (error) {
     console.error('Failed to fetch user stats:', error);
-    // Return mock data if API fails
+    
     return {
       totalUsers: 0,
       activeTourists: 0,
@@ -115,14 +85,10 @@ export const fetchUserStats = async () => {
   }
 };
 
-/**
- * Export users report as Excel
- * @param {Object} filters - Filter parameters
- * @returns {Promise}
- */
+
 export const exportUsersReport = async (filters = {}) => {
   try {
-    // Fetch all users with filters (paginate to get all)
+    
     const allUsers = [];
     let page = 1;
     let totalPages = 1;
@@ -144,7 +110,7 @@ export const exportUsersReport = async (filters = {}) => {
       page++;
     }
 
-    // Format data for Excel
+    
     const formattedUsers = allUsers.map((user) => ({
       'First Name': user.firstName || '',
       'Last Name': user.lastName || '',
@@ -161,26 +127,26 @@ export const exportUsersReport = async (filters = {}) => {
       '2FA': user.twoFactorEnabled ? 'Enabled' : 'Disabled',
     }));
 
-    // Create workbook
+    
     const ws = XLSX.utils.json_to_sheet(formattedUsers);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Users');
 
-    // Set column widths
+    
     const colWidths = [
-      { wch: 15 }, // First Name
-      { wch: 15 }, // Last Name
-      { wch: 25 }, // Email
-      { wch: 15 }, // Phone
-      { wch: 12 }, // Role
-      { wch: 12 }, // Status
-      { wch: 14 }, // Email Verified
-      { wch: 13 }, // Joined Date
-      { wch: 12 }, // 2FA
+      { wch: 15 }, 
+      { wch: 15 }, 
+      { wch: 25 }, 
+      { wch: 15 }, 
+      { wch: 12 }, 
+      { wch: 12 }, 
+      { wch: 14 }, 
+      { wch: 13 }, 
+      { wch: 12 }, 
     ];
     ws['!cols'] = colWidths;
 
-    // Style header row
+    
     const range = XLSX.utils.decode_range(ws['!ref']);
     for (let C = range.s.c; C <= range.e.c; ++C) {
       const address = XLSX.utils.encode_col(C) + '1';
@@ -192,11 +158,11 @@ export const exportUsersReport = async (filters = {}) => {
       };
     }
 
-    // Generate filename
+    
     const timestamp = new Date().toISOString().split('T')[0];
     const filename = `users-report-${timestamp}.xlsx`;
 
-    // Download
+    
     XLSX.writeFile(wb, filename);
   } catch (error) {
     console.error('Failed to export users:', error);

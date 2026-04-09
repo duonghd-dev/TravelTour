@@ -1,4 +1,10 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faPaperclip,
+  faCheck,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 import { formatDate } from '@/utils';
 import './MessageItem.scss';
 
@@ -48,7 +54,7 @@ const MessageItem = ({ message, isOwn, onDelete, currentUserId }) => {
                     <img src={attachment.url} alt={attachment.name} />
                   ) : (
                     <a href={attachment.url} download={attachment.name}>
-                      📎 {attachment.name}
+                      <FontAwesomeIcon icon={faPaperclip} /> {attachment.name}
                     </a>
                   )}
                 </div>
@@ -64,13 +70,14 @@ const MessageItem = ({ message, isOwn, onDelete, currentUserId }) => {
 
           {isOwn && message.readBy && message.readBy.length > 1 && (
             <span className="read-indicator" title="Đã xem">
-              ✓✓
+              <FontAwesomeIcon icon={faCheck} />
+              <FontAwesomeIcon icon={faCheck} style={{ marginLeft: '-8px' }} />
             </span>
           )}
 
           {isOwn && (
             <button className="delete-btn" onClick={handleDelete} title="Xóa">
-              ✕
+              <FontAwesomeIcon icon={faTimes} />
             </button>
           )}
         </div>

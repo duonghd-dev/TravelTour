@@ -1,18 +1,13 @@
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 import logger from '../../common/utils/logger.js';
-import { decryptObject } from '../../common/utils/encryption.js';
+import { decryptObject, decrypt } from '../../common/utils/encryption.js';
 import Payment from './payment.model.js';
 import Booking from '../booking/booking.model.js';
+import BillingInfo from '../booking/billingInfo.model.js';
 
-/**
- * PayPal Payment Service
- * Handles PayPal payment gateway integration using REST API
- */
-
-// PayPal Configuration
 const PAYPAL_CONFIG = {
-  mode: process.env.PAYPAL_MODE || 'sandbox', // sandbox or live
+  mode: process.env.PAYPAL_MODE || 'sandbox',
   clientId: process.env.PAYPAL_CLIENT_ID || 'YOUR_PAYPAL_CLIENT_ID',
   clientSecret: process.env.PAYPAL_CLIENT_SECRET || 'YOUR_PAYPAL_CLIENT_SECRET',
   returnUrl:
@@ -21,14 +16,12 @@ const PAYPAL_CONFIG = {
   cancelUrl: process.env.PAYPAL_CANCEL_URL || 'http://localhost:5173/checkout',
 };
 
-// Get PayPal API base URL based on mode
 const getPayPalApiUrl = () => {
   return PAYPAL_CONFIG.mode === 'sandbox'
     ? 'https://api.sandbox.paypal.com'
     : 'https://api.paypal.com';
 };
 
-// Get PayPal access token
 const getAccessToken = async () => {
   try {
     console.log('[PayPal OAuth] Getting access token...');
@@ -47,7 +40,6 @@ const getAccessToken = async () => {
       `${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`
     ).toString('base64');
 
-    // Add timeout to fetch
     const fetchPromise = fetch(`${getPayPalApiUrl()}/v1/oauth2/token`, {
       method: 'POST',
       headers: {
@@ -120,14 +112,8 @@ const getAccessToken = async () => {
   }
 };
 
-/**
- * Create PayPal payment and get approval URL
- * @param {Object} paymentData - Payment data {bookingId, amount, ipAddress, returnUrl, cancelUrl}
- * @returns {Promise<Object>} PayPal approval URL and transaction info
- */
 export const createPayPalPayment = async (paymentData) => {
   try {
-    // Validate PayPal credentials are configured
     if (
       PAYPAL_CONFIG.clientId.includes('YOUR_') ||
       PAYPAL_CONFIG.clientSecret.includes('YOUR_')
@@ -143,8 +129,7 @@ export const createPayPalPayment = async (paymentData) => {
     console.log('  - bookingId:', bookingId);
     console.log('  - amount:', amount);
 
-    // Validate booking exists
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId).populate('billingInfoId');
     if (!booking) {
       throw new Error('Booking not found');
     }
@@ -152,14 +137,22 @@ export const createPayPalPayment = async (paymentData) => {
     console.log('[createPayPalPayment] Found booking:');
     console.log('  - userId:', booking.userId);
     console.log('  - totalPrice:', booking.totalPrice);
-    console.log('  - billingInfo:', JSON.stringify(booking.billingInfo));
 
-    // Decrypt billing info if encrypted
-    let billingInfo = booking.billingInfo;
-    if (billingInfo && billingInfo.encryptedData) {
+    let billingInfo = null;
+
+    // Check if billingInfoId is populated from BillingInfo collection
+    if (booking.billingInfoId && booking.billingInfoId.encryptedData) {
       try {
-        console.log('[createPayPalPayment] Decrypting billing info...');
-        billingInfo = decryptObject(billingInfo);
+        console.log(
+          '[createPayPalPayment] Decrypting billing info from BillingInfo collection...'
+        );
+        const encryptedObj = booking.billingInfoId;
+        const decryptedStr = decrypt({
+          encryptedData: encryptedObj.encryptedData,
+          iv: encryptedObj.iv,
+          authTag: encryptedObj.authTag,
+        });
+        billingInfo = JSON.parse(decryptedStr);
         console.log(
           '[createPayPalPayment] Billing info decrypted successfully'
         );
@@ -171,9 +164,23 @@ export const createPayPalPayment = async (paymentData) => {
           `Failed to decrypt billing information: ${decryptError.message}`
         );
       }
+    } else if (booking.billingInfo && booking.billingInfo.encryptedData) {
+      // Fallback for old schema during migration
+      try {
+        console.log(
+          '[createPayPalPayment] Using legacy billing info (embedded in booking)...'
+        );
+        billingInfo = decryptObject(booking.billingInfo);
+      } catch (decryptError) {
+        logger.error('[createPayPalPayment] Legacy decryption failed:', {
+          message: decryptError.message,
+        });
+        throw new Error(
+          `Failed to decrypt legacy billing information: ${decryptError.message}`
+        );
+      }
     }
 
-    // Validate billing info exists and has required fields
     if (!billingInfo || !billingInfo.email || !billingInfo.fullName) {
       console.error('[createPayPalPayment] Invalid billing info:', billingInfo);
       throw new Error(
@@ -181,7 +188,6 @@ export const createPayPalPayment = async (paymentData) => {
       );
     }
 
-    // Create/update payment record
     let payment = await Payment.findOne({
       bookingId,
       paymentMethod: 'paypal',
@@ -203,10 +209,8 @@ export const createPayPalPayment = async (paymentData) => {
       await payment.save();
     }
 
-    // Get PayPal access token
     const accessToken = await getAccessToken();
 
-    // Convert amount to USD safely
     const amountInUsd = (amount / 24500).toFixed(2);
     console.log(
       '[createPayPalPayment] Amount conversion: ',
@@ -216,14 +220,12 @@ export const createPayPalPayment = async (paymentData) => {
       'USD'
     );
 
-    // Validate converted amount
     if (parseFloat(amountInUsd) <= 0) {
       throw new Error(
         `Invalid converted amount: ${amountInUsd} USD from ${amount} VND`
       );
     }
 
-    // Prepare PayPal order request
     const paypalOrder = {
       intent: 'CAPTURE',
       purchase_units: [
@@ -232,7 +234,7 @@ export const createPayPalPayment = async (paymentData) => {
           description: `Booking_${bookingId}_User_${booking.userId}`,
           amount: {
             currency_code: 'USD',
-            // Convert VND to USD (1 USD ≈ 24,500 VND - update rate as needed)
+
             value: amountInUsd,
           },
         },
@@ -262,7 +264,6 @@ export const createPayPalPayment = async (paymentData) => {
 
     let response;
     try {
-      // Call PayPal Create Order API with error handling
       response = await fetch(`${getPayPalApiUrl()}/v2/checkout/orders`, {
         method: 'POST',
         headers: {
@@ -270,7 +271,7 @@ export const createPayPalPayment = async (paymentData) => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(paypalOrder),
-        timeout: 10000, // 10 second timeout
+        timeout: 10000,
       });
     } catch (fetchError) {
       logger.error('[createPayPalPayment] Fetch error:', {
@@ -308,14 +309,12 @@ export const createPayPalPayment = async (paymentData) => {
       throw new Error('Failed to parse PayPal API response');
     }
 
-    // Find approval link from links array
     const approvalUrl = data.links.find((link) => link.rel === 'approve')?.href;
 
     if (!approvalUrl) {
       throw new Error('PayPal approval URL not found in response');
     }
 
-    // Update payment with PayPal transaction ID (store PayPal order ID in gatewayReference)
     payment.gatewayReference = data.id;
     await payment.save();
 
@@ -331,7 +330,7 @@ export const createPayPalPayment = async (paymentData) => {
       success: true,
       message: 'PayPal payment URL created',
       approvalUrl: approvalUrl,
-      paymentUrl: approvalUrl, // For compatibility
+      paymentUrl: approvalUrl,
       paymentId: payment._id,
       paypalOrderId: data.id,
       amount: amount,
@@ -348,11 +347,6 @@ export const createPayPalPayment = async (paymentData) => {
   }
 };
 
-/**
- * Verify PayPal payment execution
- * @param {string} orderId - PayPal Order ID
- * @returns {Promise<Object>} Verification result
- */
 export const verifyPayPalPayment = async (orderId) => {
   try {
     const accessToken = await getAccessToken();
@@ -379,17 +373,11 @@ export const verifyPayPalPayment = async (orderId) => {
   }
 };
 
-/**
- * Capture PayPal payment (finalize transaction)
- * @param {string} orderId - PayPal Order ID
- * @returns {Promise<Object>} Capture result
- */
 export const capturePayPalPayment = async (orderId) => {
   try {
     console.log('[capturePayPalPayment] Attempting to capture order:', orderId);
     const accessToken = await getAccessToken();
 
-    // Find payment by PayPal order ID before capture (PayPal order ID stored in gatewayReference)
     const payment = await Payment.findOne({ gatewayReference: orderId });
     console.log(
       '[capturePayPalPayment] Found payment:',
@@ -447,7 +435,6 @@ export const capturePayPalPayment = async (orderId) => {
     );
     console.log('[capturePayPalPayment] Full response:', JSON.stringify(data));
 
-    // Update payment status in database using the payment we found
     if (payment) {
       payment.status = 'completed';
       payment.gatewayReference = data.id;

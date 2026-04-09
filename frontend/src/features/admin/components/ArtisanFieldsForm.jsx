@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBook,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 import './ArtisanFieldsForm.scss';
 
 const ARTISAN_CATEGORIES = [
@@ -21,7 +26,6 @@ const PROVINCES = [
   'Hội An',
 ];
 
-// Kỹ năng theo từng category
 const SKILLS_BY_CATEGORY = {
   'Gốm sứ': [
     'Nặn gốm trên bánh xe quay',
@@ -124,14 +128,10 @@ const STORYTELLING_TEMPLATES = [
 ];
 
 const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
-  // Helper function để parse HTML storytelling thành sections
   const parseStorytellingHTML = (html) => {
     const sections = {};
     if (!html) return sections;
 
-    // Nếu HTML chứa storytelling, cách đơn giản là return empty object
-    // Vì storytelling đã được lưu dưới dạng HTML hoàn chỉnh
-    // Khi cần edit, user sẽ nhấn reset để nhập lại từng section
     return sections;
   };
 
@@ -145,12 +145,10 @@ const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
       : {}
   );
 
-  // Sync skills when artisanData.skills changes
   useEffect(() => {
     setSkills(artisanData.skills || []);
   }, [artisanData.skills]);
 
-  // Sync storytelling sections when artisanData.storytelling changes
   useEffect(() => {
     if (
       artisanData.storytelling &&
@@ -161,19 +159,16 @@ const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
     }
   }, [artisanData.storytelling]);
 
-  // Reset skills khi category thay đổi (nếu skills không còn valid)
   useEffect(() => {
-    if (!artisanData.category) return; // Không làm gì nếu category rỗng
+    if (!artisanData.category) return;
 
     const validSkills = skills.filter((s) =>
       SKILLS_BY_CATEGORY[artisanData.category]?.includes(s)
     );
 
-    // Chỉ update nếu có skills bị loại bỏ
     if (validSkills.length !== skills.length && validSkills.length > 0) {
       setSkills(validSkills);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [artisanData.category]);
 
   const generateStorytellingHTML = (sections) => {
@@ -232,7 +227,6 @@ const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
     onArtisanDataChange(newData);
   };
 
-  // Toggle skill selection
   const toggleSkill = (skill) => {
     let updatedSkills;
     if (skills.includes(skill)) {
@@ -248,10 +242,8 @@ const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
     onArtisanDataChange(newData);
   };
 
-  // Lấy danh sách kỹ năng cho category hiện tại
   const availableSkills = SKILLS_BY_CATEGORY[artisanData.category] || [];
 
-  // Thêm image từ URL
   const addImageFromUrl = () => {
     if (newImageUrl.trim()) {
       const updatedImages = [...(artisanData.images || []), newImageUrl];
@@ -263,7 +255,6 @@ const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
     }
   };
 
-  // Thêm proof image từ URL
   const addProofImageFromUrl = () => {
     if (newProofImageUrl.trim()) {
       const updatedProofImages = [
@@ -398,7 +389,7 @@ const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
           {STORYTELLING_TEMPLATES.map((template) => (
             <div key={template.id} className="storytelling-section">
               <label htmlFor={`story-${template.id}`}>
-                <span className="section-icon">📖</span>
+                <FontAwesomeIcon icon={faBook} className="section-icon" />
                 {template.label}
               </label>
               <textarea
@@ -461,7 +452,8 @@ const ArtisanFieldsForm = ({ artisanData, onArtisanDataChange, loading }) => {
               className="form-hint"
               style={{ color: '#d9534f', marginTop: '8px' }}
             >
-              ⚠️ Vui lòng chọn CATEGORY trước
+              <FontAwesomeIcon icon={faExclamationTriangle} /> Vui lòng chọn
+              CATEGORY trước
             </p>
           )}
         </div>

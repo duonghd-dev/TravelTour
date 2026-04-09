@@ -4,14 +4,12 @@ const { Schema, model } = mongoose;
 
 const experienceSchema = new Schema(
   {
-    // 🔗 Liên kết artisan
     artisanId: {
       type: Schema.Types.ObjectId,
       ref: 'Artisan',
       required: true,
     },
 
-    // 📝 Thông tin cơ bản
     title: {
       type: String,
       required: true,
@@ -21,13 +19,12 @@ const experienceSchema = new Schema(
       required: true,
     },
 
-    // 💰 Giá và thời gian
     price: {
       type: Number,
       required: true,
     },
     duration: {
-      value: Number, // Số lượng
+      value: Number,
       unit: {
         type: String,
         enum: ['hour', 'day', 'session'],
@@ -35,7 +32,6 @@ const experienceSchema = new Schema(
       },
     },
 
-    // 👥 Số lượng khách
     maxGuests: {
       type: Number,
       default: 1,
@@ -45,7 +41,6 @@ const experienceSchema = new Schema(
       default: 1,
     },
 
-    // 📅 Lịch hoạt động
     schedule: {
       type: String,
       default: '',
@@ -65,7 +60,6 @@ const experienceSchema = new Schema(
       },
     ],
 
-    // 🖼️ Media
     images: [
       {
         type: String,
@@ -77,29 +71,11 @@ const experienceSchema = new Schema(
       },
     ],
 
-    // 📊 Trạng thái
-    status: {
+    publishStatus: {
       type: String,
       enum: ['active', 'inactive'],
       default: 'active',
     },
-
-    // 📈 Thống kê (Computed/Derived Data)
-    // ⚠️ PURPOSE: Cache để tăng performance query
-    // 🔄 UPDATE: Services sẽ recalculate từ Booking & Review collections
-    // 💡 NOTE: Không phải source of truth - dùng cho display/sorting only
-    // totalBookings: {
-    //   type: Number,
-    //   default: 0,
-    // },
-    // ratingAverage: {
-    //   type: Number,
-    //   default: 0,
-    // },
-    // totalReviews: {
-    //   type: Number,
-    //   default: 0,
-    // },
 
     location: {
       type: String,

@@ -1,4 +1,6 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHourglass } from '@fortawesome/free-solid-svg-icons';
 import './ConversationList.scss';
 
 const ConversationList = ({
@@ -11,7 +13,9 @@ const ConversationList = ({
     <div className="conversation-list">
       {loading && (
         <div className="list-loading">
-          <div className="spinner">⏳</div>
+          <div className="spinner">
+            <FontAwesomeIcon icon={faHourglass} />
+          </div>
           <p>Đang tải...</p>
         </div>
       )}

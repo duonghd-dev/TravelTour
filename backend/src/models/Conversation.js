@@ -22,7 +22,7 @@ const conversationSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    // Lưu read status của mỗi user
+
     readStatus: [
       {
         userId: {
@@ -35,16 +35,22 @@ const conversationSchema = new mongoose.Schema(
         },
       },
     ],
+    updatedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Index để tìm conversation giữa 2 users
+// Indexes for better query performance
 conversationSchema.index({ participants: 1 });
+conversationSchema.index({ participants: 1, updatedAt: -1 });
+conversationSchema.index({ lastMessageAt: -1 });
+conversationSchema.index({ isActive: 1 });
 
-// Virtual populate
 conversationSchema.virtual('messages', {
   ref: 'Message',
   localField: '_id',

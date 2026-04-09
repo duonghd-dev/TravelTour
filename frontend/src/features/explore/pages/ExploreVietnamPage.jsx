@@ -22,7 +22,7 @@ export default function ExploreVietnamPage() {
     { label: '2 Days', value: 2 },
   ];
 
-  // Fetch tours
+  
   useEffect(() => {
     const fetchTours = async () => {
       setIsLoading(true);
@@ -41,11 +41,11 @@ export default function ExploreVietnamPage() {
     fetchTours();
   }, []);
 
-  // Filter logic
+  
   useEffect(() => {
     let result = [...tours];
 
-    // Search filter
+    
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -56,17 +56,17 @@ export default function ExploreVietnamPage() {
       );
     }
 
-    // Region filter
+    
     if (selectedRegion !== 'All') {
       result = result.filter((t) => t.region === selectedRegion);
     }
 
-    // Duration filter
+    
     if (selectedDuration !== 'All') {
       result = result.filter((t) => t.duration?.value === selectedDuration);
     }
 
-    // Price filter
+    
     result = result.filter((t) => t.price <= priceRange);
 
     setFilteredTours(result);
@@ -78,7 +78,7 @@ export default function ExploreVietnamPage() {
 
   return (
     <div className="explore-page">
-      {/* Hero Header */}
+      {}
       <div className="explore-page__header">
         <div className="explore-page__header-content">
           <h1>Explore Vietnam</h1>

@@ -4,12 +4,12 @@ import './SocialLogin.scss';
 const SocialLogin = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
-  // Remove /api from the end if present to get base backend URL
+  
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
   const backendUrl = apiUrl.replace('/api', '');
 
   useEffect(() => {
-    // Initialize Facebook SDK
+    
     window.fbAsyncInit = function () {
       FB.init({
         appId: '2114288385984509',
@@ -20,7 +20,7 @@ const SocialLogin = () => {
       });
     };
 
-    // Load Facebook SDK
+    
     if (!window.FB) {
       const script = document.createElement('script');
       script.src = 'https://connect.facebook.net/en_US/sdk.js';
@@ -32,13 +32,13 @@ const SocialLogin = () => {
 
   const handleGoogleLogin = () => {
     setGoogleLoading(true);
-    // Redirect to Google OAuth endpoint
+    
     window.location.href = `${backendUrl}/api/auth/google`;
   };
 
   const handleFacebookLogin = () => {
     setFacebookLoading(true);
-    // Redirect to Facebook OAuth endpoint
+    
     window.location.href = `${backendUrl}/api/auth/facebook`;
   };
 

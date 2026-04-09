@@ -1,11 +1,8 @@
-/**
- * Role-Based Authorization Middleware
- * Kiểm tra quyền người dùng theo role
- */
+
 
 import AppError from '../errors/AppError.js';
 
-// ✅ Check if user is admin
+
 export const authorizeAdmin = (req, res, next) => {
   if (req.user?.role !== 'admin') {
     throw new AppError(
@@ -16,7 +13,7 @@ export const authorizeAdmin = (req, res, next) => {
   next();
 };
 
-// ✅ Check if user is admin or staff
+
 export const authorizeAdminOrStaff = (req, res, next) => {
   if (!['admin', 'staff'].includes(req.user?.role)) {
     throw new AppError(
@@ -27,7 +24,7 @@ export const authorizeAdminOrStaff = (req, res, next) => {
   next();
 };
 
-// ✅ Check if user is artisan
+
 export const authorizeArtisan = (req, res, next) => {
   if (req.user?.role !== 'artisan') {
     throw new AppError(
@@ -38,7 +35,7 @@ export const authorizeArtisan = (req, res, next) => {
   next();
 };
 
-// ✅ Check if user is customer
+
 export const authorizeCustomer = (req, res, next) => {
   if (req.user?.role !== 'customer') {
     throw new AppError(
@@ -49,7 +46,7 @@ export const authorizeCustomer = (req, res, next) => {
   next();
 };
 
-// ✅ Check if user owns the resource
+
 export const authorizeOwner = (req, res, next) => {
   const resourceOwnerId = req.body.userId || req.params.userId;
 
@@ -62,7 +59,7 @@ export const authorizeOwner = (req, res, next) => {
   next();
 };
 
-// ✅ Allow multiple roles
+
 export const authorize = (...allowedRoles) => {
   return (req, res, next) => {
     if (!allowedRoles.includes(req.user?.role)) {

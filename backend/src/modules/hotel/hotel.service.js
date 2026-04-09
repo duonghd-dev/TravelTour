@@ -2,7 +2,6 @@ import Hotel from './hotel.model.js';
 import AppError from '../../common/errors/AppError.js';
 
 export const hotelService = {
-  // 📖 Lấy tất cả hotel (có phân trang, tìm kiếm, filter)
   getAllHotels: async (filters = {}) => {
     const {
       search,
@@ -14,7 +13,7 @@ export const hotelService = {
       limit = 10,
     } = filters;
 
-    const query = { status: 'active' };
+    const query = { publishStatus: 'active' };
 
     if (search) {
       query.$or = [
@@ -57,23 +56,20 @@ export const hotelService = {
     };
   },
 
-  // 🔍 Lấy chi tiết 1 hotel
   getHotelById: async (id) => {
     const hotel = await Hotel.findById(id);
-    if (!hotel || hotel.status !== 'active') {
+    if (!hotel || hotel.publishStatus !== 'active') {
       throw new AppError('Hotel not found', 404);
     }
     return hotel;
   },
 
-  // ➕ Tạo hotel mới (admin)
   createHotel: async (data) => {
     const hotel = new Hotel(data);
     await hotel.save();
     return hotel;
   },
 
-  // ✏️ Cập nhật hotel
   updateHotel: async (id, data) => {
     const hotel = await Hotel.findByIdAndUpdate(id, data, {
       new: true,
@@ -82,17 +78,15 @@ export const hotelService = {
     return hotel;
   },
 
-  // 🗑️ Xóa hotel
   deleteHotel: async (id) => {
     const hotel = await Hotel.findByIdAndUpdate(
       id,
-      { status: 'inactive' },
+      { publishStatus: 'inactive' },
       { new: true }
     );
     return hotel;
   },
 
-  // 🔎 Tìm kiếm hotel
   searchHotels: async (query) => {
     const hotels = await Hotel.find({
       $or: [
@@ -104,7 +98,6 @@ export const hotelService = {
     return hotels;
   },
 
-  // 📊 Lấy hotel theo category
   getByCategory: async (category) => {
     const hotels = await Hotel.find({
       category,

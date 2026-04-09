@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import {
   MessageCircle,
   Heart,
@@ -35,8 +37,7 @@ const ArtisanDetailPage = () => {
 
       try {
         setLoading(true);
-        const response = await artisanApi.getArtisanDetail(id);
-        const artisanData = response?.data || response;
+        const artisanData = await artisanApi.getArtisanDetail(id);
 
         if (artisanData && artisanData._id) {
           setArtisan(artisanData);
@@ -54,7 +55,6 @@ const ArtisanDetailPage = () => {
     fetchArtisanDetail();
   }, [id]);
 
-  // Loading State
   if (loading) {
     return (
       <div className="flex-center section-pad" style={{ minHeight: '50vh' }}>
@@ -63,7 +63,6 @@ const ArtisanDetailPage = () => {
     );
   }
 
-  // Error State
   if (!artisan) {
     return (
       <div
@@ -100,7 +99,7 @@ const ArtisanDetailPage = () => {
         overflowX: 'hidden',
       }}
     >
-      {/* ====================== HERO HEADER ====================== */}
+      {}
       <header className="hero-header">
         <div className="hero-header__cover">
           <img src={coverImage} alt="Workshop Cover" />
@@ -120,7 +119,10 @@ const ArtisanDetailPage = () => {
                 />
                 {artisan.isVerified && (
                   <div className="hero-header__badge-pos">
-                    <span className="hero-header__badge-icon">✓</span>
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      className="hero-header__badge-icon"
+                    />
                     <span className="hero-header__badge-text">
                       HERITAGE VERIFIED
                     </span>
@@ -191,7 +193,7 @@ const ArtisanDetailPage = () => {
 
       <div className="content-frame">
         <main className="container">
-          {/* ====================== STATS GRID ====================== */}
+          {}
           <div className="stats-grid">
             <div className="stat-box">
               <div className="stat-box__val">
@@ -231,7 +233,7 @@ const ArtisanDetailPage = () => {
             </div>
           </div>
 
-          {/* ====================== BIO & STORY ====================== */}
+          {}
           <section className="section-pad" style={{ paddingTop: 0 }}>
             <h3 className="section-heading">
               {ARTISAN_CONSTANTS.SECTION_TITLES.HERITAGE_STORY}
@@ -279,7 +281,7 @@ const ArtisanDetailPage = () => {
               </div>
 
               <div className="story-content">
-                {/* ====================== SLOGAN SECTION ====================== */}
+                {}
                 {artisan.slogan && (
                   <section className="slogan-section">
                     <blockquote className="slogan-quote">
@@ -301,7 +303,7 @@ const ArtisanDetailPage = () => {
         </main>
       </div>
 
-      {/* ====================== EXPERIENCES ====================== */}
+      {}
       {artisan.experiences && artisan.experiences.length > 0 && (
         <section className="experiences-wrapper">
           <div className="container">
@@ -446,7 +448,7 @@ const ArtisanDetailPage = () => {
         </section>
       )}
 
-      {/* ====================== RECOMMENDED EXPERIENCES ====================== */}
+      {}
       {artisan.recommendedExperiences &&
         artisan.recommendedExperiences.length > 0 && (
           <section className="experiences-wrapper">
@@ -468,69 +470,84 @@ const ArtisanDetailPage = () => {
 
                 return (
                   <>
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns:
-                          'repeat(auto-fill, minmax(300px, 1fr))',
-                        gap: '30px',
-                        marginBottom: '40px',
-                      }}
-                    >
-                      {paginatedItems.map((rec) => (
-                        <div key={rec._id} className="rec-exp-card">
-                          <div className="rec-exp-image">
-                            <img
-                              src={
-                                rec.images?.[0] ||
-                                ARTISAN_CONSTANTS.PLACEHOLDER_EXPERIENCE
-                              }
-                              alt={rec.title}
-                            />
-                          </div>
-                          <div className="rec-exp-content">
-                            <div className="rec-exp-artisan">
-                              <p className="rec-exp-artisan-name">
-                                {rec.artisan?.userId?.firstName}{' '}
-                                {rec.artisan?.userId?.lastName}
-                              </p>
-                              <span className="rec-exp-craft">
-                                {rec.artisan?.craft}
-                              </span>
-                            </div>
+                    {(() => {
+                      const gridColumns = (() => {
+                        if (paginatedItems.length === 2)
+                          return 'repeat(2, 1fr)';
+                        if (paginatedItems.length === 3)
+                          return 'repeat(3, 1fr)';
+                        return 'repeat(4, 1fr)';
+                      })();
 
-                            <h4 className="rec-exp-title">{rec.title}</h4>
-                            <p className="rec-exp-desc">{rec.description}</p>
-
-                            <div className="rec-exp-info">
-                              <div className="info-item">
-                                <Clock size={16} /> {rec.duration?.value || 0}{' '}
-                                {rec.duration?.unit ===
-                                ARTISAN_CONSTANTS.DURATION_UNITS.HOUR
-                                  ? 'Giờ'
-                                  : rec.duration?.unit}
+                      return (
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: gridColumns,
+                            gap: '30px',
+                            marginBottom: '40px',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {paginatedItems.map((rec) => (
+                            <div key={rec._id} className="rec-exp-card">
+                              <div className="rec-exp-image">
+                                <img
+                                  src={
+                                    rec.images?.[0] ||
+                                    ARTISAN_CONSTANTS.PLACEHOLDER_EXPERIENCE
+                                  }
+                                  alt={rec.title}
+                                />
                               </div>
-                              <div className="info-item">
-                                <Star size={16} /> {rec.ratingAverage || 0} (
-                                {rec.totalReviews || 0})
+                              <div className="rec-exp-content">
+                                <div className="rec-exp-artisan">
+                                  <p className="rec-exp-artisan-name">
+                                    {rec.artisan?.userId?.firstName}{' '}
+                                    {rec.artisan?.userId?.lastName}
+                                  </p>
+                                  <span className="rec-exp-craft">
+                                    {rec.artisan?.craft}
+                                  </span>
+                                </div>
+
+                                <h4 className="rec-exp-title">{rec.title}</h4>
+                                <p className="rec-exp-desc">
+                                  {rec.description}
+                                </p>
+
+                                <div className="rec-exp-info">
+                                  <div className="info-item">
+                                    <Clock size={16} />{' '}
+                                    {rec.duration?.value || 0}{' '}
+                                    {rec.duration?.unit ===
+                                    ARTISAN_CONSTANTS.DURATION_UNITS.HOUR
+                                      ? 'Giờ'
+                                      : rec.duration?.unit}
+                                  </div>
+                                  <div className="info-item">
+                                    <Star size={16} /> {rec.ratingAverage || 0}{' '}
+                                    ({rec.totalReviews || 0})
+                                  </div>
+                                </div>
+
+                                <div className="rec-exp-footer">
+                                  <div className="rec-exp-price">
+                                    {new Intl.NumberFormat('vi-VN').format(
+                                      rec.price || 0
+                                    )}
+                                    đ
+                                  </div>
+                                  <button className="btn btn--primary btn--small">
+                                    {ARTISAN_CONSTANTS.BUTTONS.BOOK}
+                                  </button>
+                                </div>
                               </div>
                             </div>
-
-                            <div className="rec-exp-footer">
-                              <div className="rec-exp-price">
-                                {new Intl.NumberFormat('vi-VN').format(
-                                  rec.price || 0
-                                )}
-                                đ
-                              </div>
-                              <button className="btn btn--primary btn--small">
-                                {ARTISAN_CONSTANTS.BUTTONS.BOOK}
-                              </button>
-                            </div>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })()}
 
                     {totalPages > 1 && (
                       <div className="pagination-controls">
@@ -568,7 +585,7 @@ const ArtisanDetailPage = () => {
           </section>
         )}
 
-      {/* ====================== REVIEWS ====================== */}
+      {}
       {artisan.reviews && artisan.reviews.length > 0 && (
         <section className="container section-pad">
           <h3 className="section-heading">
@@ -656,7 +673,7 @@ const ArtisanDetailPage = () => {
         </section>
       )}
 
-      {/* ====================== CHATBOX ====================== */}
+      {}
       {isChatOpen && (
         <ChatBox
           recipientId={artisan?._id}

@@ -1,15 +1,11 @@
-/**
- * Validation schemas for Review module
- */
 
-/**
- * Validate create review request
- */
+
+
 export const validateCreateReview = async (req, res, next) => {
   try {
     const { experienceId, rating, content } = req.body;
 
-    // Validate required fields
+    
     if (!experienceId || !rating || !content) {
       return res.status(400).json({
         success: false,
@@ -17,7 +13,7 @@ export const validateCreateReview = async (req, res, next) => {
       });
     }
 
-    // Validate rating
+    
     if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
@@ -25,7 +21,7 @@ export const validateCreateReview = async (req, res, next) => {
       });
     }
 
-    // Validate content
+    
     if (typeof content !== 'string' || content.trim().length === 0) {
       return res.status(400).json({
         success: false,
@@ -50,14 +46,12 @@ export const validateCreateReview = async (req, res, next) => {
   }
 };
 
-/**
- * Validate update review request
- */
+
 export const validateUpdateReview = async (req, res, next) => {
   try {
     const { rating, content } = req.body;
 
-    // At least one field should be provided
+    
     if (!rating && !content) {
       return res.status(400).json({
         success: false,
@@ -65,7 +59,7 @@ export const validateUpdateReview = async (req, res, next) => {
       });
     }
 
-    // Validate rating if provided
+    
     if (rating !== undefined) {
       if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
         return res.status(400).json({
@@ -75,7 +69,7 @@ export const validateUpdateReview = async (req, res, next) => {
       }
     }
 
-    // Validate content if provided
+    
     if (content !== undefined) {
       if (typeof content !== 'string' || content.trim().length === 0) {
         return res.status(400).json({

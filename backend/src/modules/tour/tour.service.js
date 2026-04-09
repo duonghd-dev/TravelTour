@@ -2,7 +2,6 @@ import Tour from './tour.model.js';
 import AppError from '../../common/errors/AppError.js';
 
 export const tourService = {
-  // 📖 Lấy tất cả tour (có phân trang, tìm kiếm, filter)
   getAllTours: async (filters = {}) => {
     const {
       search,
@@ -15,7 +14,7 @@ export const tourService = {
       limit = 10,
     } = filters;
 
-    const query = { status: 'active' };
+    const query = { publishStatus: 'active' };
 
     if (search) {
       query.$or = [
@@ -62,23 +61,20 @@ export const tourService = {
     };
   },
 
-  // 🔍 Lấy chi tiết 1 tour
   getTourById: async (id) => {
     const tour = await Tour.findById(id);
-    if (!tour || tour.status !== 'active') {
+    if (!tour || tour.publishStatus !== 'active') {
       throw new AppError('Tour not found', 404);
     }
     return tour;
   },
 
-  // ➕ Tạo tour mới (admin)
   createTour: async (data) => {
     const tour = new Tour(data);
     await tour.save();
     return tour;
   },
 
-  // ✏️ Cập nhật tour
   updateTour: async (id, data) => {
     const tour = await Tour.findByIdAndUpdate(id, data, {
       new: true,
@@ -87,17 +83,15 @@ export const tourService = {
     return tour;
   },
 
-  // 🗑️ Xóa tour
   deleteTour: async (id) => {
     const tour = await Tour.findByIdAndUpdate(
       id,
-      { status: 'inactive' },
+      { publishStatus: 'inactive' },
       { new: true }
     );
     return tour;
   },
 
-  // 🔎 Tìm kiếm tour
   searchTours: async (query) => {
     const tours = await Tour.find({
       $or: [
@@ -109,7 +103,6 @@ export const tourService = {
     return tours;
   },
 
-  // 📊 Lấy tour theo region
   getByRegion: async (region) => {
     const tours = await Tour.find({
       region,
@@ -118,7 +111,6 @@ export const tourService = {
     return tours;
   },
 
-  // ⏱️ Lấy tour theo duration
   getByDuration: async (days) => {
     const tours = await Tour.find({
       'duration.value': days,

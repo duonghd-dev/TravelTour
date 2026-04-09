@@ -6,9 +6,6 @@ import { profileApi } from '@/features/profile/api/profileApi';
 import { useToast } from '@/contexts';
 import './ExperiencesPage.scss';
 
-// ==========================================
-// COMPONENT EXPERIENCE CARD
-// ==========================================
 const ExperienceCard = ({
   experience,
   fromCheckout = false,
@@ -20,7 +17,6 @@ const ExperienceCard = ({
   const [favoriteId, setFavoriteId] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Check favorite status on mount
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       try {
@@ -54,19 +50,17 @@ const ExperienceCard = ({
       setLoading(true);
 
       if (isFavorite && favoriteId) {
-        // Remove from favorites
         await profileApi.removeFavorite(favoriteId);
         setIsFavorite(false);
         setFavoriteId(null);
       } else {
-        // Add to favorites
         const response = await profileApi.addFavorite(
           experience._id,
           'experience'
         );
         if (response.success) {
           setIsFavorite(true);
-          // Get the new favorites to find the ID
+
           const favorites = response.data || [];
           const newFavorite = favorites.find(
             (fav) =>
@@ -92,16 +86,15 @@ const ExperienceCard = ({
   const handleBookNow = (e) => {
     e.stopPropagation();
 
-    // Check if adding experience when tour already exists
     if (fromCheckout && currentItems && currentItems.length > 0) {
       const hasTour = currentItems.some((item) => item.itemType === 'tour');
 
       if (hasTour) {
         showWarning(
-          '⚠️ Tour đã bao gồm lịch trình đầy đủ. Bạn không thể thêm trải nghiệm khác!',
+          'Tour đã bao gồm lịch trình đầy đủ. Bạn không thể thêm trải nghiệm khác!',
           5000
         );
-        return; // Don't proceed
+        return;
       }
     }
 
@@ -113,7 +106,6 @@ const ExperienceCard = ({
     };
 
     if (fromCheckout) {
-      // Add to existing cart instead of replacing
       navigate('/checkout', {
         state: {
           bookingData,
@@ -122,7 +114,6 @@ const ExperienceCard = ({
         },
       });
     } else {
-      // Normal booking - replace the cart
       navigate('/checkout', {
         state: {
           bookingData,
@@ -131,7 +122,6 @@ const ExperienceCard = ({
     }
   };
 
-  // Xử lý dữ liệu từ backend
   const rating = experience.ratingAverage || 4.5;
   const reviewCount = experience.totalReviews || 0;
   const artisanName =
@@ -139,7 +129,7 @@ const ExperienceCard = ({
 
   return (
     <div className="experience-card group" onClick={handleCardClick}>
-      {/* Hình ảnh */}
+      {}
       <div className="experience-card__image-wrapper">
         <img
           src={experience.images?.[0] || 'https://via.placeholder.com/600'}
@@ -168,7 +158,7 @@ const ExperienceCard = ({
         )}
       </div>
 
-      {/* Nội dung chi tiết */}
+      {}
       <div className="experience-card__content">
         <div className="experience-card__artisan">Bởi {artisanName}</div>
 
@@ -196,11 +186,17 @@ const ExperienceCard = ({
 
         {experience.timeSlots && experience.timeSlots.length > 0 && (
           <div className="experience-card__timeslots">
-            {experience.timeSlots.map((slot, index) => (
-              <span key={index} className="slot">
-                {typeof slot === 'string' ? slot : slot.time}
-              </span>
-            ))}
+            {experience.timeSlots
+              .filter((slot) => {
+                // Lọc bỏ các time slot không hợp lệ
+                const time = typeof slot === 'string' ? slot : slot?.time;
+                return time && typeof time === 'string' && time.trim() !== '';
+              })
+              .map((slot, index) => (
+                <span key={index} className="slot">
+                  {typeof slot === 'string' ? slot : slot.time}
+                </span>
+              ))}
           </div>
         )}
 
@@ -210,7 +206,7 @@ const ExperienceCard = ({
 
         <p className="experience-card__desc">{experience.description}</p>
 
-        {/* Giá & Nút Đặt chỗ */}
+        {}
         <div className="experience-card__footer">
           <div className="experience-card__price">
             <span className="label">Giá từ</span>
@@ -228,20 +224,15 @@ const ExperienceCard = ({
   );
 };
 
-// ==========================================
-// MAIN PAGE COMPONENT
-// ==========================================
 export default function ExperiencesPage() {
   const location = useLocation();
   const [experiences, setExperiences] = useState([]);
   const [filteredExperiences, setFilteredExperiences] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check if coming from checkout
   const fromCheckout = location.state?.fromCheckout || false;
   const currentItems = location.state?.currentItems || [];
 
-  // Filter states
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [maxDuration, setMaxDuration] = useState(14);
@@ -262,7 +253,6 @@ export default function ExperiencesPage() {
     'Đồng bằng sông Cửu Long',
   ];
 
-  // Lấy dữ liệu từ API backend
   useEffect(() => {
     const fetchExperiences = async () => {
       setIsLoading(true);
@@ -282,14 +272,22 @@ export default function ExperiencesPage() {
     fetchExperiences();
   }, []);
 
-  // Filter logic
   useEffect(() => {
     let result = [...experiences];
 
     if (activeCategory !== 'Tất cả') {
       result = result.filter((exp) => {
-        const artisanCategory = exp.artisanId?.category;
-        return artisanCategory === activeCategory;
+        // Map craft to category
+        const craftToCategoryMap = {
+          'Thêu tay truyền thống': 'Thủ công mỹ nghệ',
+          'Dệt lụa tơ tằm': 'Thủ công mỹ nghệ',
+          'Làm nón lá truyền thống': 'Thủ công mỹ nghệ',
+          'Sơn mài truyền thống': 'Thủ công mỹ nghệ',
+          'Làm gốm trắng': 'Thủ công mỹ nghệ',
+        };
+        const artisanCraft = exp.artisanId?.craft;
+        const category = craftToCategoryMap[artisanCraft] || 'Thủ công mỹ nghệ';
+        return category === activeCategory;
       });
     }
 
@@ -325,7 +323,7 @@ export default function ExperiencesPage() {
     }
 
     setFilteredExperiences(result);
-    setDisplayCount(6); // Reset pagination khi filter thay đổi
+    setDisplayCount(6);
   }, [
     experiences,
     activeCategory,
@@ -345,7 +343,7 @@ export default function ExperiencesPage() {
 
   return (
     <div className="experiences-page">
-      {/* Header */}
+      {}
       <header className="experiences-page__header">
         <h1 className="experiences-page__title">Hành Trình Tinh Hoa</h1>
         <p className="experiences-page__subtitle">
@@ -355,9 +353,9 @@ export default function ExperiencesPage() {
         </p>
       </header>
 
-      {/* Main Body */}
+      {}
       <div className="experiences-page__body">
-        {/* Sidebar */}
+        {}
         <aside className="experiences-page__sidebar">
           <div className="filter-block">
             <h3 className="filter-block__title">Danh mục</h3>
@@ -415,7 +413,7 @@ export default function ExperiencesPage() {
           </div>
         </aside>
 
-        {/* Main Area */}
+        {}
         <main className="experiences-page__main">
           <div className="experiences-page__toolbar">
             <div className="experiences-page__search">

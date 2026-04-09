@@ -1,9 +1,4 @@
-/**
- * Utility function để combine class names
- * Similar to classnames/clsx - combines conditional classes
- * @param {...any} classes - Classes hoặc objects với condition
- * @returns {string} Combined class string
- */
+
 const cn = (...classes) => {
   return classes
     .reduce((acc, val) => {

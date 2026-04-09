@@ -4,10 +4,10 @@ import { authenticateToken } from '../../common/middleware/auth.middleware.js';
 
 const router = express.Router();
 
-// Tất cả routes yêu cầu authentication
+
 router.use(authenticateToken);
 
-// Conversations
+
 router.post('/conversations', chatController.getOrCreateConversation);
 router.get('/conversations', chatController.getUserConversations);
 router.patch(
@@ -15,7 +15,7 @@ router.patch(
   chatController.markConversationAsRead
 );
 
-// Messages
+
 router.post('/messages', chatController.sendMessage);
 router.post('/messages/ai-response', chatController.sendAIResponse);
 router.get(
@@ -25,7 +25,7 @@ router.get(
 router.patch('/messages/:messageId/read', chatController.markAsRead);
 router.delete('/messages/:messageId', chatController.deleteMessage);
 
-// Search
+
 router.get('/messages/search', chatController.searchMessages);
 
 export default router;

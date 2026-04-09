@@ -4,7 +4,7 @@ import './OTPForm.scss';
 
 const OTPForm = ({ email = '', userId = '', onSuccess = () => {} }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [timeLeft, setTimeLeft] = useState(119); // 1:59 in seconds
+  const [timeLeft, setTimeLeft] = useState(119); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const inputRefs = useRef([]);
@@ -30,14 +30,14 @@ const OTPForm = ({ email = '', userId = '', onSuccess = () => {} }) => {
   };
 
   const handleChange = (index, value) => {
-    if (value.length > 1) return; // Only allow single digit
-    if (!/^\d*$/.test(value)) return; // Only allow digits
+    if (value.length > 1) return; 
+    if (!/^\d*$/.test(value)) return; 
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
+    
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -45,7 +45,7 @@ const OTPForm = ({ email = '', userId = '', onSuccess = () => {} }) => {
 
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      // Move to previous input on backspace if current is empty
+      
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === 'ArrowLeft' && index > 0) {
       inputRefs.current[index - 1]?.focus();
@@ -74,7 +74,7 @@ const OTPForm = ({ email = '', userId = '', onSuccess = () => {} }) => {
     try {
       const result = await verifyLoginOTP(userId, code);
 
-      // Extract data from new response format
+      
       const { token, user } = result.data || result;
 
       localStorage.setItem('token', token);

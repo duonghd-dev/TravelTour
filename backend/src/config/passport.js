@@ -7,7 +7,7 @@ import OAuthProvider from '../modules/user/oauthProvider.model.js';
 import { comparePassword } from '../common/utils/hash.js';
 import logger from '../common/utils/logger.js';
 
-// Local Strategy for email/password login
+
 passport.use(
   new LocalStrategy(
     {
@@ -37,12 +37,12 @@ passport.use(
   )
 );
 
-// Serialize user for session
+
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
 
-// Deserialize user from session
+
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);
@@ -53,7 +53,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Google OAuth Strategy
+
 passport.use(
   new GoogleStrategy.Strategy(
     {
@@ -63,7 +63,7 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Tìm OAuth provider record
+        
         let oauthProvider = await OAuthProvider.findOne({
           provider: 'google',
           providerId: profile.id,
@@ -72,14 +72,14 @@ passport.use(
         let user;
 
         if (oauthProvider) {
-          // OAuth provider đã tồn tại, lấy user
+          
           user = await User.findById(oauthProvider.userId);
         } else {
-          // OAuth provider chưa tồn tại, tìm hoặc tạo user
+          
           user = await User.findOne({ email: profile.emails?.[0]?.value });
 
           if (!user) {
-            // Tạo user mới
+            
             user = await User.create({
               firstName:
                 profile.given_name ||
@@ -94,7 +94,7 @@ passport.use(
             });
           }
 
-          // Tạo OAuth provider record
+          
           oauthProvider = await OAuthProvider.create({
             userId: user._id,
             provider: 'google',
@@ -114,7 +114,7 @@ passport.use(
   )
 );
 
-// Facebook OAuth Strategy
+
 passport.use(
   new FacebookStrategy.Strategy(
     {
@@ -131,7 +131,7 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Tìm OAuth provider record
+        
         let oauthProvider = await OAuthProvider.findOne({
           provider: 'facebook',
           providerId: profile.id,
@@ -140,14 +140,14 @@ passport.use(
         let user;
 
         if (oauthProvider) {
-          // OAuth provider đã tồn tại, lấy user
+          
           user = await User.findById(oauthProvider.userId);
         } else {
-          // OAuth provider chưa tồn tại, tìm hoặc tạo user
+          
           user = await User.findOne({ email: profile.emails?.[0]?.value });
 
           if (!user) {
-            // Tạo user mới
+            
             user = await User.create({
               firstName:
                 profile.name?.givenName ||
@@ -164,7 +164,7 @@ passport.use(
             });
           }
 
-          // Tạo OAuth provider record
+          
           oauthProvider = await OAuthProvider.create({
             userId: user._id,
             provider: 'facebook',

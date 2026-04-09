@@ -25,7 +25,7 @@ const AdminHeader = () => {
   const notificationRef = useRef(null);
   const messageRef = useRef(null);
 
-  // Load conversations from API
+  
   const loadConversations = async () => {
     try {
       setLoadingConvs(true);
@@ -39,14 +39,14 @@ const AdminHeader = () => {
     }
   };
 
-  // Load conversations on mount
+  
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'staff') {
       loadConversations();
     }
   }, [user]);
 
-  // Auto-refresh conversations periodically
+  
   useEffect(() => {
     if (user?.role !== 'admin' && user?.role !== 'staff') return;
 
@@ -57,7 +57,7 @@ const AdminHeader = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Helper function để format thời gian
+  
   const getTimeAgo = (date) => {
     const now = new Date();
     const diffMs = now - new Date(date);
@@ -73,7 +73,7 @@ const AdminHeader = () => {
     return new Date(date).toLocaleDateString('vi-VN');
   };
 
-  // Mock data
+  
   const notifications = [
     { id: 1, message: 'New user registration', time: '5 minutes ago' },
     { id: 2, message: 'New booking received', time: '15 minutes ago' },
@@ -82,13 +82,13 @@ const AdminHeader = () => {
     { id: 5, message: 'New report submitted', time: '3 hours ago' },
   ];
 
-  // Tính unread message count từ conversations
+  
   const messageCount = conversations.reduce(
     (sum, conv) => sum + (conv.unreadCount || 0),
     0
   );
 
-  // Format messages từ conversations
+  
   const messages = conversations.slice(0, 10).map((conv) => ({
     id: conv._id,
     conversationId: conv._id,
@@ -102,9 +102,9 @@ const AdminHeader = () => {
     unreadCount: conv.unreadCount || 0,
   }));
 
-  const notificationCount = 5; // Mock notification count
+  const notificationCount = 5; 
 
-  // Handle click outside to close dropdowns
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -136,13 +136,13 @@ const AdminHeader = () => {
     navigate('/login');
   };
 
-  // Get user display name
+  
   const displayName = user
     ? `${user.firstName ? user.firstName + ' ' : ''}${user.lastName || ''}`.trim() ||
       user.email
     : null;
 
-  // Get user role display
+  
   const userRole = user?.role || 'User';
   const roleDisplay = userRole.charAt(0).toUpperCase() + userRole.slice(1);
 
@@ -158,7 +158,7 @@ const AdminHeader = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchValue.trim()) {
-      // Handle search logic here
+      
     }
   };
 
@@ -166,7 +166,7 @@ const AdminHeader = () => {
     <>
       <header className="admin-header">
         <div className="admin-header__container">
-          {/* Search Bar */}
+          {}
           <div className="admin-header__search-wrapper">
             <form className="admin-header__search" onSubmit={handleSearch}>
               <input
@@ -186,9 +186,9 @@ const AdminHeader = () => {
             </form>
           </div>
 
-          {/* Auth Section */}
+          {}
           <div className="admin-header__auth">
-            {/* Notification Button */}
+            {}
             <div className="admin-header__notification" ref={notificationRef}>
               <button
                 className="admin-header__notification-btn"
@@ -204,7 +204,7 @@ const AdminHeader = () => {
                 )}
               </button>
 
-              {/* Notification Dropdown */}
+              {}
               {isNotificationOpen && (
                 <div className="admin-header__notification-menu">
                   <div className="admin-header__dropdown-header">
@@ -243,7 +243,7 @@ const AdminHeader = () => {
               )}
             </div>
 
-            {/* Message Button */}
+            {}
             <div className="admin-header__message" ref={messageRef}>
               <button
                 className="admin-header__message-btn"
@@ -257,7 +257,7 @@ const AdminHeader = () => {
                 )}
               </button>
 
-              {/* Message Dropdown */}
+              {}
               {isMessageOpen && (
                 <div className="admin-header__message-menu">
                   <div className="admin-header__dropdown-header">
@@ -266,7 +266,7 @@ const AdminHeader = () => {
                       className="admin-header__clear-btn"
                       onClick={async () => {
                         try {
-                          // Mark all unread conversations as read
+                          
                           const unreadConvs = conversations.filter(
                             (c) => c.unreadCount > 0
                           );
@@ -275,7 +275,7 @@ const AdminHeader = () => {
                               chatApi.markConversationAsRead(conv._id)
                             )
                           );
-                          // Update conversations list - set all unreadCount to 0
+                          
                           const updatedConvs = conversations.map((conv) => ({
                             ...conv,
                             unreadCount: 0,
@@ -293,7 +293,7 @@ const AdminHeader = () => {
                     </button>
                   </div>
 
-                  {/* Message Search */}
+                  {}
                   <div className="admin-header__message-search">
                     <input
                       type="text"
@@ -331,11 +331,11 @@ const AdminHeader = () => {
                             );
                             if (conversation && conversation.unreadCount > 0) {
                               try {
-                                // Mark conversation as read
+                                
                                 await chatApi.markConversationAsRead(
                                   conversation._id
                                 );
-                                // Update conversations list with unreadCount = 0
+                                
                                 const updatedConvs = conversations.map(
                                   (conv) =>
                                     conv._id === conversation._id
@@ -424,7 +424,7 @@ const AdminHeader = () => {
                   </span>
                 </button>
 
-                {/* Profile Dropdown Menu */}
+                {}
                 {isProfileOpen && (
                   <div className="admin-header__profile-menu">
                     <div className="admin-header__profile-header">
@@ -470,7 +470,7 @@ const AdminHeader = () => {
         </div>
       </header>
 
-      {/* Chat Messenger with floating windows */}
+      {}
       {user && (user.role === 'admin' || user.role === 'staff') && (
         <ChatMessenger />
       )}

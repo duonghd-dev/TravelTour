@@ -1,8 +1,4 @@
-/**
- * Logger Utility
- * Simple logger with timestamps and levels
- * In production, should be upgraded to Winston or Pino
- */
+
 
 const LOG_LEVELS = {
   DEBUG: 0,
@@ -12,11 +8,11 @@ const LOG_LEVELS = {
 };
 
 const LOG_COLORS = {
-  DEBUG: '\x1b[36m', // Cyan
-  INFO: '\x1b[32m', // Green
-  WARN: '\x1b[33m', // Yellow
-  ERROR: '\x1b[31m', // Red
-  RESET: '\x1b[0m', // Reset
+  DEBUG: '\x1b[36m', 
+  INFO: '\x1b[32m', 
+  WARN: '\x1b[33m', 
+  ERROR: '\x1b[31m', 
+  RESET: '\x1b[0m', 
 };
 
 const getCurrentTimestamp = () => {
@@ -48,35 +44,35 @@ const formatLog = (level, message, data) => {
 };
 
 export const logger = {
-  // 🔵 Debug level
+  
   debug: (message, data) => {
     if (shouldLog('DEBUG')) {
       console.log(formatLog('DEBUG', message, data));
     }
   },
 
-  // 🟢 Info level
+  
   info: (message, data) => {
     if (shouldLog('INFO')) {
       console.log(formatLog('INFO', message, data));
     }
   },
 
-  // 🟡 Warn level
+  
   warn: (message, data) => {
     if (shouldLog('WARN')) {
       console.warn(formatLog('WARN', message, data));
     }
   },
 
-  // 🔴 Error level
+  
   error: (message, data) => {
     if (shouldLog('ERROR')) {
       console.error(formatLog('ERROR', message, data));
     }
   },
 
-  // 📊 Request logging middleware
+  
   logRequest: (req, res, next) => {
     const start = Date.now();
     const method = req.method;

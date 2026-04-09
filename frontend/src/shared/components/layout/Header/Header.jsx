@@ -15,10 +15,10 @@ const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Ref for profile dropdown
+  
   const profileRef = useRef(null);
 
-  // Handle click outside to close profile dropdown
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -35,7 +35,7 @@ const Header = () => {
     };
   }, [isProfileOpen]);
 
-  // Check if current path matches link path
+  
   const isActiveLink = (linkPath) => {
     if (linkPath === '/') {
       return location.pathname === '/';
@@ -49,31 +49,31 @@ const Header = () => {
     navigate('/login');
   };
 
-  // Get user display name
+  
   const displayName = user
     ? `${user.firstName ? user.firstName + ' ' : ''}${user.lastName || ''}`.trim() ||
       user.email
     : null;
 
-  // Get user role display
+  
   const userRole = user?.role || 'User';
   const roleDisplay = userRole.charAt(0).toUpperCase() + userRole.slice(1);
 
-  // Get user gender display
+  
 
   const getAvatarUrl = (avatar, gender) => {
-    // If avatar is a data URL (base64), use it directly
+    
     if (avatar && avatar.startsWith('data:')) {
       return avatar;
     }
-    // If avatar is a path string (e.g., 'assets/images/avatarDefault/maleAvatar.png')
+    
     if (avatar && typeof avatar === 'string') {
       return `/${avatar}`;
     }
-    // If avatar is null or empty, use default by gender
+    
     if (gender === 'male') return maleAvatarImg;
     if (gender === 'female') return femaleAvatarImg;
-    return maleAvatarImg; // Default to male avatar
+    return maleAvatarImg; 
   };
 
   const initials = displayName
@@ -88,7 +88,7 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header__container">
-        {/* Logo and Brand */}
+        {}
         <Link to="/" className="header__brand">
           <div className="header__logo">
             <img
@@ -100,7 +100,7 @@ const Header = () => {
           <h1 className="header__title">Van Hoá Trinh</h1>
         </Link>
 
-        {/* Navigation Menu */}
+        {}
         <nav className={`header__nav ${isMenuOpen ? 'open' : ''}`}>
           {HEADER_NAV_LINKS.map((link) => (
             <Link
@@ -114,9 +114,9 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* Mobile Hamburger + Auth Wrapper */}
+        {}
         <div className="header__mobile-wrapper">
-          {/* Menu Icon Button */}
+          {}
           <button
             className="header__menu-icon"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -125,7 +125,7 @@ const Header = () => {
             <img src={menuIcon} alt="Menu" className="header__menu-icon-img" />
           </button>
 
-          {/* Auth Section */}
+          {}
           <div className="header__auth">
             {user ? (
               <div className="header__profile" ref={profileRef}>
@@ -203,7 +203,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {}
       {isMenuOpen && (
         <div
           className="header__overlay"

@@ -3,21 +3,19 @@ import Artisan from '../artisan/artisan.model.js';
 import Experience from '../experience/experience.model.js';
 import logger from '../../common/utils/logger.js';
 
-/**
- * Tạo review cho experience
- */
+
 export const createReview = async (userId, experienceId, reviewData) => {
   try {
-    // Kiểm tra experience có tồn tại không
+    
     const experience = await Experience.findById(experienceId);
     if (!experience) {
       throw new Error('Không tìm thấy trải nghiệm');
     }
 
-    // Lấy artisanId từ experience
+    
     const artisanId = experience.artisanId;
 
-    // Kiểm tra user đã review experience này chưa
+    
     const existingReview = await Review.findOne({
       experienceId,
       userId,
@@ -27,7 +25,7 @@ export const createReview = async (userId, experienceId, reviewData) => {
       throw new Error('Bạn đã review trải nghiệm này rồi');
     }
 
-    // Tạo review mới
+    
     const review = new Review({
       experienceId,
       artisanId,
@@ -37,10 +35,10 @@ export const createReview = async (userId, experienceId, reviewData) => {
 
     await review.save();
 
-    // Cập nhật rating của experience
+    
     await updateExperienceRating(experienceId);
 
-    // Cập nhật rating của artisan
+    
     await updateArtisanRating(artisanId);
 
     return {
@@ -54,9 +52,7 @@ export const createReview = async (userId, experienceId, reviewData) => {
   }
 };
 
-/**
- * Lấy reviews cho experience
- */
+
 export const getExperienceReviews = async (experienceId) => {
   try {
     const reviews = await Review.find({ experienceId })
@@ -75,9 +71,7 @@ export const getExperienceReviews = async (experienceId) => {
   }
 };
 
-/**
- * Lấy reviews cho artisan
- */
+
 export const getArtisanReviews = async (artisanId) => {
   try {
     const reviews = await Review.find({ artisanId })
@@ -96,9 +90,7 @@ export const getArtisanReviews = async (artisanId) => {
   }
 };
 
-/**
- * Cập nhật rating của experience
- */
+
 export const updateExperienceRating = async (experienceId) => {
   try {
     const reviews = await Review.find({ experienceId }).lean();
@@ -124,9 +116,7 @@ export const updateExperienceRating = async (experienceId) => {
   }
 };
 
-/**
- * Cập nhật rating của artisan từ tất cả experiences
- */
+
 export const updateArtisanRating = async (artisanId) => {
   try {
     const experiences = await Experience.find({ artisanId }).lean();
@@ -159,9 +149,7 @@ export const updateArtisanRating = async (artisanId) => {
   }
 };
 
-/**
- * Xóa review
- */
+
 export const deleteReview = async (reviewId, userId) => {
   try {
     const review = await Review.findById(reviewId);
@@ -170,14 +158,14 @@ export const deleteReview = async (reviewId, userId) => {
       throw new Error('Không tìm thấy review');
     }
 
-    // Kiểm tra quyền (chỉ owner hoặc admin mới có thể xóa)
+    
     if (review.userId.toString() !== userId.toString()) {
       throw new Error('Không có quyền xóa review này');
     }
 
     await Review.findByIdAndDelete(reviewId);
 
-    // Cập nhật lại rating
+    
     await updateExperienceRating(review.experienceId);
     await updateArtisanRating(review.artisanId);
 

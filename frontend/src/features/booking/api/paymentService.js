@@ -1,29 +1,21 @@
-/**
- * Payment Service
- * Handle VNPay, PayPal and other payment methods
- */
+
 
 import apiService from '@/services/api/apiService.js';
 
 const paymentAPI = '/api/v1/payments';
 
-/**
- * Create VNPay payment
- * @param {string} bookingId - Booking ID
- * @param {number} amount - Amount in VND
- * @returns {Promise}
- */
+
 export const createVNPayPayment = async (bookingId, amount) => {
   try {
     const response = await apiService.post(`${paymentAPI}/vnpay/create`, {
       bookingId,
-      amount, // VND
+      amount, 
       clientIp: await getClientIP(),
       returnUrl: `${window.location.origin}/checkout/payment-result`,
     });
     console.log('[paymentService] Raw Response:', response);
     console.log('[paymentService] Response.paymentUrl:', response?.paymentUrl);
-    // apiService already returns response.data, so check if we need to unwrap further
+    
     if (response && typeof response === 'object') {
       console.log('[paymentService] Response Keys:', Object.keys(response));
       return response;
@@ -35,11 +27,7 @@ export const createVNPayPayment = async (bookingId, amount) => {
   }
 };
 
-/**
- * Verify VNPay payment callback
- * @param {Object} queryParams - Query parameters from VNPay redirect
- * @returns {Promise}
- */
+
 export const verifyVNPayPayment = async (queryParams) => {
   try {
     const response = await apiService.post(
@@ -53,13 +41,7 @@ export const verifyVNPayPayment = async (queryParams) => {
   }
 };
 
-/**
- * Create PayPal payment
- * @param {string} bookingId - Booking ID
- * @param {number} amount - Amount in USD
- * @param {string} currency - Currency code (default: USD)
- * @returns {Promise}
- */
+
 export const createPayPalPayment = async (
   bookingId,
   amount,
@@ -86,12 +68,7 @@ export const createPayPalPayment = async (
   }
 };
 
-/**
- * Verify PayPal payment
- * @param {string} paymentId - PayPal payment ID
- * @param {string} payerId - PayPal payer ID
- * @returns {Promise}
- */
+
 export const verifyPayPalPayment = async (paymentId, payerId) => {
   try {
     const response = await apiService.post(`${paymentAPI}/paypal/verify`, {
@@ -105,11 +82,7 @@ export const verifyPayPalPayment = async (paymentId, payerId) => {
   }
 };
 
-/**
- * Capture PayPal payment (finalize transaction)
- * @param {string} orderId - PayPal Order ID (token)
- * @returns {Promise}
- */
+
 export const capturePayPalPayment = async (orderId) => {
   try {
     console.log(
@@ -119,7 +92,7 @@ export const capturePayPalPayment = async (orderId) => {
     const response = await apiService.post(`${paymentAPI}/paypal/capture`, {
       orderId,
     });
-    // apiService returns response directly with data unwrapped
+    
     console.log('[paymentService] PayPal capture response:', response);
     console.log(
       '[paymentService] Capture response keys:',
@@ -138,12 +111,7 @@ export const capturePayPalPayment = async (orderId) => {
   }
 };
 
-/**
- * Confirm Payment (update booking with payment info)
- * @param {string} bookingId - Booking ID
- * @param {Object} paymentData - Payment transaction details
- * @returns {Promise}
- */
+
 export const confirmPayment = async (bookingId, paymentData) => {
   try {
     const response = await apiService.post(
@@ -157,17 +125,14 @@ export const confirmPayment = async (bookingId, paymentData) => {
   }
 };
 
-/**
- * Get client IP address
- * @returns {Promise<string>}
- */
+
 const getClientIP = async () => {
   try {
     const response = await fetch('https://api.ipify.org?format=json');
     const data = await response.json();
     return data.ip;
   } catch {
-    return '127.0.0.1'; // Fallback
+    return '127.0.0.1'; 
   }
 };
 

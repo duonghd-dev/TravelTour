@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, CreditCard, DollarSign, Trash2, Plus } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faMapPin,
+  faClock,
+  faMap,
+  faGraduationCap,
+  faBuilding,
+  faBox,
+  faLightbulb,
+  faStar,
+  faUsers,
+  faTag,
+  faCheck,
+} from '@fortawesome/free-solid-svg-icons';
 import { createBooking } from '@/features/booking/api/bookingService.js';
 import {
   createVNPayPayment,
@@ -22,20 +36,29 @@ const CheckoutPage = () => {
   const currentItems = location.state?.currentItems || [];
   const [showAddMoreOptions, setShowAddMoreOptions] = useState(false);
 
-  // Cart management - initialize with default guestsCount if not provided
   const [cartItems, setCartItems] = useState(() => {
     if (!initialBookingData) return [];
+
+    // Khởi tạo ngày đặt mặc định (hôm nay)
+    const today = new Date().toISOString().split('T')[0];
+    // Khởi tạo ngày trả mặc định (ngày hôm sau)
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0];
 
     const newItem = {
       ...initialBookingData,
       id: Date.now(),
       guestsCount: initialBookingData.guestsCount || 1,
+      bookingDate: initialBookingData.bookingDate || today,
+      checkoutDate:
+        initialBookingData.checkoutDate ||
+        (initialBookingData.itemType === 'hotel' ? tomorrow : undefined),
       totalPrice:
         initialBookingData.totalPrice ||
         (initialBookingData.price || 0) * (initialBookingData.guestsCount || 1),
     };
 
-    // Properly set min/max participants - only use defaults if values are truly missing
     if (initialBookingData.itemType === 'tour') {
       newItem.minParticipants =
         typeof initialBookingData.minParticipants === 'number' &&
@@ -49,7 +72,22 @@ const CheckoutPage = () => {
           : 20;
     }
 
-    // If addToCart is true, append to existing items, otherwise replace
+    // Tính lại giá cho hotel với booking dates
+    if (
+      initialBookingData.itemType === 'hotel' &&
+      newItem.bookingDate &&
+      newItem.checkoutDate &&
+      newItem.price
+    ) {
+      const checkin = new Date(newItem.bookingDate);
+      const checkout = new Date(newItem.checkoutDate);
+      const nights = Math.max(
+        1,
+        Math.floor((checkout - checkin) / (1000 * 60 * 60 * 24))
+      );
+      newItem.totalPrice = newItem.price * nights * newItem.guestsCount;
+    }
+
     if (addToCart && currentItems && currentItems.length > 0) {
       return [...currentItems, newItem];
     } else {
@@ -57,7 +95,6 @@ const CheckoutPage = () => {
     }
   });
 
-  // Form data
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -68,12 +105,10 @@ const CheckoutPage = () => {
     paymentMethod: 'cash',
   });
 
-  // Time slots and detail loading
   const [timeSlots, setTimeSlots] = useState({});
   const [itemDetails, setItemDetails] = useState({});
   const [loadingDetails, setLoadingDetails] = useState(false);
 
-  // Auto-fill user info when component mounts
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -89,7 +124,6 @@ const CheckoutPage = () => {
     }
   }, [user]);
 
-  // Fetch time slots for experiences
   useEffect(() => {
     const fetchTimeSlots = async () => {
       if (cartItems.length === 0) return;
@@ -102,7 +136,6 @@ const CheckoutPage = () => {
 
         for (let item of cartItems) {
           if (item.itemType === 'hotel' && item.itemId) {
-            // Fetch hotel detail for location and amenities
             try {
               const hotelDetail = await hotelService.getHotelDetail(
                 item.itemId
@@ -125,7 +158,6 @@ const CheckoutPage = () => {
           } else if (item.itemType === 'experience' && item.itemId) {
             const detail = await getExperienceDetail(item.itemId);
 
-            // Store location and duration info
             newItemDetails[item.itemId] = {
               location: detail?.location || 'Chưa xác định',
               duration: detail?.duration
@@ -140,7 +172,6 @@ const CheckoutPage = () => {
             };
 
             if (detail && detail.timeSlots) {
-              // Fetch available slots for the selected date if available
               if (item.bookingDate) {
                 try {
                   const availableSlotsRes = await fetch(
@@ -158,7 +189,6 @@ const CheckoutPage = () => {
                   newTimeSlots[item.itemId] = detail.timeSlots;
                 }
               } else {
-                // Format timeSlots to ensure consistency
                 const formattedSlots = (detail.timeSlots || []).map((slot) => {
                   if (typeof slot === 'string') {
                     return { time: slot, capacity: 8 };
@@ -169,7 +199,6 @@ const CheckoutPage = () => {
               }
             }
           } else if (item.itemType === 'tour' && item.itemId) {
-            // Fetch tour detail for itinerary, highlights, included, what to bring
             try {
               const tourDetail = await tourService.getTourDetail(item.itemId);
               if (tourDetail) {
@@ -206,7 +235,6 @@ const CheckoutPage = () => {
     fetchTimeSlots();
   }, [cartItems]);
 
-  // Calculate total
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + (item.totalPrice || 0),
     0
@@ -226,11 +254,10 @@ const CheckoutPage = () => {
         if (item.id === id) {
           const updated = { ...item, [field]: value };
 
-          // Recalculate price if quantity changed or if we have base price
+          // Tính lại giá cho experience/tour khi guestsCount thay đổi
           if (field === 'guestsCount') {
             const numValue = parseInt(value);
 
-            // Validate against tour/experience limits
             if (
               item.itemType === 'tour' &&
               item.minParticipants &&
@@ -238,16 +265,44 @@ const CheckoutPage = () => {
             ) {
               if (numValue < item.minParticipants) {
                 alert(`Tối thiểu ${item.minParticipants} khách mỗi tour`);
-                return item; // Don't update if invalid
+                return item;
               }
               if (numValue > item.maxParticipants) {
                 alert(`Tối đa ${item.maxParticipants} khách mỗi tour`);
-                return item; // Don't update if invalid
+                return item;
               }
             }
 
             const basePrice = item.price || item.totalPrice / item.guestsCount;
             updated.totalPrice = basePrice * numValue;
+          }
+
+          // Tính lại giá cho hotel khi checkoutDate hoặc guestsCount thay đổi
+          if (
+            item.itemType === 'hotel' &&
+            (field === 'checkoutDate' || field === 'guestsCount')
+          ) {
+            const bookingDate =
+              field === 'checkoutDate' ? item.bookingDate : updated.bookingDate;
+            const checkoutDate =
+              field === 'checkoutDate' ? value : item.checkoutDate;
+            const guestsCount =
+              field === 'guestsCount' ? parseInt(value) : item.guestsCount;
+
+            if (bookingDate && checkoutDate) {
+              // Tính số đêm
+              const checkin = new Date(bookingDate);
+              const checkout = new Date(checkoutDate);
+              const nights = Math.max(
+                1,
+                Math.floor((checkout - checkin) / (1000 * 60 * 60 * 24))
+              );
+
+              // Giá mỗi phòng/đêm
+              const pricePerNight = item.price || 0;
+              // Tính tổng: pricePerNight * nights * numberOfRooms
+              updated.totalPrice = pricePerNight * nights * guestsCount;
+            }
           }
 
           return updated;
@@ -266,7 +321,6 @@ const CheckoutPage = () => {
   };
 
   const handleAddMore = () => {
-    // Show options to choose what to add
     setShowAddMoreOptions(true);
   };
 
@@ -296,12 +350,10 @@ const CheckoutPage = () => {
     setLoading(true);
 
     try {
-      // Validate
       if (cartItems.length === 0) {
         throw new Error('Vui lòng thêm ít nhất một sản phẩm');
       }
 
-      // Validate booking details for each item
       for (let item of cartItems) {
         if (!item.bookingDate) {
           throw new Error('Vui lòng chọn ngày đặt cho tất cả sản phẩm');
@@ -345,7 +397,6 @@ const CheckoutPage = () => {
         throw new Error('Vui lòng điền tất cả thông tin bắt buộc');
       }
 
-      // Create booking for first item (the main one)
       const mainItem = cartItems[0];
       const bookingPayload = {
         itemId: mainItem.itemId,
@@ -362,12 +413,10 @@ const CheckoutPage = () => {
         },
       };
 
-      // Add timeSlot for experiences only
       if (mainItem.itemType === 'experience' && mainItem.timeSlot) {
         bookingPayload.timeSlot = mainItem.timeSlot;
       }
 
-      // Add hotel-specific checkout date
       if (mainItem.itemType === 'hotel') {
         bookingPayload.checkoutDate = mainItem.checkoutDate;
       }
@@ -377,7 +426,6 @@ const CheckoutPage = () => {
       if (response.success || response._id) {
         const bookingId = response._id || response.id;
 
-        // Route to appropriate payment gateway based on payment method
         if (formData.paymentMethod === 'vnpay') {
           try {
             const vnpayResponse = await createVNPayPayment(
@@ -385,25 +433,36 @@ const CheckoutPage = () => {
               totalPrice
             );
             if (vnpayResponse && vnpayResponse.paymentUrl) {
-              // ✅ SECURE: Use direct redirect instead of createElement
               window.location.href = vnpayResponse.paymentUrl;
             } else {
               throw new Error('VNPay payment URL not received');
             }
           } catch (paymentError) {
-            throw new Error(`VNPay payment failed: ${paymentError.message}`);
+            console.warn(
+              'VNPay payment failed, falling back to cash payment:',
+              paymentError
+            );
+            // Fallback to cash payment if VNPay is unavailable
+            navigate('/payment-success', {
+              state: {
+                bookingId: bookingId,
+                items: cartItems,
+                totalPrice: totalPrice,
+                paymentMethod: 'cash',
+                fallbackMessage:
+                  'Phương thức VNPay tạm thời không khả dụng. Chúng tôi sẽ liên hệ bạn để xác nhận thanh toán.',
+              },
+            });
           }
         } else if (formData.paymentMethod === 'paypal') {
           try {
-            // Send amount in VND to backend, backend will convert to USD
             const paypalResponse = await createPayPalPayment(
               bookingId,
-              totalPrice, // Send VND amount
+              totalPrice,
               'VND'
             );
 
             if (paypalResponse && paypalResponse.approvalUrl) {
-              // ✅ SECURE: Use direct redirect instead of createElement
               window.location.href = paypalResponse.approvalUrl;
             } else {
               throw new Error(
@@ -411,10 +470,23 @@ const CheckoutPage = () => {
               );
             }
           } catch (paymentError) {
-            throw new Error(`PayPal payment failed: ${paymentError.message}`);
+            console.warn(
+              'PayPal payment failed, falling back to cash payment:',
+              paymentError
+            );
+            // Fallback to cash payment if PayPal is unavailable
+            navigate('/payment-success', {
+              state: {
+                bookingId: bookingId,
+                items: cartItems,
+                totalPrice: totalPrice,
+                paymentMethod: 'cash',
+                fallbackMessage:
+                  'Phương thức PayPal tạm thời không khả dụng. Chúng tôi sẽ liên hệ bạn để xác nhận thanh toán.',
+              },
+            });
           }
         } else {
-          // For "Thanh toán khi nhận dịch vụ" (Pay on delivery)
           navigate('/payment-success', {
             state: {
               bookingId: bookingId,
@@ -459,7 +531,7 @@ const CheckoutPage = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
+      {}
       <div className={styles.header}>
         <button onClick={() => navigate(-1)} className={styles.backBtn}>
           <ArrowLeft size={20} />
@@ -469,13 +541,13 @@ const CheckoutPage = () => {
       </div>
 
       <div className={styles.content}>
-        {/* Cart Items */}
+        {}
         <div className={styles.cartSection}>
           <h2>Các sản phẩm được chọn ({cartItems.length})</h2>
 
           {cartItems.map((item) => (
             <div key={item.id} className={styles.cartItem}>
-              {/* Header with Title + Summary + Price */}
+              {}
               <div className={styles.itemTitleRow}>
                 <div className={styles.titleSection}>
                   <h3>{item.itemName}</h3>
@@ -492,11 +564,17 @@ const CheckoutPage = () => {
                       itemDetails[item.itemId] && (
                         <>
                           <span className={styles.infoItem}>
-                            <span className={styles.icon}>📍</span>
+                            <FontAwesomeIcon
+                              icon={faMapPin}
+                              className={styles.icon}
+                            />
                             {itemDetails[item.itemId].location}
                           </span>
                           <span className={styles.infoItem}>
-                            <span className={styles.icon}>⏱️</span>
+                            <FontAwesomeIcon
+                              icon={faClock}
+                              className={styles.icon}
+                            />
                             {itemDetails[item.itemId].duration}
                           </span>
                         </>
@@ -505,11 +583,17 @@ const CheckoutPage = () => {
                     {item.itemType === 'hotel' && itemDetails[item.itemId] && (
                       <>
                         <span className={styles.infoItem}>
-                          <span className={styles.icon}>📍</span>
+                          <FontAwesomeIcon
+                            icon={faMapPin}
+                            className={styles.icon}
+                          />
                           {itemDetails[item.itemId].location}
                         </span>
                         <span className={styles.infoItem}>
-                          <span className={styles.icon}>⭐</span>
+                          <FontAwesomeIcon
+                            icon={faStar}
+                            className={styles.icon}
+                          />
                           {itemDetails[item.itemId].rating} (
                           {itemDetails[item.itemId].category})
                         </span>
@@ -519,15 +603,24 @@ const CheckoutPage = () => {
                     {item.itemType === 'tour' && itemDetails[item.itemId] && (
                       <>
                         <span className={styles.infoItem}>
-                          <span className={styles.icon}>📍</span>
+                          <FontAwesomeIcon
+                            icon={faMapPin}
+                            className={styles.icon}
+                          />
                           {itemDetails[item.itemId].location}
                         </span>
                         <span className={styles.infoItem}>
-                          <span className={styles.icon}>⏱️</span>
+                          <FontAwesomeIcon
+                            icon={faClock}
+                            className={styles.icon}
+                          />
                           {itemDetails[item.itemId].duration}
                         </span>
                         <span className={styles.infoItem}>
-                          <span className={styles.icon}>🗺️</span>
+                          <FontAwesomeIcon
+                            icon={faMap}
+                            className={styles.icon}
+                          />
                           {itemDetails[item.itemId].region}
                         </span>
                       </>
@@ -549,7 +642,7 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* Form Fields - 3 columns */}
+              {}
               <div className={styles.formFieldsRow}>
                 <div className={styles.formField}>
                   <label>NGÀY ĐẶT (Check-in)</label>
@@ -595,10 +688,10 @@ const CheckoutPage = () => {
                     >
                       <option value="">
                         {loadingDetails
-                          ? '⏳ Đang tải...'
+                          ? 'Đang tải...'
                           : !timeSlots[item.itemId] ||
                               timeSlots[item.itemId].length === 0
-                            ? '❌ Không có giờ trống'
+                            ? 'Không có giờ trống'
                             : '-- Chọn --'}
                       </option>
                       {(timeSlots[item.itemId] || []).map((slot, index) => {
@@ -643,15 +736,10 @@ const CheckoutPage = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          setCartItems((prev) =>
-                            prev.map((i) =>
-                              i.id === item.id
-                                ? {
-                                    ...i,
-                                    guestsCount: Math.max(1, i.guestsCount - 1),
-                                  }
-                                : i
-                            )
+                          handleItemChange(
+                            item.id,
+                            'guestsCount',
+                            Math.max(1, item.guestsCount - 1)
                           )
                         }
                       >
@@ -674,18 +762,10 @@ const CheckoutPage = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          setCartItems((prev) =>
-                            prev.map((i) =>
-                              i.id === item.id
-                                ? {
-                                    ...i,
-                                    guestsCount: Math.min(
-                                      10,
-                                      i.guestsCount + 1
-                                    ),
-                                  }
-                                : i
-                            )
+                          handleItemChange(
+                            item.id,
+                            'guestsCount',
+                            Math.min(10, item.guestsCount + 1)
                           )
                         }
                       >
@@ -705,17 +785,12 @@ const CheckoutPage = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          setCartItems((prev) =>
-                            prev.map((i) =>
-                              i.id === item.id
-                                ? {
-                                    ...i,
-                                    guestsCount: Math.max(
-                                      i.minParticipants || 1,
-                                      i.guestsCount - 1
-                                    ),
-                                  }
-                                : i
+                          handleItemChange(
+                            item.id,
+                            'guestsCount',
+                            Math.max(
+                              item.minParticipants || 1,
+                              item.guestsCount - 1
                             )
                           )
                         }
@@ -739,17 +814,12 @@ const CheckoutPage = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          setCartItems((prev) =>
-                            prev.map((i) =>
-                              i.id === item.id
-                                ? {
-                                    ...i,
-                                    guestsCount: Math.min(
-                                      i.maxParticipants || 20,
-                                      i.guestsCount + 1
-                                    ),
-                                  }
-                                : i
+                          handleItemChange(
+                            item.id,
+                            'guestsCount',
+                            Math.min(
+                              item.maxParticipants || 20,
+                              item.guestsCount + 1
                             )
                           )
                         }
@@ -761,19 +831,23 @@ const CheckoutPage = () => {
                 )}
               </div>
 
-              {/* Hotel Details Section */}
+              {}
               {item.itemType === 'hotel' && itemDetails[item.itemId] && (
                 <div className={styles.hotelDetailsSection}>
                   <h4 className={styles.detailsTitle}>Thông tin khách sạn</h4>
                   <div className={styles.hotelInfo}>
                     <div className={styles.infoBlock}>
-                      <span className={styles.label}>📍 Địa chỉ</span>
+                      <span className={styles.label}>
+                        <FontAwesomeIcon icon={faMapPin} /> Địa chỉ
+                      </span>
                       <span className={styles.value}>
                         {itemDetails[item.itemId].address}
                       </span>
                     </div>
                     <div className={styles.infoBlock}>
-                      <span className={styles.label}>🏷️ Loại</span>
+                      <span className={styles.label}>
+                        <FontAwesomeIcon icon={faStar} /> Loại
+                      </span>
                       <span className={styles.value}>
                         {itemDetails[item.itemId].category}
                       </span>
@@ -788,7 +862,9 @@ const CheckoutPage = () => {
                   {itemDetails[item.itemId].amenities &&
                     itemDetails[item.itemId].amenities.length > 0 && (
                       <div className={styles.amenitiesBlock}>
-                        <span className={styles.label}>🎁 Tiện nghi</span>
+                        <span className={styles.label}>
+                          <FontAwesomeIcon icon={faLightbulb} /> Tiện nghi
+                        </span>
                         <div className={styles.amenitiesList}>
                           {itemDetails[item.itemId].amenities
                             .slice(0, 3)
@@ -809,28 +885,32 @@ const CheckoutPage = () => {
                 </div>
               )}
 
-              {/* Tour Details Section */}
+              {}
               {item.itemType === 'tour' && itemDetails[item.itemId] && (
                 <div className={styles.tourDetailsSection}>
                   <h4 className={styles.detailsTitle}>Thông tin hành trình</h4>
 
-                  {/* Tour Overview */}
+                  {}
                   <div className={styles.tourOverview}>
                     <div className={styles.overviewItem}>
-                      <span className={styles.overviewLabel}>📍 Địa điểm</span>
+                      <span className={styles.overviewLabel}>
+                        <FontAwesomeIcon icon={faMapPin} /> Địa điểm
+                      </span>
                       <span className={styles.overviewValue}>
                         {itemDetails[item.itemId].location}
                       </span>
                     </div>
                     <div className={styles.overviewItem}>
-                      <span className={styles.overviewLabel}>🗺️ Khu vực</span>
+                      <span className={styles.overviewLabel}>
+                        <FontAwesomeIcon icon={faMap} /> Khu vực
+                      </span>
                       <span className={styles.overviewValue}>
                         {itemDetails[item.itemId].region}
                       </span>
                     </div>
                     <div className={styles.overviewItem}>
                       <span className={styles.overviewLabel}>
-                        ⏱️ Thời lượng
+                        <FontAwesomeIcon icon={faClock} /> Thời lượng
                       </span>
                       <span className={styles.overviewValue}>
                         {itemDetails[item.itemId].duration}
@@ -838,7 +918,7 @@ const CheckoutPage = () => {
                     </div>
                     <div className={styles.overviewItem}>
                       <span className={styles.overviewLabel}>
-                        👥 Kích thước nhóm
+                        <FontAwesomeIcon icon={faUsers} /> Kích thước nhóm
                       </span>
                       <span className={styles.overviewValue}>
                         {itemDetails[item.itemId].minParticipants}-
@@ -847,7 +927,7 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
-                  {/* Highlights */}
+                  {}
                   {itemDetails[item.itemId].highlights &&
                     itemDetails[item.itemId].highlights.length > 0 && (
                       <div className={styles.highlightsBlock}>
@@ -874,7 +954,7 @@ const CheckoutPage = () => {
                       </div>
                     )}
 
-                  {/* Itinerary */}
+                  {}
                   {itemDetails[item.itemId].itinerary &&
                     itemDetails[item.itemId].itinerary.length > 0 && (
                       <div className={styles.itineraryBlock}>
@@ -920,7 +1000,7 @@ const CheckoutPage = () => {
                       </div>
                     )}
 
-                  {/* Included */}
+                  {}
                   {itemDetails[item.itemId].included &&
                     itemDetails[item.itemId].included.length > 0 && (
                       <div className={styles.includedBlock}>
@@ -938,11 +1018,13 @@ const CheckoutPage = () => {
                       </div>
                     )}
 
-                  {/* What to Bring */}
+                  {}
                   {itemDetails[item.itemId].whatToBring &&
                     itemDetails[item.itemId].whatToBring.length > 0 && (
                       <div className={styles.bringBlock}>
-                        <h5 className={styles.blockTitle}>🎒 Cần chuẩn bị</h5>
+                        <h5 className={styles.blockTitle}>
+                          <FontAwesomeIcon icon={faBox} /> Cần chuẩn bị
+                        </h5>
                         <ul className={styles.bringList}>
                           {itemDetails[item.itemId].whatToBring
                             .slice(0, 5)
@@ -971,7 +1053,7 @@ const CheckoutPage = () => {
             </button>
           )}
 
-          {/* Add More Options Modal */}
+          {}
           {showAddMoreOptions && (
             <div className={styles.modal}>
               <div className={styles.modalContent}>
@@ -982,7 +1064,10 @@ const CheckoutPage = () => {
                     className={styles.optionBtn}
                     onClick={handleAddExperience}
                   >
-                    <div className={styles.optionIcon}>🎓</div>
+                    <FontAwesomeIcon
+                      icon={faGraduationCap}
+                      className={styles.optionIcon}
+                    />
                     <div className={styles.optionLabel}>Trải nghiệm</div>
                     <div className={styles.optionDesc}>
                       Lớp học, workshop, hoạt động
@@ -993,7 +1078,10 @@ const CheckoutPage = () => {
                     className={styles.optionBtn}
                     onClick={handleAddHotel}
                   >
-                    <div className={styles.optionIcon}>🏨</div>
+                    <FontAwesomeIcon
+                      icon={faBuilding}
+                      className={styles.optionIcon}
+                    />
                     <div className={styles.optionLabel}>Khách sạn</div>
                     <div className={styles.optionDesc}>
                       Nơi lưu trú, phòng ở
@@ -1016,10 +1104,10 @@ const CheckoutPage = () => {
           )}
         </div>
 
-        {/* Billing & Payment Form */}
+        {}
         <div className={styles.formSection}>
           <form onSubmit={handleSubmit}>
-            {/* Billing Info */}
+            {}
             <div className={styles.billSection}>
               <h2>Thông tin khách hàng</h2>
 
@@ -1077,7 +1165,7 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Payment Method */}
+            {}
             <div className={styles.paymentSection}>
               <h2>Phương thức thanh toán</h2>
 
@@ -1126,7 +1214,7 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Total & Submit */}
+            {}
             <div className={styles.totalSection}>
               <div className={styles.totalRow}>
                 <span>Tổng tiền:</span>

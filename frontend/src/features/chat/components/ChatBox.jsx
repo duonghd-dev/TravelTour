@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faComments,
+  faTimes,
+  faArrowLeft,
+} from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/hooks';
 import { useChatContext } from '@/contexts';
 import { chatApi } from '../api';
@@ -16,11 +22,10 @@ const ChatBox = () => {
   const [activeConversation, setActiveConversation] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [loadingConvs, setLoadingConvs] = useState(false);
-  const [activeView, setActiveView] = useState('conversations'); // 'conversations' | 'chat'
+  const [activeView, setActiveView] = useState('conversations');
   const [adminUser, setAdminUser] = useState(null);
   const [loadingAdmin, setLoadingAdmin] = useState(false);
 
-  // useChat hook for selected conversation
   const {
     messages,
     loading: messagesLoading,
@@ -32,7 +37,6 @@ const ChatBox = () => {
     markAsRead,
   } = useChat(activeConversation?._id, user);
 
-  // Load admin user for customer support chat
   const loadAdminUser = async () => {
     setLoadingAdmin(true);
     try {
@@ -53,7 +57,6 @@ const ChatBox = () => {
     }
   };
 
-  // Load conversations
   const loadConversations = async () => {
     setLoadingConvs(true);
     try {
@@ -68,7 +71,6 @@ const ChatBox = () => {
     }
   };
 
-  // Auto-start chat with admin if user is customer
   const startAdminChat = async () => {
     if (!adminUser) {
       return;
@@ -86,36 +88,30 @@ const ChatBox = () => {
     }
   };
 
-  // Load conversations on open
   useEffect(() => {
     if (isOpen) {
-      // If customer or artisan, load admin and start chat
       if (['customer', 'artisan'].includes(user?.role)) {
         if (!adminUser) {
           loadAdminUser();
         }
       } else {
-        // For non-customers/artisans, load conversations
         loadConversations();
       }
     }
   }, [isOpen]);
 
-  // Auto-start admin chat when admin user is loaded (for customers/artisans)
   useEffect(() => {
     if (adminUser && ['customer', 'artisan'].includes(user?.role) && isOpen) {
       startAdminChat();
     }
   }, [adminUser]);
 
-  // Switch to chat view when activeConversation is set
   useEffect(() => {
     if (activeConversation) {
       setActiveView('chat');
     }
   }, [activeConversation]);
 
-  // Mark as read when viewing conversation
   useEffect(() => {
     if (activeConversation) {
       markAsRead();
@@ -148,21 +144,20 @@ const ChatBox = () => {
 
   return (
     <div className="chatbox-widget">
-      {/* Floating Button */}
+      {}
       <button
         className={`chatbox-toggle ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         title="Mở chat"
       >
-        💬
+        <FontAwesomeIcon icon={faComments} />
         {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
       </button>
 
-      {/* Chatbox Window */}
+      {}
       {isOpen && (
         <div className="chatbox-window">
           {['customer', 'artisan'].includes(user?.role) ? (
-            // Customer/Artisan: Show chat with admin (auto-start)
             <>
               {!activeConversation || loadingAdmin ? (
                 <div
@@ -176,7 +171,7 @@ const ChatBox = () => {
                 </div>
               ) : (
                 <>
-                  {/* Chat Header */}
+                  {}
                   <div className="chatbox-header">
                     <h3>
                       {activeConversation?.otherParticipant?.firstName}{' '}
@@ -187,11 +182,11 @@ const ChatBox = () => {
                       onClick={() => setIsOpen(false)}
                       title="Đóng"
                     >
-                      ✕
+                      <FontAwesomeIcon icon={faTimes} />
                     </button>
                   </div>
 
-                  {/* Messages */}
+                  {}
                   <MessageList
                     messages={messages}
                     typingUsers={typingUsers}
@@ -200,7 +195,7 @@ const ChatBox = () => {
                     onDeleteMessage={deleteMessage}
                   />
 
-                  {/* Message Input */}
+                  {}
                   <MessageInput
                     onSend={handleSendMessage}
                     disabled={sending}
@@ -213,7 +208,6 @@ const ChatBox = () => {
               )}
             </>
           ) : (
-            // Non-customer: Show conversation list
             <>
               {activeView === 'conversations' ? (
                 <>
@@ -224,7 +218,7 @@ const ChatBox = () => {
                       onClick={() => setIsOpen(false)}
                       title="Đóng"
                     >
-                      ✕
+                      <FontAwesomeIcon icon={faTimes} />
                     </button>
                   </div>
 
@@ -237,14 +231,14 @@ const ChatBox = () => {
                 </>
               ) : (
                 <>
-                  {/* Chat Header */}
+                  {}
                   <div className="chatbox-header">
                     <button
                       className="back-btn"
                       onClick={handleBackToConversations}
                       title="Quay lại"
                     >
-                      ← Quay lại
+                      <FontAwesomeIcon icon={faArrowLeft} /> Quay lại
                     </button>
                     <h3>
                       {activeConversation?.otherParticipant?.firstName}{' '}
@@ -255,11 +249,11 @@ const ChatBox = () => {
                       onClick={() => setIsOpen(false)}
                       title="Đóng"
                     >
-                      ✕
+                      <FontAwesomeIcon icon={faTimes} />
                     </button>
                   </div>
 
-                  {/* Messages */}
+                  {}
                   <MessageList
                     messages={messages}
                     typingUsers={typingUsers}
@@ -268,7 +262,7 @@ const ChatBox = () => {
                     onDeleteMessage={deleteMessage}
                   />
 
-                  {/* Message Input */}
+                  {}
                   <MessageInput
                     onSend={handleSendMessage}
                     disabled={sending}

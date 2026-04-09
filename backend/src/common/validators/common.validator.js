@@ -1,27 +1,24 @@
-/**
- * Common Validators
- * Các validator dùng chung cho toàn bộ ứng dụng
- */
 
-// ✅ Email Validation
+
+
 export const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-// ✅ Phone Validation (10+ digits)
+
 export const validatePhone = (phone) => {
-  if (!phone) return true; // Phone is optional
+  if (!phone) return true; 
   const phoneRegex = /^[0-9]{10,}$/;
   return phoneRegex.test(phone.replace(/[^0-9]/g, ''));
 };
 
-// ✅ Password Validation (min 6 characters)
+
 export const validatePassword = (password) => {
   return password && password.length >= 6;
 };
 
-// ✅ Validate required fields
+
 export const validateRequired = (fields, data) => {
   const missingFields = fields.filter(
     (field) =>
@@ -33,14 +30,14 @@ export const validateRequired = (fields, data) => {
   }
 };
 
-// ✅ Validate enum values
+
 export const validateEnum = (field, value, allowedValues) => {
   if (!allowedValues.includes(value)) {
     throw new Error(`${field} must be one of: ${allowedValues.join(', ')}`);
   }
 };
 
-// ✅ Validate string length
+
 export const validateStringLength = (field, value, min, max) => {
   if (typeof value !== 'string') {
     throw new Error(`${field} must be a string`);
@@ -53,7 +50,7 @@ export const validateStringLength = (field, value, min, max) => {
   }
 };
 
-// ✅ Validate number range
+
 export const validateNumber = (field, value, min, max) => {
   if (typeof value !== 'number') {
     throw new Error(`${field} must be a number`);

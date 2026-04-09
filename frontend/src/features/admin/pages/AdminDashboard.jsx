@@ -43,10 +43,10 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* System Overview Metrics */}
-      <SystemOverview />
+      {}
+      <SystemOverview timeRange={timeRange} />
 
-      {/* Charts Grid */}
+      {}
       <div className="dashboard-grid-2">
         <div className="grid-col">
           <RevenueVsImpact />
@@ -56,21 +56,21 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Middle Section */}
+      {}
       <div className="dashboard-grid-2">
         <div className="grid-col full-width">
           <PendingVerifications />
         </div>
       </div>
 
-      {/* Bottom Section */}
+      {}
       <div className="dashboard-grid-2">
         <div className="grid-col full-width">
           <RegionalGrowth />
         </div>
       </div>
 
-      {/* System Health */}
+      {}
       <div className="chart-card">
         <div className="chart-header">
           <h3>System Health</h3>

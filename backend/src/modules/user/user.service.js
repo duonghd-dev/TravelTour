@@ -8,9 +8,6 @@ import logger from '../../common/utils/logger.js';
 import { sendOTPEmail, sendVerifyEmailLink } from '../../common/utils/email.js';
 import { generateOTP, getOTPExpiration } from '../../common/utils/otp.js';
 
-/**
- * Lấy thông tin profile của user
- */
 export const getProfile = async (userId) => {
   const user = await User.findById(userId).select(
     'firstName lastName email phone avatar gender role isActive lastLoginAt twoFactorEnabled createdAt'
@@ -39,14 +36,10 @@ export const getProfile = async (userId) => {
   };
 };
 
-/**
- * Cập nhật thông tin profile của user
- */
 export const updateProfile = async (userId, updateData) => {
   const { firstName, lastName, email, phoneNumber, avatar, gender } =
     updateData;
 
-  // Kiểm tra email unique (nếu thay đổi)
   if (email) {
     const existingUser = await User.findOne({ email, _id: { $ne: userId } });
     if (existingUser) {
@@ -54,7 +47,6 @@ export const updateProfile = async (userId, updateData) => {
     }
   }
 
-  // Kiểm tra phone unique (nếu thay đổi)
   if (phoneNumber) {
     const existingUser = await User.findOne({
       phone: phoneNumber,
@@ -65,7 +57,6 @@ export const updateProfile = async (userId, updateData) => {
     }
   }
 
-  // Prepare update object
   const updateObj = {};
   if (firstName) updateObj.firstName = firstName;
   if (lastName) updateObj.lastName = lastName;
@@ -100,9 +91,6 @@ export const updateProfile = async (userId, updateData) => {
   };
 };
 
-/**
- * Cập nhật mật khẩu
- */
 export const updatePassword = async (userId, currentPassword, newPassword) => {
   const user = await User.findById(userId);
 
@@ -114,7 +102,6 @@ export const updatePassword = async (userId, currentPassword, newPassword) => {
     throw new Error('This account uses OAuth login. Cannot change password.');
   }
 
-  // Verify current password
   const isPasswordCorrect = await comparePassword(
     currentPassword,
     user.password
@@ -123,7 +110,6 @@ export const updatePassword = async (userId, currentPassword, newPassword) => {
     throw new Error('Current password is incorrect');
   }
 
-  // Hash new password
   const hashedPassword = await hashPassword(newPassword);
   user.password = hashedPassword;
   await user.save();
@@ -136,9 +122,6 @@ export const updatePassword = async (userId, currentPassword, newPassword) => {
   };
 };
 
-/**
- * Enable/Disable 2FA
- */
 export const updateTwoFactorAuth = async (userId, enabled) => {
   const user = await User.findById(userId);
 
@@ -146,7 +129,6 @@ export const updateTwoFactorAuth = async (userId, enabled) => {
     throw new Error('User not found');
   }
 
-  // Update twoFactorEnabled in database
   user.twoFactorEnabled = enabled;
   await user.save();
 
@@ -161,9 +143,6 @@ export const updateTwoFactorAuth = async (userId, enabled) => {
   };
 };
 
-/**
- * Lấy danh sách hành động gần đây (activity log)
- */
 export const getActivityLog = async (userId) => {
   const user = await User.findById(userId);
 
@@ -171,28 +150,19 @@ export const getActivityLog = async (userId) => {
     throw new Error('User not found');
   }
 
-  // TODO: Implement real activity log fetching
   return {
     success: true,
     data: [],
   };
 };
 
-/**
- * Lấy danh sách heritage journeys của user
- */
 export const getHeritageJourneys = async (userId) => {
-  // This will be implemented when you add heritage journeys module
-  // For now, return empty array
   return {
     success: true,
     data: [],
   };
 };
 
-/**
- * Lấy danh sách favorites của user với chi tiết đầy đủ
- */
 export const getFavorites = async (userId) => {
   const user = await User.findById(userId);
 
@@ -202,7 +172,6 @@ export const getFavorites = async (userId) => {
 
   const favorites = user.favorites || [];
 
-  // Populate chi tiết cho mỗi favorite dựa vào itemType
   const populatedFavorites = await Promise.all(
     favorites.map(async (favorite) => {
       try {
@@ -249,9 +218,6 @@ export const getFavorites = async (userId) => {
   };
 };
 
-/**
- * Thêm vào favorites
- */
 export const addFavorite = async (userId, itemId, itemType) => {
   const user = await User.findById(userId);
 
@@ -259,7 +225,6 @@ export const addFavorite = async (userId, itemId, itemType) => {
     throw new Error('User not found');
   }
 
-  // Kiểm tra xem favorite đó đã tồn tại chưa
   const existingFavorite = user.favorites?.find(
     (fav) => fav.itemId.toString() === itemId && fav.itemType === itemType
   );
@@ -271,7 +236,6 @@ export const addFavorite = async (userId, itemId, itemType) => {
     };
   }
 
-  // Thêm favorite mới
   user.favorites.push({
     itemId,
     itemType,
@@ -287,9 +251,6 @@ export const addFavorite = async (userId, itemId, itemType) => {
   };
 };
 
-/**
- * Xóa favorite
- */
 export const removeFavorite = async (userId, favoriteId) => {
   const user = await User.findById(userId);
 
@@ -297,7 +258,6 @@ export const removeFavorite = async (userId, favoriteId) => {
     throw new Error('User not found');
   }
 
-  // Tìm và xóa favorite
   user.favorites =
     user.favorites?.filter((fav) => fav._id.toString() !== favoriteId) || [];
 
@@ -310,9 +270,6 @@ export const removeFavorite = async (userId, favoriteId) => {
   };
 };
 
-/**
- * Lấy danh sách tất cả users (cho admin dashboard)
- */
 export const getAllUsers = async (queryParams = {}) => {
   const {
     page = 1,
@@ -323,7 +280,6 @@ export const getAllUsers = async (queryParams = {}) => {
     sort = '-createdAt',
   } = queryParams;
 
-  // Build filter object
   const filter = {};
 
   if (role) {
@@ -347,7 +303,6 @@ export const getAllUsers = async (queryParams = {}) => {
   try {
     const skip = (page - 1) * limit;
 
-    // Fetch users with filter
     const users = await User.find(filter)
       .select(
         'firstName lastName email phone role isEmailVerified isActive createdAt avatar gender'
@@ -356,11 +311,9 @@ export const getAllUsers = async (queryParams = {}) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get total count for pagination
     const total = await User.countDocuments(filter);
     const pages = Math.ceil(total / limit);
 
-    // Format users data
     const formattedUsers = users.map((user) => ({
       _id: user._id,
       firstName: user.firstName,
@@ -395,33 +348,25 @@ export const getAllUsers = async (queryParams = {}) => {
   }
 };
 
-/**
- * Lấy thống kê users cho dashboard
- */
 export const getUserStats = async () => {
   try {
-    // Tính tổng số users
     const totalUsers = await User.countDocuments();
 
-    // Đếm active customers (role customer + isActive true)
     const activeTourists = await User.countDocuments({
       role: 'customer',
       isActive: true,
     });
 
-    // Đếm verified artisans (role artisan + isEmailVerified true)
     const verifiedArtisans = await User.countDocuments({
       role: 'artisan',
       isEmailVerified: true,
     });
 
-    // Đếm pending users (role customer + isEmailVerified false)
     const pendingApprovals = await User.countDocuments({
       role: 'customer',
       isEmailVerified: false,
     });
 
-    // Tính growth - percentage increase từ 30 ngày trước
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -455,9 +400,6 @@ export const getUserStats = async () => {
   }
 };
 
-/**
- * Create new user (Admin only)
- */
 export const createUser = async (userData) => {
   const {
     firstName,
@@ -476,38 +418,31 @@ export const createUser = async (userData) => {
     );
   }
 
-  // Validate artisan required fields
   if (role === 'artisan') {
     if (!artisanInfo?.category || !artisanInfo?.craft) {
       throw new Error('Category and craft are required for artisan role');
     }
   }
 
-  // Password validation
   if (password.length < 6) {
     throw new Error('Password must be at least 6 characters');
   }
 
-  // Check if user already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new Error('Email already exists');
   }
 
-  // Set default avatar based on gender (null - frontend will use imported images)
   const userGender = gender || 'other';
-  // Avatar will be null - frontend handles default avatar by gender
+
   const avatar = null;
 
   try {
-    // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Generate email verification OTP
     const emailOTP = generateOTP();
     const emailOTPExpire = getOTPExpiration();
 
-    // Create new user
     const newUser = new User({
       firstName,
       lastName,
@@ -517,16 +452,15 @@ export const createUser = async (userData) => {
       avatar: avatar,
       role,
       password: hashedPassword,
-      isEmailVerified: role === 'artisan' ? true : false, // Artisan created by admin is auto-verified
-      isFirstLogin: true, // User should complete profile on first login
-      isActive: role === 'artisan' ? true : false, // Artisan created by admin is auto-active
+      isEmailVerified: role === 'artisan' ? true : false,
+      isFirstLogin: true,
+      isActive: role === 'artisan' ? true : false,
       emailOTP,
       emailOTPExpire,
     });
 
     await newUser.save();
 
-    // Create artisan record if role is artisan
     if (role === 'artisan' && artisanInfo) {
       const newArtisan = new Artisan({
         userId: newUser._id,
@@ -550,11 +484,11 @@ export const createUser = async (userData) => {
         title: artisanInfo.title || '',
         certifyingOrganization: artisanInfo.certifyingOrganization || '',
         proofImages: artisanInfo.proofImages || [],
-        avatar: artisanInfo.avatar || null, // Use null for default avatar
+        // avatar removed - now inherited from User via userId populate
         images: artisanInfo.images || [],
         generation: artisanInfo.generation || 1,
-        status: artisanInfo.status || 'approved',
-        responseRate: 100, // Auto-calculated, start at 100% for new artisans
+        verificationStatus: artisanInfo.verificationStatus || 'approved',
+        responseRate: 100,
       });
 
       await newArtisan.save();
@@ -563,7 +497,6 @@ export const createUser = async (userData) => {
       );
     }
 
-    // Send verification email with link and OTP
     await sendVerifyEmailLink(email, emailOTP);
 
     logger.info(
@@ -590,9 +523,6 @@ export const createUser = async (userData) => {
   }
 };
 
-/**
- * Update user by ID (Admin only)
- */
 export const updateUserById = async (userId, updateData) => {
   const {
     firstName,
@@ -611,23 +541,20 @@ export const updateUserById = async (userId, updateData) => {
   }
 
   try {
-    // Update only allowed fields
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
     if (phone !== undefined) user.phone = phone;
-    if (role !== undefined && role !== 'admin') user.role = role; // Prevent removing admin role
+    if (role !== undefined && role !== 'admin') user.role = role;
     if (isActive !== undefined) user.isActive = isActive;
     if (avatar !== undefined) user.avatar = avatar;
     if (gender !== undefined) user.gender = gender;
 
     await user.save();
 
-    // Handle artisan data update
     if (user.role === 'artisan' && artisanInfo) {
       const existingArtisan = await Artisan.findOne({ userId });
 
       if (existingArtisan) {
-        // Update existing artisan record
         Object.assign(existingArtisan, {
           category: artisanInfo.category || existingArtisan.category,
           craft: artisanInfo.craft || existingArtisan.craft,
@@ -655,9 +582,9 @@ export const updateUserById = async (userId, updateData) => {
           location: artisanInfo.location || existingArtisan.location,
           workshopLocation:
             artisanInfo.workshopLocation || existingArtisan.workshopLocation,
-          isVerified:
-            artisanInfo.isVerified !== undefined
-              ? artisanInfo.isVerified
+          isProfileVerified:
+            artisanInfo.isProfileVerified !== undefined
+              ? artisanInfo.isProfileVerified
               : existingArtisan.isVerified,
           title:
             artisanInfo.title !== undefined
@@ -672,7 +599,6 @@ export const updateUserById = async (userId, updateData) => {
         await existingArtisan.save();
         logger.info(`Artisan profile updated for user: ${userId}`);
       } else {
-        // Create new artisan record if it doesn't exist
         const newArtisan = new Artisan({
           userId,
           category: artisanInfo.category,
@@ -691,7 +617,7 @@ export const updateUserById = async (userId, updateData) => {
             address: '',
             description: '',
           },
-          isVerified: artisanInfo.isVerified || false,
+          isProfileVerified: artisanInfo.isProfileVerified || false,
           title: artisanInfo.title || '',
           certifyingOrganization: artisanInfo.certifyingOrganization || '',
           proofImages: artisanInfo.proofImages || [],
@@ -724,9 +650,6 @@ export const updateUserById = async (userId, updateData) => {
   }
 };
 
-/**
- * Delete user by ID (Admin only)
- */
 export const deleteUser = async (userId) => {
   const user = await User.findById(userId);
   if (!user) {
@@ -751,9 +674,6 @@ export const deleteUser = async (userId) => {
   }
 };
 
-/**
- * Get user by ID (Admin only)
- */
 export const getUserById = async (userId) => {
   const user = await User.findById(userId).select(
     'firstName lastName email phone avatar gender role isEmailVerified isActive createdAt'
@@ -794,9 +714,6 @@ export const getUserById = async (userId) => {
   }
 };
 
-/**
- * Verify email with OTP
- */
 export const verifyEmailOTP = async (email, otp) => {
   try {
     const user = await User.findOne({ email });
@@ -805,27 +722,22 @@ export const verifyEmailOTP = async (email, otp) => {
       throw new Error('User not found');
     }
 
-    // Check if email already verified
     if (user.isEmailVerified) {
       throw new Error('Email already verified');
     }
 
-    // Check if OTP exists
     if (!user.emailOTP) {
       throw new Error('No OTP found. Please request a new verification code.');
     }
 
-    // Check if OTP expired
     if (new Date() > user.emailOTPExpire) {
       throw new Error('OTP expired. Please request a new verification code.');
     }
 
-    // Verify OTP
     if (user.emailOTP !== otp) {
       throw new Error('Invalid OTP');
     }
 
-    // Mark email as verified and activate account
     user.isEmailVerified = true;
     user.isActive = true;
     user.emailOTP = null;
@@ -850,18 +762,13 @@ export const verifyEmailOTP = async (email, otp) => {
   }
 };
 
-/**
- * Lấy admin/staff user cho chat support
- */
 export const getAdminUser = async () => {
   try {
-    // Tìm admin hoặc staff (ưu tiên admin)
     const adminUser = await User.findOne({ role: 'admin' }).select(
       'firstName lastName email phone role'
     );
 
     if (!adminUser) {
-      // Fallback tìm staff nếu không có admin
       const staffUser = await User.findOne({ role: 'staff' }).select(
         'firstName lastName email phone role'
       );

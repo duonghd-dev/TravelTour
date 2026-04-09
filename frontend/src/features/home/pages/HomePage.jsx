@@ -28,14 +28,14 @@ const HomePage = () => {
       try {
         setLoading(true);
 
-        // Fetch experiences, artisans, và hotels
+        
         const [experiencesRes, artisansRes, hotelsRes] = await Promise.all([
           axiosInstance.get('/api/v1/experiences'),
           axiosInstance.get('/api/v1/artisans'),
           axiosInstance.get('/api/v1/hotels'),
         ]);
 
-        // Set data
+        
         setExperiences(experiencesRes.data?.data || []);
         setArtisans(artisansRes.data?.data || []);
         setLocations(hotelsRes.data?.data || []);
@@ -138,7 +138,7 @@ const HomePage = () => {
 
   return (
     <div className={styles.homePage}>
-      {/* 1. HERO SECTION */}
+      {}
       <section className={styles.heroSection}>
         <div className={styles.heroVideo}>
           <video autoPlay muted loop playsInline>
@@ -218,7 +218,7 @@ const HomePage = () => {
 
       <div className={styles.sectionDivider}></div>
 
-      {/* 2. PROBLEM SECTION */}
+      {}
       <section className={styles.problemSection}>
         <div className={styles.problemContainer}>
           <h2 className={styles.problemTitle}>
@@ -244,7 +244,7 @@ const HomePage = () => {
 
       <div className={styles.sectionDivider}></div>
 
-      {/* 3. SOLUTION SECTION */}
+      {}
       <section className={styles.solutionSection}>
         <div className={styles.solutionContainer}>
           <div className={styles.solutionLeft}>

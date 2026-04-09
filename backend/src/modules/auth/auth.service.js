@@ -11,21 +11,16 @@ import { hashData, verifyHash } from '../../common/utils/encryption.js';
 import * as authValidator from './auth.validator.js';
 import { OTP_CONFIG } from '../../config/constants.js';
 
-/**
- * Check OTP rate limiting - chống spam gửi OTP
- * @param {Object} user - User object
- * @param {string} type - OTP type: 'email', 'login', 'reset'
- * @throws {Error} nếu vượt quá limit
- */
+
 const checkOTPRateLimit = (user, type = 'email') => {
   const now = Date.now();
 
-  // Field names based on type
+  
   const lastSentField = `${type}OTPLastSent`;
   const countField = `${type}OTPSendCount`;
   const windowField = `${type}OTPSendWindow`;
 
-  // Initialize if not exists
+  
   if (!user[lastSentField]) {
     user[lastSentField] = 0;
   }
@@ -39,7 +34,7 @@ const checkOTPRateLimit = (user, type = 'email') => {
   const timeSinceLastSent = now - user[lastSentField];
   const timeSinceWindow = now - user[windowField];
 
-  // Check cooldown: phải chờ ít nhất COOLDOWN_TIME giữa các lần gửi
+  
   if (timeSinceLastSent < OTP_CONFIG.COOLDOWN_TIME) {
     const remainingSeconds = Math.ceil(
       (OTP_CONFIG.COOLDOWN_TIME - timeSinceLastSent) / 1000
@@ -49,13 +44,13 @@ const checkOTPRateLimit = (user, type = 'email') => {
     );
   }
 
-  // Reset counter nếu window expired
+  
   if (timeSinceWindow > OTP_CONFIG.RATE_LIMIT_WINDOW) {
     user[countField] = 0;
     user[windowField] = now;
   }
 
-  // Check max attempts: vượt quá tối đa lần gửi trong time window
+  
   if (user[countField] >= OTP_CONFIG.MAX_ATTEMPTS) {
     throw new Error(
       `Too many OTP requests. Please try again in ${Math.ceil(OTP_CONFIG.RATE_LIMIT_WINDOW / (60 * 1000))} minutes`
@@ -63,9 +58,7 @@ const checkOTPRateLimit = (user, type = 'email') => {
   }
 };
 
-/**
- * Update OTP send tracking
- */
+
 const updateOTPTracking = (user, type = 'email') => {
   const lastSentField = `${type}OTPLastSent`;
   const countField = `${type}OTPSendCount`;
@@ -74,40 +67,40 @@ const updateOTPTracking = (user, type = 'email') => {
   user[countField] = (user[countField] || 0) + 1;
 };
 
-// 📝 REGISTER - Tạo tài khoản mới và gửi OTP xác thực email
+
 export const register = async (data) => {
   const { email, password, firstName, lastName, phone, gender } = data;
 
-  // Validate input data
+  
   authValidator.validateRegisterData(data);
 
-  // Kiểm tra email đã tồn tại
+  
   const existEmail = await User.findOne({ email });
   if (existEmail) throw new Error('Email already exists');
 
-  // Kiểm tra phone đã tồn tại (nếu được provide)
+  
   if (phone) {
     const existPhone = await User.findOne({ phone });
     if (existPhone) throw new Error('Phone number already exists');
   }
 
-  // Tạo OTP
+  
   const otp = generateOTP();
   const otpExpire = getOTPExpiration();
 
-  // 🔐 Hash OTP để lưu safely trong DB
+  
   const hashedOTP = hashData(otp);
 
-  // Hash password
+  
   const hashedPassword = await hashPassword(password);
 
-  // Set default avatar based on gender (null - frontend will use imported images)
+  
   const userGender = gender || 'other';
-  // Avatar will be null - frontend handles default avatar by gender
+  
   const avatar = null;
 
   try {
-    // Tạo user với trạng thái chưa verify email
+    
     const user = await User.create({
       email,
       password: hashedPassword,
@@ -116,13 +109,13 @@ export const register = async (data) => {
       phone: phone || null,
       gender: userGender,
       avatar: avatar,
-      emailOTP: hashedOTP, // 🔐 Lưu hash của OTP
+      emailOTP: hashedOTP, 
       emailOTPExpire: otpExpire,
       isEmailVerified: false,
       role: 'customer',
     });
 
-    // Gửi OTP qua email
+    
     await sendOTPEmail(email, otp);
 
     return {
@@ -132,7 +125,7 @@ export const register = async (data) => {
       email: user.email,
     };
   } catch (error) {
-    // Handle MongoDB unique constraint error
+    
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
       if (field === 'email') {
@@ -145,36 +138,36 @@ export const register = async (data) => {
   }
 };
 
-// ✅ VERIFY EMAIL - Xác thực email bằng OTP
+
 export const verifyEmail = async (userId, otp) => {
   const user = await User.findById(userId);
   if (!user) throw new Error('User not found');
 
   if (user.isEmailVerified) throw new Error('Email already verified');
 
-  // Kiểm tra OTP (so sánh hash)
+  
   const otpString = String(otp).trim();
   const isValidOTP = verifyHash(otpString, user.emailOTP);
 
-  // Allow bypass in development mode with testOTP
+  
   const isValidDev =
     process.env.NODE_ENV === 'development' && otpString === '000000';
 
   if (!isValidOTP && !isValidDev) throw new Error('Invalid OTP');
 
-  // Kiểm tra OTP hết hạn
+  
   if (new Date() > user.emailOTPExpire) throw new Error('OTP has expired');
 
-  // Cập nhật trạng thái verify
+  
   user.isEmailVerified = true;
   user.emailOTP = null;
   user.emailOTPExpire = null;
   await user.save();
 
-  // Gửi email chào mừng
+  
   await sendWelcomeEmail(user.email, user.firstName);
 
-  // Tạo JWT token để tự động đăng nhập (convert ObjectId to string)
+  
   const token = generateToken({ userId: user._id.toString(), role: user.role });
 
   return {
@@ -192,29 +185,29 @@ export const verifyEmail = async (userId, otp) => {
   };
 };
 
-// 🔐 LOGIN - Đăng nhập với xác thực 2FA tùy chọn
+
 export const login = async (data) => {
   const { email, password } = data;
 
   const user = await User.findOne({ email });
   if (!user) throw new Error('Email not found');
 
-  // Kiểm tra email verified
+  
   if (!user.isEmailVerified)
     throw new Error('Email not verified. Please verify your email first.');
 
-  // Kiểm tra password
+  
   const isMatch = await comparePassword(password, user.password);
   if (!isMatch) throw new Error('Incorrect password');
 
-  // ✅ NẾU 2FA KHÔNG BẬT - ĐĂNG NHẬP NGAY LẬP TỨC
+  
   if (!user.twoFactorEnabled) {
-    // Cập nhật lần login cuối và đánh dấu first login đã xong
+    
     user.lastLoginAt = new Date();
     user.isFirstLogin = false;
     await user.save();
 
-    // Tạo JWT token (convert ObjectId to string)
+    
     const token = generateToken({
       userId: user._id.toString(),
       role: user.role,
@@ -236,26 +229,26 @@ export const login = async (data) => {
     };
   }
 
-  // ⚠️ NẾU 2FA BẬT - GỬI OTP 2FA
-  // Check OTP rate limit - chống spam 2FA
+  
+  
   checkOTPRateLimit(user, 'login');
 
-  // Tạo OTP 2FA
+  
   const otp = generateOTP();
   const otpExpire = getOTPExpiration();
 
-  // 🔐 Hash OTP
+  
   const hashedOTP = hashData(otp);
 
-  user.loginOTP = hashedOTP; // Lưu hash của OTP
+  user.loginOTP = hashedOTP; 
   user.loginOTPExpire = otpExpire;
 
-  // Update OTP send tracking
+  
   updateOTPTracking(user, 'login');
 
   await user.save();
 
-  // Gửi OTP qua email
+  
   await sendOTPEmail(email, otp);
 
   return {
@@ -266,28 +259,28 @@ export const login = async (data) => {
   };
 };
 
-// ✅ VERIFY LOGIN OTP - Xác thực 2FA
+
 export const verifyLoginOTP = async (userId, otp) => {
   const user = await User.findById(userId);
   if (!user) throw new Error('User not found');
 
-  // Kiểm tra OTP (so sánh hash)
+  
   const otpString = String(otp).trim();
   const isValidOTP = verifyHash(otpString, user.loginOTP);
 
   if (!isValidOTP) throw new Error('Invalid OTP');
 
-  // Kiểm tra OTP hết hạn
+  
   if (new Date() > user.loginOTPExpire) throw new Error('OTP has expired');
 
-  // Cập nhật lần login cuối
+  
   user.lastLoginAt = new Date();
   user.loginOTP = null;
   user.loginOTPExpire = null;
   user.isFirstLogin = false;
   await user.save();
 
-  // Tạo JWT token (convert ObjectId to string)
+  
   const token = generateToken({ userId: user._id.toString(), role: user.role });
 
   return {
@@ -306,30 +299,30 @@ export const verifyLoginOTP = async (userId, otp) => {
   };
 };
 
-// 🔄 FORGOT PASSWORD - Gửi OTP reset password
+
 export const forgotPassword = async (email) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('Email not found');
 
-  // ⚠️ Check OTP rate limit - chống spam
+  
   checkOTPRateLimit(user, 'reset');
 
-  // Tạo OTP
+  
   const otp = generateOTP();
   const otpExpire = getOTPExpiration();
 
-  // 🔐 Hash OTP
+  
   const hashedOTP = hashData(otp);
 
-  user.resetPasswordOTP = hashedOTP; // Lưu hash của OTP
+  user.resetPasswordOTP = hashedOTP; 
   user.resetPasswordExpire = otpExpire;
 
-  // Update OTP send tracking
+  
   updateOTPTracking(user, 'reset');
 
   await user.save();
 
-  // Gửi OTP qua email
+  
   await sendPasswordResetEmail(email, otp);
 
   return {
@@ -338,18 +331,18 @@ export const forgotPassword = async (email) => {
   };
 };
 
-// ✅ VERIFY RESET PASSWORD OTP - Xác thực reset password
+
 export const verifyResetPasswordOTP = async (email, otp) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('User not found');
 
-  // Kiểm tra OTP (so sánh hash)
+  
   const otpString = String(otp).trim();
   const isValidOTP = verifyHash(otpString, user.resetPasswordOTP);
 
   if (!isValidOTP) throw new Error('Invalid OTP');
 
-  // Kiểm tra OTP hết hạn
+  
   if (new Date() > user.resetPasswordExpire) throw new Error('OTP has expired');
 
   return {
@@ -358,21 +351,21 @@ export const verifyResetPasswordOTP = async (email, otp) => {
   };
 };
 
-// 🔑 RESET PASSWORD - Cập nhật mật khẩu mới
+
 export const resetPassword = async (email, otp, newPassword) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('User not found');
 
-  // Kiểm tra OTP lại (security check - so sánh hash)
+  
   const otpString = String(otp).trim();
   const isValidOTP = verifyHash(otpString, user.resetPasswordOTP);
 
   if (!isValidOTP) throw new Error('Invalid OTP');
 
-  // Kiểm tra OTP hết hạn
+  
   if (new Date() > user.resetPasswordExpire) throw new Error('OTP has expired');
 
-  // Hash password mới
+  
   const hashedPassword = await hashPassword(newPassword);
 
   user.password = hashedPassword;
@@ -386,22 +379,22 @@ export const resetPassword = async (email, otp, newPassword) => {
   };
 };
 
-// 🔐 OAUTH LOGIN - Đăng nhập bằng Google/Facebook
+
 export const oauthLogin = async (user) => {
   if (!user) throw new Error('User not found');
 
-  // Nếu user chưa verify email (dành cho Facebook không cung cấp email)
+  
   if (!user.isEmailVerified) {
     user.isEmailVerified = true;
     await user.save();
   }
 
-  // Cập nhật lần login cuối
+  
   user.lastLoginAt = new Date();
   user.isFirstLogin = false;
   await user.save();
 
-  // Tạo JWT token (convert ObjectId to string)
+  
   const token = generateToken({ userId: user._id.toString(), role: user.role });
 
   return {

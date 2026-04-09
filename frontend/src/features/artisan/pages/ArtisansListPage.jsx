@@ -32,7 +32,8 @@ const ArtisansListPage = () => {
       try {
         setLoading(true);
         const response = await artisanApi.getAllArtisans();
-        const data = response.data || response || [];
+        // apiService returns response.data directly, which contains { success, message, data }
+        const data = response?.data || [];
         setArtisans(data);
       } catch (error) {
         console.error('Lỗi khi tải danh sách nghệ nhân:', error);
@@ -87,11 +88,11 @@ const ArtisansListPage = () => {
         overflowX: 'hidden',
       }}
     >
-      {/* Hero Header */}
+      {}
       <header className="hero-header" style={{ marginBottom: '60px' }}>
         <div className="hero-header__cover" style={{ height: '350px' }}>
           <img
-            src="https://images.unsplash.com/photo-1518060875936-cefa7d716270?auto=format&fit=crop&w=1920&q=80"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0qLszgFgKFZT5esDr4Gqy7QPg5x3ab2ebWxZ4Qo5MlnXvhzGxiX1_DjRdwVtup3eJQrHvtbQybLddSfeU2uuBG8vse0CJ2u80fpYbsh8qeOChWFSHpWqMKD00ZX4ipdJ6a-1XyyaZv_Cbhq59g1A2rWhc6xVR-1htLczErv_9yfEBbV2LnqA7vqZdtVTgz9kMehK70GZEzk_WqaA4UZTmHZ8BkQA-jcsPXbcKEtFQrotIhQcBg8c1op64tGTQtWjAz6m0gIGZytA"
             alt="Hero"
           />
         </div>
@@ -140,7 +141,7 @@ const ArtisansListPage = () => {
             alignItems: 'start',
           }}
         >
-          {/* Filters Sidebar */}
+          {}
           <aside className="filters-wrapper">
             <h3
               style={{
@@ -241,7 +242,7 @@ const ArtisansListPage = () => {
             )}
           </aside>
 
-          {/* Results Grid */}
+          {}
           <div>
             <div
               style={{

@@ -8,7 +8,7 @@ const NotFound = () => {
   return (
     <div className="not-found">
       <div className="not-found__container">
-        {/* Left Content */}
+        {}
         <div className="not-found__content">
           <span className="not-found__label">
             LỖI 404 – TRANG KHÔNG TỒN TẠI
@@ -22,7 +22,7 @@ const NotFound = () => {
             "Có lẽ con đường này đã bị thời gian che mờ."
           </p>
 
-          {/* Action Buttons */}
+          {}
           <div className="not-found__actions">
             <button
               className="not-found__btn not-found__btn--primary"
@@ -36,23 +36,18 @@ const NotFound = () => {
             >
               Xem Trải nghiệm
             </button>
-            {/* <button
-              className="not-found__btn not-found__btn--secondary"
-              onClick={() => navigate('/admin/messages')}
-            >
-              Liên hệ Hỗ trợ
-            </button> */}
+            {}
           </div>
         </div>
 
-        {/* Right Image */}
+        {}
         <div className="not-found__image">
           <div className="not-found__image-placeholder">
             <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
-              {/* Stone arch/gate background */}
+              {}
               <rect width="300" height="400" fill="#4a7c59" opacity="0.3" />
 
-              {/* Outer stone frame */}
+              {}
               <rect
                 x="40"
                 y="60"
@@ -72,14 +67,14 @@ const NotFound = () => {
                 strokeWidth="8"
               />
 
-              {/* Inner decorative pattern */}
+              {}
               <g fill="#6a9c7a" opacity="0.7">
                 <circle cx="80" cy="120" r="8" />
                 <circle cx="220" cy="120" r="8" />
                 <circle cx="80" cy="310" r="8" />
                 <circle cx="220" cy="310" r="8" />
 
-                {/* Decorative carved elements */}
+                {}
                 <path
                   d="M 100 140 Q 150 150 200 140"
                   fill="none"
@@ -94,7 +89,7 @@ const NotFound = () => {
                 />
               </g>
 
-              {/* Moss/age effect */}
+              {}
               <rect
                 x="50"
                 y="65"
@@ -116,7 +111,7 @@ const NotFound = () => {
         </div>
       </div>
 
-      {/* Background decoration */}
+      {}
       <div className="not-found__bg-decoration"></div>
     </div>
   );

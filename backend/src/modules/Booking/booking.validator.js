@@ -1,10 +1,6 @@
-/**
- * Validation schemas for Booking module
- */
 
-/**
- * Validate create booking request
- */
+
+
 export const validateCreateBooking = async (req, res, next) => {
   try {
     const {
@@ -16,10 +12,10 @@ export const validateCreateBooking = async (req, res, next) => {
       guestsCount,
     } = req.body;
 
-    // Validate required fields - need one of: tourId, experienceId, or hotelId
+    
     const hasItemId = tourId || experienceId || hotelId;
 
-    // Check required fields - timeSlot only required for experiences
+    
     if (!hasItemId || !bookingDate || !guestsCount) {
       return res.status(400).json({
         success: false,
@@ -28,7 +24,7 @@ export const validateCreateBooking = async (req, res, next) => {
       });
     }
 
-    // timeSlot is only required for experiences
+    
     if (experienceId && !timeSlot) {
       return res.status(400).json({
         success: false,
@@ -36,7 +32,7 @@ export const validateCreateBooking = async (req, res, next) => {
       });
     }
 
-    // Validate date
+    
     const date = new Date(bookingDate);
     if (isNaN(date.getTime())) {
       return res.status(400).json({
@@ -45,7 +41,7 @@ export const validateCreateBooking = async (req, res, next) => {
       });
     }
 
-    // Validate guests count
+    
     if (!Number.isInteger(guestsCount) || guestsCount < 1) {
       return res.status(400).json({
         success: false,
@@ -53,7 +49,7 @@ export const validateCreateBooking = async (req, res, next) => {
       });
     }
 
-    // Validate timeSlot - only for experiences
+    
     if (experienceId) {
       if (typeof timeSlot !== 'string' || timeSlot.trim() === '') {
         return res.status(400).json({
@@ -73,9 +69,7 @@ export const validateCreateBooking = async (req, res, next) => {
   }
 };
 
-/**
- * Validate update booking status
- */
+
 export const validateUpdateStatus = async (req, res, next) => {
   try {
     const { status } = req.body;

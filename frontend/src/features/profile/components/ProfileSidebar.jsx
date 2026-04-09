@@ -1,25 +1,32 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faUser,
+  faPlane,
+  faCalendarDays,
+  faHeart,
+  faLock,
+  faCheck,
+} from '@fortawesome/free-solid-svg-icons';
 import maleAvatarImg from '@/assets/images/avatarDefault/maleAvatar.png';
 import femaleAvatarImg from '@/assets/images/avatarDefault/femaleAvatar.png';
 import styles from './ProfileSidebar.module.scss';
 
 const getAvatarUrl = (avatar, gender) => {
-  // If avatar is a data URL (base64), use it directly
   if (avatar && avatar.startsWith('data:')) {
     return avatar;
   }
-  // If avatar is a valid string path, use it with / prefix
+
   if (avatar && typeof avatar === 'string' && avatar.length > 0) {
     return `/${avatar}`;
   }
-  // If avatar is null or empty, use default by gender
+
   if (gender === 'male') return maleAvatarImg;
   if (gender === 'female') return femaleAvatarImg;
-  return maleAvatarImg; // Default to male avatar
+  return maleAvatarImg;
 };
 
-// Fallback avatar based on gender
 const getDefaultAvatarByGender = (gender) => {
   if (gender === 'male') return maleAvatarImg;
   if (gender === 'female') return femaleAvatarImg;
@@ -29,19 +36,17 @@ const getDefaultAvatarByGender = (gender) => {
 const ProfileSidebar = ({ user, activeSection, onSectionChange }) => {
   const [avatarError, setAvatarError] = useState(false);
 
-  // Handle image load error - fallback to default avatar
   const handleAvatarError = () => {
     setAvatarError(true);
   };
 
-  // Get avatar source
   const avatarSrc = avatarError
     ? getDefaultAvatarByGender(user?.gender)
     : getAvatarUrl(user?.avatar, user?.gender);
 
   return (
     <div className={styles.sidebar}>
-      {/* Profile Header */}
+      {}
       <div className={styles.profileHeader}>
         <div className={styles.avatarContainer}>
           <img
@@ -50,7 +55,9 @@ const ProfileSidebar = ({ user, activeSection, onSectionChange }) => {
             className={styles.avatar}
             onError={handleAvatarError}
           />
-          <div className={styles.badge}>✓</div>
+          <div className={styles.badge}>
+            <FontAwesomeIcon icon={faCheck} />
+          </div>
         </div>
         <h2 className={styles.name}>
           {user?.firstName} {user?.lastName}
@@ -68,46 +75,46 @@ const ProfileSidebar = ({ user, activeSection, onSectionChange }) => {
         </div>
       </div>
 
-      {/* Menu Items */}
+      {}
       <nav className={styles.menu}>
         <button
           className={`${styles.menuItem} ${activeSection === 'personal' ? styles.active : ''}`}
           onClick={() => onSectionChange('personal')}
         >
-          <span className={styles.icon}>👤</span>
+          <FontAwesomeIcon icon={faUser} className={styles.icon} />
           Personal Information
         </button>
         <button
           className={`${styles.menuItem} ${activeSection === 'journeys' ? styles.active : ''}`}
           onClick={() => onSectionChange('journeys')}
         >
-          <span className={styles.icon}>✈️</span>
+          <FontAwesomeIcon icon={faPlane} className={styles.icon} />
           My Heritage Journeys
         </button>
         <button
           className={`${styles.menuItem} ${activeSection === 'bookings' ? styles.active : ''}`}
           onClick={() => onSectionChange('bookings')}
         >
-          <span className={styles.icon}>📅</span>
+          <FontAwesomeIcon icon={faCalendarDays} className={styles.icon} />
           My Bookings
         </button>
         <button
           className={`${styles.menuItem} ${activeSection === 'favorites' ? styles.active : ''}`}
           onClick={() => onSectionChange('favorites')}
         >
-          <span className={styles.icon}>❤️</span>
+          <FontAwesomeIcon icon={faHeart} className={styles.icon} />
           My Favorites
         </button>
         <button
           className={`${styles.menuItem} ${activeSection === 'security' ? styles.active : ''}`}
           onClick={() => onSectionChange('security')}
         >
-          <span className={styles.icon}>🔒</span>
+          <FontAwesomeIcon icon={faLock} className={styles.icon} />
           Security Settings
         </button>
       </nav>
 
-      {/* Activity Log */}
+      {}
       <div className={styles.activityLog}>
         <h3 className={styles.activityTitle}>Activity Log</h3>
         <div className={styles.logItems}>

@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faStar,
+  faCheck,
+  faLandmark,
+  faShip,
+  faAward,
+  faHome,
+  faSeedling,
+  faDragon,
+  faBiking,
+  faMountain,
+  faLeaf,
+} from '@fortawesome/free-solid-svg-icons';
 import {
   MapPin,
   Heart,
@@ -11,6 +25,29 @@ import {
 } from 'lucide-react';
 import { tourService } from '../api/tourService';
 import './TourDetailPage.scss';
+
+// Mapping FontAwesome icon name to icon object
+const iconNameMap = {
+  faLandmark,
+  faShip,
+  faAward,
+  faHome,
+  faSeedling,
+  faDragon,
+  faBiking,
+  faMountain,
+  faLeaf,
+  faCheck,
+  faStar,
+};
+
+// Get icon from name
+const getIcon = (iconName) => {
+  if (typeof iconName === 'string' && iconNameMap[iconName]) {
+    return iconNameMap[iconName];
+  }
+  return null;
+};
 
 export default function TourDetailPage() {
   const { id } = useParams();
@@ -27,7 +64,7 @@ export default function TourDetailPage() {
       try {
         const data = await tourService.getTourDetail(id);
         setTour(data);
-        // Set initial guests to minimum participants
+
         setGuests(String(data.minParticipants || 1));
       } catch (error) {
         console.error('Error fetching tour:', error);
@@ -50,7 +87,6 @@ export default function TourDetailPage() {
   const handleBooking = () => {
     const guestsNumber = parseInt(guests);
 
-    // Validate guests count against tour limits
     if (guestsNumber < tour.minParticipants) {
       alert(`Tối thiểu ${tour.minParticipants} khách mỗi tour`);
       return;
@@ -62,7 +98,6 @@ export default function TourDetailPage() {
     }
 
     if (checkInDate && guests && tour) {
-      // Calculate total price based on tour duration and guests
       const durationDays = tour.duration?.value || 1;
       const totalPrice =
         (tour.pricePerPerson || tour.price || 0) * durationDays * guestsNumber;
@@ -87,7 +122,7 @@ export default function TourDetailPage() {
 
   return (
     <div className="tour-detail">
-      {/* Hero Banner */}
+      {}
       <div
         className="tour-detail__banner"
         style={{
@@ -107,9 +142,9 @@ export default function TourDetailPage() {
       </div>
 
       <div className="tour-detail__container">
-        {/* Main Content */}
+        {}
         <div className="tour-detail__main">
-          {/* Overview */}
+          {}
           <section className="tour-detail__section">
             <h2>Tour Overview</h2>
             <div className="tour-detail__overview">
@@ -150,23 +185,32 @@ export default function TourDetailPage() {
             </div>
           </section>
 
-          {/* Highlights */}
+          {}
           {tour.highlights && tour.highlights.length > 0 && (
             <section className="tour-detail__section">
               <h2>Tour Highlights</h2>
               <div className="tour-detail__highlights">
-                {tour.highlights.map((highlight, idx) => (
-                  <div key={idx} className="highlight-card">
-                    <div className="highlight-icon">{highlight.icon}</div>
-                    <h4>{highlight.title}</h4>
-                    <p>{highlight.description}</p>
-                  </div>
-                ))}
+                {tour.highlights.map((highlight, idx) => {
+                  const icon = getIcon(highlight.icon);
+                  return (
+                    <div key={idx} className="highlight-card">
+                      <div className="highlight-icon">
+                        {icon ? (
+                          <FontAwesomeIcon icon={icon} />
+                        ) : (
+                          <span className="icon-placeholder">✨</span>
+                        )}
+                      </div>
+                      <h4>{highlight.title}</h4>
+                      <p>{highlight.description}</p>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}
 
-          {/* Itinerary */}
+          {}
           {tour.itinerary && tour.itinerary.length > 0 && (
             <section className="tour-detail__section">
               <h2>Detailed Itinerary</h2>
@@ -206,7 +250,7 @@ export default function TourDetailPage() {
             </section>
           )}
 
-          {/* Included Services */}
+          {}
           {tour.included && tour.included.length > 0 && (
             <section className="tour-detail__section">
               <h2>What's Included</h2>
@@ -309,7 +353,15 @@ export default function TourDetailPage() {
                 <div className="rating-display">
                   <div className="rating-score">{tour.rating}</div>
                   <div className="rating-stars">
-                    {'⭐'.repeat(Math.round(tour.rating))}
+                    {Array.from({ length: Math.round(tour.rating) }).map(
+                      (_, i) => (
+                        <FontAwesomeIcon
+                          key={i}
+                          icon={faStar}
+                          className="star-icon"
+                        />
+                      )
+                    )}
                   </div>
                   <div className="rating-count">
                     Based on {tour.reviews} reviews
@@ -321,7 +373,13 @@ export default function TourDetailPage() {
                   <div key={idx} className="review-card">
                     <div className="review-header">
                       <div className="review-rating">
-                        {'⭐'.repeat(review.rating)}
+                        {Array.from({ length: review.rating }).map((_, i) => (
+                          <FontAwesomeIcon
+                            key={i}
+                            icon={faStar}
+                            className="star-icon"
+                          />
+                        ))}
                       </div>
                       <span className="review-author">{review.author}</span>
                     </div>
@@ -422,15 +480,15 @@ export default function TourDetailPage() {
 
             <div className="booking-benefits">
               <div className="benefit">
-                <span>✓</span>
+                <FontAwesomeIcon icon={faCheck} className="check-icon" />
                 <span>Professional Guide</span>
               </div>
               <div className="benefit">
-                <span>✓</span>
+                <FontAwesomeIcon icon={faCheck} className="check-icon" />
                 <span>All Meals Included</span>
               </div>
               <div className="benefit">
-                <span>✓</span>
+                <FontAwesomeIcon icon={faCheck} className="check-icon" />
                 <span>Small Group Tours</span>
               </div>
             </div>

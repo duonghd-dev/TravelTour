@@ -1,15 +1,11 @@
-/**
- * Global Error Handler Middleware
- * Xử lý tất cả lỗi từ các routes/controllers
- * Trả về response format nhất quán cho frontend
- */
+
 
 const errorHandler = (err, req, res, next) => {
-  // Set default values
+  
   err.statusCode = err.statusCode || 500;
   err.message = err.message || 'Internal Server Error';
 
-  // Log error for debugging (development only)
+  
   if (process.env.NODE_ENV === 'development') {
     console.error('❌ Error:', {
       message: err.message,
@@ -20,7 +16,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Validation Error
+  
   if (err.isValidation) {
     return res.status(400).json({
       success: false,
@@ -30,7 +26,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Operational Error (AppError)
+  
   if (err.isOperational) {
     return res.status(err.statusCode).json({
       success: false,
@@ -40,7 +36,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // JWT Error
+  
   if (err.name === 'JsonWebTokenError') {
     return res.status(401).json({
       success: false,
@@ -59,7 +55,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Mongoose Error
+  
   if (err.name === 'CastError') {
     return res.status(400).json({
       success: false,
@@ -80,7 +76,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Duplicate Key Error
+  
   if (err.code === 11000) {
     const field = Object.keys(err.keyPattern)[0];
     return res.status(409).json({
@@ -92,7 +88,7 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Unknown/Server Error
+  
   return res.status(500).json({
     success: false,
     statusCode: 500,

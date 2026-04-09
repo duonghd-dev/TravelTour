@@ -1,10 +1,7 @@
 import jwt from 'jsonwebtoken';
 import logger from '../utils/logger.js';
 
-/**
- * Middleware để xác thực JWT token từ Authorization header
- * Phải có: Authorization: Bearer <token>
- */
+
 export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
@@ -16,10 +13,10 @@ export const authenticateToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Ensure _id is set for compatibility
+    
     req.user = {
       ...decoded,
-      _id: decoded.userId, // Alias userId as _id for compatibility
+      _id: decoded.userId, 
     };
     next();
   } catch (err) {
@@ -28,10 +25,7 @@ export const authenticateToken = (req, res, next) => {
   }
 };
 
-/**
- * Middleware để kiểm tra quyền (role-based)
- * Usage: authMiddleware.authorize(['admin', 'customer'])(req, res, next)
- */
+
 export const authorize = (allowedRoles = []) => {
   return (req, res, next) => {
     if (!req.user) {

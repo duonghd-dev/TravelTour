@@ -2,13 +2,10 @@ import mongoose from 'mongoose';
 
 const { Schema, model } = mongoose;
 
-/**
- * LoginOTP Model - Quản lý OTP đăng nhập (2FA)
- * Tách từ User model để tuân thủ NF3
- */
+
 const loginOtpSchema = new Schema(
   {
-    // 🔗 Liên kết user
+    
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -16,7 +13,7 @@ const loginOtpSchema = new Schema(
       unique: true,
     },
 
-    // 🔐 OTP
+    
     otp: {
       type: String,
       required: true,
@@ -26,13 +23,13 @@ const loginOtpSchema = new Schema(
       required: true,
     },
 
-    // 📊 Trạng thái
+    
     isUsed: {
       type: Boolean,
       default: false,
     },
 
-    // 📊 Tracking
+    
     sentAt: {
       type: Date,
       default: Date.now,
@@ -43,7 +40,7 @@ const loginOtpSchema = new Schema(
   }
 );
 
-// TTL index - tự động xóa sau khi hết hạn
+
 loginOtpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const LoginOTP = model('LoginOTP', loginOtpSchema);

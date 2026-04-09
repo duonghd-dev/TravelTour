@@ -1,8 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Heart, Star, ChevronLeft } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCheck,
+  faCapsules,
+  faUtensils,
+  faLandmark,
+  faTicket,
+  faSeedling,
+  faSpa,
+  faMountain,
+  faPalette,
+  faBook,
+  faWater,
+  faUmbrellaBeach,
+  faRibbon,
+  faTshirt,
+  faLeaf,
+  faRecycle,
+  faHammer,
+  faTaxi,
+  faMap,
+  faShip,
+  faAward,
+  faHome,
+  faDragon,
+  faBiking,
+} from '@fortawesome/free-solid-svg-icons';
 import { hotelService } from '../api/hotelService';
 import './HotelDetailPage.scss';
+
+// Mapping FontAwesome icon name to icon object
+const iconNameMap = {
+  faSpa,
+  faUtensils,
+  faLandmark,
+  faTicket,
+  faSeedling,
+  faRibbon,
+  faMountain,
+  faPalette,
+  faCapsules,
+  faBook,
+  faWater,
+  faUmbrellaBeach,
+  faTshirt,
+  faLeaf,
+  faRecycle,
+  faCheck,
+  faHammer,
+  faTaxi,
+  faMap,
+  faShip,
+  faAward,
+  faHome,
+  faDragon,
+  faBiking,
+};
+
+// Hỗ trợ cả emoji cũ (cho compatibility) và icon names mới
+const getIcon = (iconValue) => {
+  // Nếu là icon name (string), lấy từ iconNameMap
+  if (typeof iconValue === 'string' && iconNameMap[iconValue]) {
+    return iconNameMap[iconValue];
+  }
+  // Nếu là emoji, return null/undefined
+  return null;
+};
 
 export default function HotelDetailPage() {
   const { id } = useParams();
@@ -40,7 +105,6 @@ export default function HotelDetailPage() {
 
   const handleBooking = () => {
     if (checkInDate && checkOutDate && guests && hotel) {
-      // Calculate nights
       const checkIn = new Date(checkInDate);
       const checkOut = new Date(checkOutDate);
       const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
@@ -54,6 +118,7 @@ export default function HotelDetailPage() {
             itemType: 'hotel',
             itemName: hotel.name,
             bookingDate: checkInDate,
+            checkoutDate: checkOutDate,
             timeSlot: null,
             guestsCount: parseInt(guests),
             totalPrice: totalPrice,
@@ -65,7 +130,7 @@ export default function HotelDetailPage() {
 
   return (
     <div className="hotel-detail">
-      {/* Hero Banner */}
+      {}
       <div
         className="hotel-detail__banner"
         style={{
@@ -89,32 +154,46 @@ export default function HotelDetailPage() {
       </div>
 
       <div className="hotel-detail__container">
-        {/* Main Content */}
+        {}
         <div className="hotel-detail__main">
-          {/* Story */}
+          {}
           <section className="hotel-detail__section">
             <h2>{hotel.story?.title || 'The Story'}</h2>
             <p>{hotel.story?.content || ''}</p>
             {hotel.story?.details && <p>{hotel.story.details}</p>}
           </section>
 
-          {/* Amenities */}
+          {}
           {hotel.amenities && hotel.amenities.length > 0 && (
             <section className="hotel-detail__section">
               <h2>Heritage Amenities</h2>
               <div className="hotel-detail__amenities">
-                {hotel.amenities.map((amenity, idx) => (
-                  <div key={idx} className="amenity-card">
-                    <div className="amenity-icon">{amenity.icon}</div>
-                    <h4>{amenity.name}</h4>
-                    <p>{amenity.description}</p>
-                  </div>
-                ))}
+                {hotel.amenities.map((amenity, idx) => {
+                  const icon = getIcon(amenity.icon);
+                  return (
+                    <div key={idx} className="amenity-card">
+                      <div className="amenity-icon">
+                        {icon ? (
+                          <FontAwesomeIcon icon={icon} />
+                        ) : (
+                          <span
+                            className="icon-placeholder"
+                            title={amenity.icon || 'No icon'}
+                          >
+                            ✨
+                          </span>
+                        )}
+                      </div>
+                      <h4>{amenity.name}</h4>
+                      <p>{amenity.description}</p>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}
 
-          {/* Cultural Impact */}
+          {}
           {hotel.culturalImpact && (
             <section className="hotel-detail__section hotel-detail__cultural-impact">
               <h2>{hotel.culturalImpact.title}</h2>
@@ -136,7 +215,7 @@ export default function HotelDetailPage() {
             </section>
           )}
 
-          {/* Gallery */}
+          {}
           {hotel.gallery && hotel.gallery.length > 0 && (
             <section className="hotel-detail__section">
               <h2>The Heritage Archive</h2>
@@ -150,7 +229,7 @@ export default function HotelDetailPage() {
             </section>
           )}
 
-          {/* Reviews */}
+          {}
           {hotel.reviewList && hotel.reviewList.length > 0 && (
             <section className="hotel-detail__section">
               <h2>Guest Reflections</h2>
@@ -169,7 +248,7 @@ export default function HotelDetailPage() {
           )}
         </div>
 
-        {/* Sidebar - Booking */}
+        {}
         <aside className="hotel-detail__sidebar">
           <div className="booking-box">
             <div className="booking-price">
@@ -218,11 +297,15 @@ export default function HotelDetailPage() {
 
             <div className="booking-benefits">
               <div className="benefit">
-                <span>✓</span>
+                <span>
+                  <FontAwesomeIcon icon={faCheck} />
+                </span>
                 <span>Verified Heritage Hotel</span>
               </div>
               <div className="benefit">
-                <span>✓</span>
+                <span>
+                  <FontAwesomeIcon icon={faCheck} />
+                </span>
                 <span>Community Impact Contribution</span>
               </div>
             </div>

@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faFire,
+  faCircle,
+  faHourglass,
+  faStar,
+  faCircleCheck,
+} from '@fortawesome/free-solid-svg-icons';
 import './ExperiencesDetail.scss';
 
 const ExperiencesDetail = () => {
@@ -16,7 +24,6 @@ const ExperiencesDetail = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  // Fetch experience detail từ API
   useEffect(() => {
     const fetchExperience = async () => {
       try {
@@ -28,7 +35,6 @@ const ExperiencesDetail = () => {
         setExperience(data.data);
         setCount(data.data.minGuests);
 
-        // Fetch artisan data dựa vào artisanId
         if (data.data.artisanId?._id || data.data.artisanId) {
           const artisanId = data.data.artisanId?._id || data.data.artisanId;
           const artisanResponse = await fetch(
@@ -68,7 +74,6 @@ const ExperiencesDetail = () => {
       </div>
     );
 
-  // Fetch available slots from API
   const fetchAvailableSlots = async (selectedDate) => {
     try {
       setLoadingSlots(true);
@@ -78,8 +83,14 @@ const ExperiencesDetail = () => {
       );
       if (!response.ok) throw new Error('Failed to fetch available slots');
       const data = await response.json();
-      setAvailableSlots(data.data || []);
-      setSelectedSlot(null); // Reset slot selection when date changes
+
+      // Lọc bỏ các slot không có time hợp lệ
+      const validSlots = (data.data || []).filter(
+        (slot) => slot && slot.time && typeof slot.time === 'string'
+      );
+
+      setAvailableSlots(validSlots);
+      setSelectedSlot(null);
     } catch (err) {
       console.error('Error fetching available slots:', err);
       setAvailableSlots([]);
@@ -108,7 +119,6 @@ const ExperiencesDetail = () => {
     setSelectedSlot(null);
     setCount(experience.minGuests);
 
-    // Fetch available slots from API for selected date
     if (selectedDate) {
       fetchAvailableSlots(selectedDate);
     } else {
@@ -146,7 +156,7 @@ const ExperiencesDetail = () => {
 
   return (
     <div className="expdetail">
-      {/* Banner + Title */}
+      {}
       <div
         className="expdetail__banner"
         style={{
@@ -165,16 +175,17 @@ const ExperiencesDetail = () => {
             </span>
             <span>|</span>
             <span className="expdetail__rating-info">
-              ★ {experience.ratingAverage} ({experience.totalReviews} reviews)
+              <FontAwesomeIcon icon={faStar} /> {experience.ratingAverage} (
+              {experience.totalReviews} reviews)
             </span>
           </div>
         </div>
       </div>
 
       <div className="expdetail__container">
-        {/* Left: Story + Guide + Journey + Gallery + Reviews */}
+        {}
         <div className="expdetail__main">
-          {/* Story */}
+          {}
           <section className="expdetail__story">
             <h2 className="expdetail__section-title">The Story of the Soul</h2>
             <blockquote className="expdetail__quote">
@@ -183,7 +194,7 @@ const ExperiencesDetail = () => {
             <p className="expdetail__desc">{experience.description}</p>
           </section>
 
-          {/* Guide */}
+          {}
           {experience.guide && (
             <section className="expdetail__guide">
               <h3 className="expdetail__section-subtitle">MEET YOUR GUIDE</h3>
@@ -211,7 +222,7 @@ const ExperiencesDetail = () => {
             </section>
           )}
 
-          {/* Journey */}
+          {}
           {experience.journey && experience.journey.length > 0 && (
             <section className="expdetail__journey">
               <h3
@@ -236,7 +247,7 @@ const ExperiencesDetail = () => {
             </section>
           )}
 
-          {/* Gallery */}
+          {}
           {experience.gallery && experience.gallery.length > 0 && (
             <section className="expdetail__gallery">
               <h3 className="expdetail__section-title">Moments & Details</h3>
@@ -266,7 +277,7 @@ const ExperiencesDetail = () => {
             </section>
           )}
 
-          {/* Reviews */}
+          {}
           {experience.reviews && experience.reviews.length > 0 && (
             <section className="expdetail__reviews">
               <h3 className="expdetail__section-title">Traveler Reflections</h3>
@@ -290,8 +301,16 @@ const ExperiencesDetail = () => {
                       <div className="expdetail__review-name">{r.name}</div>
                       <div className="expdetail__review-text">{r.content}</div>
                       <div className="expdetail__review-rating">
-                        {'★'.repeat(r.rating)}
-                        {'☆'.repeat(5 - r.rating)}
+                        {[...Array(r.rating)].map((_, i) => (
+                          <FontAwesomeIcon key={`filled-${i}`} icon={faStar} />
+                        ))}
+                        {[...Array(5 - r.rating)].map((_, i) => (
+                          <FontAwesomeIcon
+                            key={`empty-${i}`}
+                            icon={faStar}
+                            className="empty-star"
+                          />
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -301,15 +320,13 @@ const ExperiencesDetail = () => {
           )}
         </div>
 
-        {/* Right: Booking Box - Ensure rendered only once */}
+        {}
         {experience && (
           <aside className="expdetail__sidebar">
             <div className="expdetail__booking-box">
               {experience.totalBookings > 0 && (
                 <div className="expdetail__booking-popular">
-                  <span role="img" aria-label="fire">
-                    🔥
-                  </span>{' '}
+                  <FontAwesomeIcon icon={faFire} style={{ color: '#ff6b6b' }} />{' '}
                   {experience.totalBookings} travelers have booked this!
                 </div>
               )}
@@ -325,10 +342,20 @@ const ExperiencesDetail = () => {
               <div className="expdetail__booking-schedule-info">
                 <div className="expdetail__booking-status">
                   {experience.status === 'active' ? (
-                    <span className="status-active">🟢 Available to Book</span>
+                    <span className="status-active">
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        style={{ color: '#22c55e' }}
+                      />{' '}
+                      Available to Book
+                    </span>
                   ) : (
                     <span className="status-inactive">
-                      🔴 Currently Unavailable
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        style={{ color: '#ef4444' }}
+                      />{' '}
+                      Currently Unavailable
                     </span>
                   )}
                 </div>
@@ -344,7 +371,7 @@ const ExperiencesDetail = () => {
                 )}
               </div>
 
-              {/* Bước 1: Chọn ngày */}
+              {}
               <div className="expdetail__booking-field">
                 <label>1. Select Date</label>
                 <input
@@ -355,14 +382,15 @@ const ExperiencesDetail = () => {
                 />
               </div>
 
-              {/* Bước 2: Chọn khung giờ */}
+              {}
               {date && (
                 <div className="expdetail__booking-field">
                   <label>2. Select Time Slot</label>
 
                   {loadingSlots ? (
                     <div className="expdetail__loading-slots">
-                      ⏳ Loading available slots...
+                      <FontAwesomeIcon icon={faHourglass} /> Loading available
+                      slots...
                     </div>
                   ) : isDaySoldOut ? (
                     <div className="expdetail__soldout-msg">
@@ -400,7 +428,7 @@ const ExperiencesDetail = () => {
                 </div>
               )}
 
-              {/* Bước 3: Chọn số lượng người */}
+              {}
               <div
                 className="expdetail__booking-field"
                 style={{ marginTop: '10px' }}
@@ -438,8 +466,14 @@ const ExperiencesDetail = () => {
               </button>
 
               <ul className="expdetail__booking-benefits">
-                <li>✔ Verified Heritage Guide</li>
-                <li>✔ Sustainable Community Impact</li>
+                <li>
+                  <FontAwesomeIcon icon={faCircleCheck} /> Verified Heritage
+                  Guide
+                </li>
+                <li>
+                  <FontAwesomeIcon icon={faCircleCheck} /> Sustainable Community
+                  Impact
+                </li>
               </ul>
             </div>
           </aside>

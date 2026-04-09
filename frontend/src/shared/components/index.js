@@ -1,9 +1,9 @@
-// Re-export all components from subfolders
+
 export * from './ui';
 export * from './layout';
 export * from './common';
 
-// Direct exports for convenience
+
 export { default as Toast } from './common/Toast';
 export { default as ToastContainer } from './common/ToastContainer';
 

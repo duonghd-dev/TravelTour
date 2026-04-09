@@ -4,7 +4,6 @@ const { Schema, model } = mongoose;
 
 const artisanSchema = new Schema(
   {
-    // 🔗 Liên kết user
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -12,7 +11,6 @@ const artisanSchema = new Schema(
       unique: true,
     },
 
-    // 🎨 Nghề
     category: {
       type: String,
       required: true,
@@ -22,7 +20,6 @@ const artisanSchema = new Schema(
       required: true,
     },
 
-    // 🧾 Hồ sơ chuyên nghiệp
     slogan: {
       type: String,
       default: '',
@@ -41,7 +38,6 @@ const artisanSchema = new Schema(
       },
     ],
 
-    // 📍 Địa phương & văn hoá
     province: {
       type: String,
       default: '',
@@ -66,8 +62,7 @@ const artisanSchema = new Schema(
       description: String,
     },
 
-    // ✅ Xác minh & danh hiệu
-    isVerified: {
+    isProfileVerified: {
       type: Boolean,
       default: false,
     },
@@ -85,8 +80,7 @@ const artisanSchema = new Schema(
       },
     ],
 
-    // 📊 Trạng thái
-    status: {
+    verificationStatus: {
       type: String,
       enum: ['pending', 'approved', 'rejected'],
       default: 'approved',
@@ -95,12 +89,6 @@ const artisanSchema = new Schema(
     responseRate: {
       type: Number,
       default: 100,
-    },
-
-    // 🖼️ Media
-    avatar: {
-      type: String,
-      default: '',
     },
     images: [
       {
@@ -116,6 +104,14 @@ const artisanSchema = new Schema(
     timestamps: true,
   }
 );
+
+// Indexes for better query performance
+artisanSchema.index({ userId: 1 }, { unique: true });
+artisanSchema.index({ verificationStatus: 1 });
+artisanSchema.index({ category: 1 });
+artisanSchema.index({ isProfileVerified: 1 });
+artisanSchema.index({ 'location.coordinates': '2dsphere' }); // For geospatial queries
+artisanSchema.index({ createdAt: -1 });
 
 const Artisan = model('Artisan', artisanSchema);
 export default Artisan;

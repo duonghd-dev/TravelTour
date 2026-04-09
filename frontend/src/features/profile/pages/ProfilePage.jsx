@@ -33,14 +33,14 @@ const ProfilePage = () => {
       setLoading(true);
       setError(null);
 
-      // Nếu đã có user từ context, dùng nó trước
+      
       if (user) {
         setProfileData(user);
         setLoading(false);
         return;
       }
 
-      // Nếu không, fetch từ backend
+      
       const data = await profileApi.getProfile();
       const userData = data.data || user;
 

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/hooks';
 import { useChatContext } from '@/contexts';
 import { chatApi } from '../api';
@@ -7,11 +9,6 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import './ChatWindow.scss';
 
-/**
- * Component floating chat window cho 1 conversation (dùng cho Admin)
- * @param {string} conversationId - ID của conversation
- * @param {object} conversation - Conversation object
- */
 const ChatWindow = ({ conversationId, conversation }) => {
   const { user } = useAuth();
   const { closeChat } = useChatContext();
@@ -27,7 +24,6 @@ const ChatWindow = ({ conversationId, conversation }) => {
     deleteMessage,
   } = useChat(conversationId, user);
 
-  // Mark conversation as read when chat window opens
   useEffect(() => {
     if (conversationId && conversation?.unreadCount > 0) {
       chatApi
@@ -53,7 +49,7 @@ const ChatWindow = ({ conversationId, conversation }) => {
 
   return (
     <div className={`chat-window ${isMinimized ? 'minimized' : ''}`}>
-      {/* Header */}
+      {}
       <div className="chat-window__header">
         <div className="chat-window__header-left">
           <div className="chat-window__avatar">
@@ -83,14 +79,14 @@ const ChatWindow = ({ conversationId, conversation }) => {
             title="Đóng cuộc trò chuyện"
             aria-label="Close chat"
           >
-            ✕
+            <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
       </div>
 
       {!isMinimized && (
         <>
-          {/* Messages */}
+          {}
           <MessageList
             messages={messages}
             typingUsers={typingUsers}
@@ -99,7 +95,7 @@ const ChatWindow = ({ conversationId, conversation }) => {
             onDeleteMessage={deleteMessage}
           />
 
-          {/* Input */}
+          {}
           <MessageInput
             onSend={handleSendMessage}
             disabled={sending}

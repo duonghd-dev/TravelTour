@@ -12,7 +12,7 @@ const Banner = () => {
         </video>
       </div>
 
-      {/* <div className={content}>Hello</div> */}
+      {}
     </section>
   );
 };

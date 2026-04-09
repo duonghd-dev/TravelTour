@@ -9,7 +9,7 @@ import Hotel from '../../modules/hotel/hotel.model.js';
 
 class ChatController {
   constructor() {
-    // Bind all methods to preserve 'this' context
+    
     this.getOrCreateConversation = this.getOrCreateConversation.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.getMessages = this.getMessages.bind(this);
@@ -22,7 +22,7 @@ class ChatController {
     this.generateAIResponseMessage = this.generateAIResponseMessage.bind(this);
   }
 
-  // Lấy hoặc tạo conversation
+  
   async getOrCreateConversation(req, res, next) {
     try {
       const { otherUserId } = req.body;
@@ -50,7 +50,7 @@ class ChatController {
     }
   }
 
-  // Gửi message
+  
   async sendMessage(req, res, next) {
     try {
       const { conversationId, content, attachments } = req.body;
@@ -60,7 +60,7 @@ class ChatController {
         throw new AppError('conversationId and content are required', 400);
       }
 
-      // Get conversation to validate sender is participant
+      
       const conversation = await Conversation.findById(conversationId).populate(
         'participants',
         '_id'
@@ -69,7 +69,7 @@ class ChatController {
         throw new AppError('Conversation not found', 404);
       }
 
-      // Check if sender is participant of this conversation
+      
       const isParticipant = conversation.participants.some(
         (p) => p._id.toString() === senderId.toString()
       );
@@ -91,11 +91,11 @@ class ChatController {
         `[Chat] Message sent - ConvID: ${conversationId}, SenderID: ${senderId}, Content: ${content}`
       );
 
-      // Broadcast message to other participants via Socket.IO
+      
       if (req.app.socketHandler) {
         const conversationRoom = `conversation:${conversationId}`;
 
-        // Only emit to conversation room (not to all users)
+        
         req.app.socketHandler.emitToConversationExceptSender(
           conversationId,
           senderId,
@@ -112,8 +112,8 @@ class ChatController {
         );
       }
 
-      // AUTO-TRIGGER AI RESPONSE (nếu sender không phải admin)
-      // Check nếu tin nhắn có chứa keyword yêu cầu con người/tư vấn viên
+      
+      
       const requestHumanKeywords = [
         'tư vấn viên',
         'nhân viên',
@@ -134,7 +134,7 @@ class ChatController {
       });
 
       if (shouldDisableAI && req.user.role !== 'admin') {
-        // User yêu cầu nhân viên → gửi thông báo
+        
         try {
           const conversation = await Conversation.findById(
             conversationId
@@ -176,7 +176,7 @@ class ChatController {
           );
         }
       } else if (!shouldDisableAI && req.user.role !== 'admin') {
-        // Sender là customer/artisan → auto-trigger AI response
+        
         try {
           const { aiMessage, adminUser } = await this.generateAIResponseMessage(
             conversationId,
@@ -184,7 +184,7 @@ class ChatController {
             senderId
           );
 
-          // Broadcast AI message via Socket.IO
+          
           if (req.app.socketHandler) {
             req.app.socketHandler.emitToConversationExceptSender(
               conversationId,
@@ -207,7 +207,7 @@ class ChatController {
           );
         } catch (aiError) {
           console.warn('[Chat] Auto AI response failed:', aiError.message);
-          // Không fail request chính vì AI là optional
+          
         }
       }
 
@@ -220,7 +220,7 @@ class ChatController {
     }
   }
 
-  // Lấy messages của conversation
+  
   async getMessages(req, res, next) {
     try {
       const { conversationId } = req.params;
@@ -252,7 +252,7 @@ class ChatController {
     }
   }
 
-  // Đánh dấu message đã đọc
+  
   async markAsRead(req, res, next) {
     try {
       const { messageId } = req.params;
@@ -273,7 +273,7 @@ class ChatController {
     }
   }
 
-  // Đánh dấu conversation đã đọc
+  
   async markConversationAsRead(req, res, next) {
     try {
       const { conversationId } = req.params;
@@ -294,7 +294,7 @@ class ChatController {
     }
   }
 
-  // Lấy conversations của user
+  
   async getUserConversations(req, res, next) {
     try {
       const userId = req.user._id;
@@ -316,7 +316,7 @@ class ChatController {
     }
   }
 
-  // Xóa message
+  
   async deleteMessage(req, res, next) {
     try {
       const { messageId } = req.params;
@@ -337,7 +337,7 @@ class ChatController {
     }
   }
 
-  // Tìm kiếm messages
+  
   async searchMessages(req, res, next) {
     try {
       const { conversationId, keyword } = req.query;
@@ -360,9 +360,9 @@ class ChatController {
     }
   }
 
-  // Helper: Extract keywords từ user message
+  
   extractKeywords(message) {
-    // Remove common Vietnamese words
+    
     const stopwords = [
       'tôi',
       'muốn',
@@ -397,15 +397,15 @@ class ChatController {
       .toLowerCase()
       .split(/\s+/)
       .filter((word) => word.length > 2 && !stopwords.includes(word))
-      .slice(0, 5); // Lấy 5 từ khóa chính
+      .slice(0, 5); 
 
     return words;
   }
 
-  // Gửi AI response từ admin
-  // Helper: Generate AI response message (core logic)
+  
+  
   async generateAIResponseMessage(conversationId, userMessage, currentUserId) {
-    // Get conversation
+    
     const conversation = await Conversation.findById(conversationId).populate(
       'participants',
       '_id'
@@ -414,7 +414,7 @@ class ChatController {
       throw new AppError('Conversation not found', 404);
     }
 
-    // Find admin in participants
+    
     const adminUser = conversation.participants.find(
       (p) => p._id.toString() !== currentUserId.toString()
     );
@@ -422,11 +422,11 @@ class ChatController {
       throw new AppError('Admin user not found in conversation', 404);
     }
 
-    // Extract keywords từ message để search tốt hơn
+    
     const keywords = this.extractKeywords(userMessage);
     console.log('[AI] Extracted Keywords:', keywords);
 
-    // Build search queries từ keywords
+    
     const keywordSearches = keywords.map((keyword) => ({
       $or: [
         { title: { $regex: keyword, $options: 'i' } },
@@ -438,7 +438,7 @@ class ChatController {
       ],
     }));
 
-    // Search relevant data from database for context
+    
     const [experiences, tours, artisans, hotels] = await Promise.all([
       keywordSearches.length > 0
         ? Experience.find({ $or: keywordSearches.flatMap((q) => q.$or) }).limit(
@@ -475,7 +475,7 @@ class ChatController {
       hotels,
     };
 
-    // Get AI suggestion
+    
     const aiResult = await groqService.generateAdvice(userMessage, contextData);
 
     console.log('[AI] Groq Response Length:', aiResult.data?.length || 0);
@@ -484,7 +484,7 @@ class ChatController {
       throw new AppError('Không thể lấy tư vấn từ AI', 500);
     }
 
-    // Send AI response as message from admin
+    
     const aiMessage = await chatService.sendMessage(
       conversationId,
       adminUser._id,
@@ -514,7 +514,7 @@ class ChatController {
         `[Chat] AI Response sent - ConvID: ${conversationId}, AdminID: ${adminUser._id}`
       );
 
-      // Broadcast message to conversation
+      
       if (req.app.socketHandler) {
         req.app.socketHandler.emitToConversationExceptSender(
           conversationId,

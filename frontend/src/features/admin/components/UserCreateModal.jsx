@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useToast } from '../../../contexts/ToastContext';
 import { createUser } from '../api';
 import ArtisanFieldsForm from './ArtisanFieldsForm';
@@ -83,7 +85,6 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
       return false;
     }
 
-    // Validate artisan fields if role is artisan
     if (formData.role === 'artisan') {
       if (!artisanData.category?.trim()) {
         setError('Category is required for artisan');
@@ -112,10 +113,8 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
 
       await createUser(userData);
 
-      // Show success toast
       toast.success(`Tài khoản đã tạo thành công!`, 5000);
 
-      // Reset form and close modal
       const resetFormData = {
         firstName: '',
         lastName: '',
@@ -155,7 +154,6 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
       setArtisanData(resetArtisanData);
       setError('');
 
-      // Call onSuccess callback to refresh users list
       if (onSuccess) {
         onSuccess();
       }
@@ -219,7 +217,7 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
           <h2>Create New User</h2>
           <p>Add a new curator or explorer to the Heritage Archive.</p>
           <button className="modal-close" onClick={handleClose}>
-            ✕
+            <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
 
@@ -327,7 +325,7 @@ const UserCreateModal = ({ isOpen, onClose, onSuccess }) => {
             </select>
           </div>
 
-          {/* Artisan Fields - Show only when role is artisan */}
+          {}
           {formData.role === 'artisan' && (
             <ArtisanFieldsForm
               artisanData={artisanData}

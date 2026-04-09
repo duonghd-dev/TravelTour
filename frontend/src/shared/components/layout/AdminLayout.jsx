@@ -4,7 +4,7 @@ import Footer from './Footer/Footer';
 import Sidebar from './Sidebar/Sidebar';
 import './AdminLayout.scss';
 
-// Admin layout wrapper for protected/admin pages
+
 const AdminLayout = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 

@@ -17,7 +17,9 @@ $accent-gold: #d4af37;
 .explore-page__header {
   position: relative;
   height: 380px;
-  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)),
+    url('https://www.purevacations.com/wp-content/uploads/2022/02/Explore-Vietnam.jpg');
   display: flex;
   align-items: center;
   justify-content: center;

@@ -11,7 +11,7 @@ const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
   const [conversations, setConversations] = useState([]);
   const [openConversations, setOpenConversations] = useState(() => {
-    // Initialize from localStorage
+    
     try {
       const saved = localStorage.getItem('openConversations');
       return saved ? JSON.parse(saved) : [];
@@ -20,7 +20,7 @@ export const ChatProvider = ({ children }) => {
     }
   });
 
-  // Save openConversations to localStorage whenever it changes
+  
   useEffect(() => {
     localStorage.setItem(
       'openConversations',
@@ -30,7 +30,7 @@ export const ChatProvider = ({ children }) => {
 
   const openChat = useCallback((conversation) => {
     setOpenConversations((prev) => {
-      // Không thêm duplicate
+      
       if (prev.includes(conversation._id)) {
         return prev;
       }

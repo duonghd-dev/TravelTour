@@ -6,16 +6,19 @@ import styles from './PaymentSuccessPage.module.scss';
 const PaymentSuccessPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { bookingId, booking } = location.state || {};
+  const { bookingId, booking, fallbackMessage, paymentMethod } =
+    location.state || {};
 
   useEffect(() => {
-    // Auto-redirect to dashboard after 5 seconds
     const timer = setTimeout(() => {
       navigate('/dashboard');
     }, 5000);
 
     return () => clearTimeout(timer);
   }, [navigate]);
+
+  const isFallbackPayment =
+    fallbackMessage && paymentMethod === 'cash' && !booking;
 
   return (
     <div className={styles.container}>
@@ -24,8 +27,30 @@ const PaymentSuccessPage = () => {
           <CheckCircle size={80} className={styles.icon} />
         </div>
 
-        <h1 className={styles.statusPayment}>Thanh Toán Thành Công!</h1>
-        <p className={styles.subtitle}>Booking của bạn đã được xác nhận</p>
+        <h1 className={styles.statusPayment}>
+          {isFallbackPayment ? 'Booking Đã Được Tạo' : 'Thanh Toán Thành Công!'}
+        </h1>
+        <p className={styles.subtitle}>
+          {isFallbackPayment
+            ? 'Booking của bạn đã được ghi nhận'
+            : 'Booking của bạn đã được xác nhận'}
+        </p>
+
+        {fallbackMessage && (
+          <div
+            className={styles.warningBox}
+            style={{
+              backgroundColor: '#fff3cd',
+              border: '1px solid #ffc107',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              marginBottom: '20px',
+              color: '#856404',
+            }}
+          >
+            ⚠️ {fallbackMessage}
+          </div>
+        )}
 
         {bookingId && (
           <div className={styles.confirmationId}>

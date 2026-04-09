@@ -12,18 +12,18 @@ const messageSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    // Nội dung tin nhắn (mã hóa)
-    // Cấu trúc: { encryptedData, iv, authTag } hoặc plaintext (fallback nếu string)
+    
+    
     content: {
-      type: mongoose.Schema.Types.Mixed, // Có thể là string hoặc object encrypted
+      type: mongoose.Schema.Types.Mixed, 
       trim: true,
     },
-    // Flag để indicate content đã được mã hóa
+    
     isEncrypted: {
       type: Boolean,
       default: false,
     },
-    // Hỗ trợ file/image
+    
     attachments: [
       {
         url: String,
@@ -35,7 +35,7 @@ const messageSchema = new mongoose.Schema(
         name: String,
       },
     ],
-    // Read receipt
+    
     readBy: [
       {
         userId: {
@@ -56,7 +56,7 @@ const messageSchema = new mongoose.Schema(
   }
 );
 
-// Index để tìm messages của conversation
+
 messageSchema.index({ conversationId: 1, createdAt: -1 });
 messageSchema.index({ sender: 1 });
 

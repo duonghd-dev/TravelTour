@@ -6,7 +6,7 @@ const VerificationCard = () => {
       <div className="card-image">
         <div className="image-placeholder">
           <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
-            {/* Building facade */}
+            {}
             <rect
               x="40"
               y="50"
@@ -17,7 +17,7 @@ const VerificationCard = () => {
               strokeWidth="2"
             />
 
-            {/* Windows row 1 */}
+            {}
             <rect
               x="60"
               y="80"
@@ -122,7 +122,7 @@ const VerificationCard = () => {
               strokeWidth="1"
             />
 
-            {/* Windows row 2 */}
+            {}
             <rect
               x="60"
               y="130"
@@ -227,7 +227,7 @@ const VerificationCard = () => {
               strokeWidth="1"
             />
 
-            {/* Entrance */}
+            {}
             <rect
               x="130"
               y="200"

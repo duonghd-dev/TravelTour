@@ -7,11 +7,6 @@ import {
   maskSensitiveData,
 } from '../../common/utils/encryption.js';
 
-/**
- * Helper: Encrypt payment details
- * @param {object} paymentDetails - { last4Digits, cardBrand, bankCode, bankName, notes }
- * @returns {object} - Encrypted object { encryptedData, iv, authTag }
- */
 const encryptPaymentDetails = (paymentDetails) => {
   if (!paymentDetails) return null;
 
@@ -19,19 +14,14 @@ const encryptPaymentDetails = (paymentDetails) => {
     return encrypt(JSON.stringify(paymentDetails));
   } catch (error) {
     logger.error('Failed to encrypt payment details:', error.message);
-    // Fallback: return unencrypted if encryption fails
+
     return paymentDetails;
   }
 };
 
-/**
- * Helper: Decrypt payment details
- * @param {object} encryptedData - { encryptedData, iv, authTag }
- * @returns {object} - Decrypted payment details
- */
 const decryptPaymentDetails = (encryptedData) => {
   if (!encryptedData || typeof encryptedData === 'string') {
-    return encryptedData; // Fallback nếu plaintext
+    return encryptedData;
   }
 
   try {
@@ -43,11 +33,6 @@ const decryptPaymentDetails = (encryptedData) => {
   }
 };
 
-/**
- * Helper: Mask sensitive payment details cho client response
- * @param {object} paymentDetails - Decrypted details
- * @returns {object} - Masked details
- */
 const maskPaymentDetails = (paymentDetails) => {
   if (!paymentDetails) return null;
 
@@ -62,9 +47,6 @@ const maskPaymentDetails = (paymentDetails) => {
   };
 };
 
-/**
- * Create a new payment record
- */
 export const createPayment = async (paymentData) => {
   try {
     const {
@@ -75,13 +57,11 @@ export const createPayment = async (paymentData) => {
       paymentGateway = 'mock',
     } = paymentData;
 
-    // Validate booking exists
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       throw new Error('Booking not found');
     }
 
-    // Create payment record
     const payment = await Payment.create({
       bookingId,
       userId,
@@ -105,9 +85,6 @@ export const createPayment = async (paymentData) => {
   }
 };
 
-/**
- * Get payment by ID
- */
 export const getPayment = async (paymentId) => {
   try {
     const payment =
@@ -119,10 +96,9 @@ export const getPayment = async (paymentId) => {
 
     const paymentObj = payment.toObject();
 
-    // 🔐 Decrypt payment details nếu encrypted
     if (paymentObj.isEncrypted && paymentObj.paymentDetails) {
       const decrypted = decryptPaymentDetails(paymentObj.paymentDetails);
-      // Mask sensitive fields trước gửi cho client
+
       paymentObj.paymentDetails = maskPaymentDetails(decrypted);
     }
 
@@ -136,22 +112,18 @@ export const getPayment = async (paymentId) => {
   }
 };
 
-/**
- * Get user's payment history
- */
 export const getUserPayments = async (userId) => {
   try {
     const payments = await Payment.find({ userId })
       .populate('bookingId')
       .sort({ createdAt: -1 });
 
-    // 🔐 Decrypt payment details
     const decryptedPayments = payments.map((payment) => {
       const paymentObj = payment.toObject();
 
       if (paymentObj.isEncrypted && paymentObj.paymentDetails) {
         const decrypted = decryptPaymentDetails(paymentObj.paymentDetails);
-        // Mask sensitive fields
+
         paymentObj.paymentDetails = maskPaymentDetails(decrypted);
       }
 
@@ -168,9 +140,6 @@ export const getUserPayments = async (userId) => {
   }
 };
 
-/**
- * Confirm/Complete payment - Mock payment processing
- */
 export const completePayment = async (paymentId, transactionData) => {
   try {
     const payment = await Payment.findById(paymentId);
@@ -178,7 +147,6 @@ export const completePayment = async (paymentId, transactionData) => {
       throw new Error('Payment not found');
     }
 
-    // Update payment status to completed
     payment.status = 'completed';
     payment.completedAt = new Date();
     payment.transactionId =
@@ -187,12 +155,9 @@ export const completePayment = async (paymentId, transactionData) => {
 
     await payment.save();
 
-    // Update booking status and isPaid flag
     const booking = await Booking.findByIdAndUpdate(
       payment.bookingId,
       {
-        paymentStatus: 'completed',
-        isPaid: true,
         status: 'confirmed',
         paymentId: payment._id,
       },
@@ -214,9 +179,6 @@ export const completePayment = async (paymentId, transactionData) => {
   }
 };
 
-/**
- * Mark payment as failed
- */
 export const failPayment = async (paymentId, failureReason) => {
   try {
     const payment = await Payment.findById(paymentId);
@@ -228,7 +190,6 @@ export const failPayment = async (paymentId, failureReason) => {
     payment.failureReason = failureReason;
     await payment.save();
 
-    // Update booking payment status
     await Booking.findByIdAndUpdate(payment.bookingId, {
       paymentStatus: 'failed',
       isPaid: false,
@@ -247,9 +208,6 @@ export const failPayment = async (paymentId, failureReason) => {
   }
 };
 
-/**
- * Refund payment
- */
 export const refundPayment = async (paymentId, refundReason) => {
   try {
     const payment = await Payment.findById(paymentId);
@@ -265,7 +223,6 @@ export const refundPayment = async (paymentId, refundReason) => {
     payment.failureReason = refundReason;
     await payment.save();
 
-    // Update booking status
     await Booking.findByIdAndUpdate(payment.bookingId, {
       status: 'cancelled',
       paymentStatus: 'refunded',
@@ -284,12 +241,6 @@ export const refundPayment = async (paymentId, refundReason) => {
   }
 };
 
-/**
- * Public helper: Prepare payment details (encrypt & mask) for storage
- * Used by payment gateways (VNPay, PayPal) to securely store payment method details
- * @param {object} details - Raw payment details { last4Digits, cardBrand, bankCode, etc }
- * @returns {object} - { encrypted: {...}, isEncrypted: boolean }
- */
 export const preparePaymentDetails = (details) => {
   if (!details || Object.keys(details).length === 0) {
     return { encrypted: null, isEncrypted: false };
@@ -302,11 +253,6 @@ export const preparePaymentDetails = (details) => {
   };
 };
 
-/**
- * Public helper: Safely get payment details (decrypt & mask) for API response
- * @param {object} payment - Payment document from DB
- * @returns {object} - Masked payment details safe to send to client
- */
 export const getPaymentDetailsForClient = (payment) => {
   if (!payment || !payment.paymentDetails) {
     return null;
@@ -317,7 +263,7 @@ export const getPaymentDetailsForClient = (payment) => {
       const decrypted = decryptPaymentDetails(payment.paymentDetails);
       return maskPaymentDetails(decrypted);
     }
-    // Fallback for unencrypted data
+
     return maskPaymentDetails(payment.paymentDetails);
   } catch (error) {
     logger.error(
@@ -328,15 +274,10 @@ export const getPaymentDetailsForClient = (payment) => {
   }
 };
 
-/**
- * Webhook handler for payment gateway callbacks (Stripe, VNPay, etc)
- * This is a placeholder - implement based on actual gateway
- */
 export const handlePaymentWebhook = async (webhookData) => {
   try {
     logger.info('Payment webhook received:', webhookData);
 
-    // Example: Find payment by gateway reference
     const payment = await Payment.findOne({
       gatewayReference: webhookData.transactionId,
     });
@@ -345,7 +286,6 @@ export const handlePaymentWebhook = async (webhookData) => {
       throw new Error('Payment not found for webhook');
     }
 
-    // Update payment based on webhook status
     if (
       webhookData.status === 'success' ||
       webhookData.status === 'completed'

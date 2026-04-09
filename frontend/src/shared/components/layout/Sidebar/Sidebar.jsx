@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faChartBar,
+  faUsers,
+  faHandSparkles,
+  faLightbulb,
+  faCalendarDays,
+  faFileLines,
+  faCog,
+  faHeadset,
+  faServer,
+} from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.scss';
 import logoIcon from '@assets/images/Logo.png';
-import {
-  usersIcon,
-  bookingIcon,
-  contentIcon,
-  experiencesIcon,
-  settingIcon,
-  supportIcon,
-  meshIcon,
-} from '@assets/icons/svgs';
 
 const Sidebar = ({ onCollapseChange }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -25,16 +28,21 @@ const Sidebar = ({ onCollapseChange }) => {
   };
 
   const menuItems = [
-    { icon: usersIcon, label: 'Users', path: '/admin/users' },
-    { icon: experiencesIcon, label: 'Artisans', path: '/admin/artisans' },
-    { icon: experiencesIcon, label: 'Experiences', path: '/admin/experiences' },
-    { icon: bookingIcon, label: 'Bookings', path: '/admin/bookings' },
-    { icon: contentIcon, label: 'Content', path: '/admin/content' },
+    {
+      icon: faChartBar,
+      label: 'Dashboard',
+      path: '/admin',
+    },
+    { icon: faUsers, label: 'Users', path: '/admin/users' },
+    { icon: faHandSparkles, label: 'Artisans', path: '/admin/artisans' },
+    { icon: faLightbulb, label: 'Experiences', path: '/admin/experiences' },
+    { icon: faCalendarDays, label: 'Bookings', path: '/admin/bookings' },
+    { icon: faFileLines, label: 'Content', path: '/admin/content' },
   ];
 
   const bottomMenuItems = [
-    { icon: settingIcon, label: 'Settings', path: '/admin/settings' },
-    { icon: supportIcon, label: 'Support', path: '/admin/support' },
+    { icon: faCog, label: 'Settings', path: '/admin/settings' },
+    { icon: faHeadset, label: 'Support', path: '/admin/support' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -61,7 +69,7 @@ const Sidebar = ({ onCollapseChange }) => {
               to={item.path}
               className={`menu-item ${isActive(item.path) ? 'active' : ''}`}
             >
-              <img src={item.icon} alt={item.label} className="menu-svg-icon" />
+              <FontAwesomeIcon icon={item.icon} className="menu-icon" />
               {!isCollapsed && <span className="menu-label">{item.label}</span>}
             </Link>
           ))}
@@ -73,7 +81,7 @@ const Sidebar = ({ onCollapseChange }) => {
             to="/admin/system-status"
             className={`menu-item ${isActive('/admin/system-status') ? 'active' : ''}`}
           >
-            <img src={meshIcon} alt="System Status" className="menu-svg-icon" />
+            <FontAwesomeIcon icon={faServer} className="menu-icon" />
             {!isCollapsed && <span className="menu-label">System Status</span>}
           </Link>
         </div>
@@ -87,7 +95,7 @@ const Sidebar = ({ onCollapseChange }) => {
               to={item.path}
               className={`menu-item ${isActive(item.path) ? 'active' : ''}`}
             >
-              <img src={item.icon} alt={item.label} className="menu-svg-icon" />
+              <FontAwesomeIcon icon={item.icon} className="menu-icon" />
               {!isCollapsed && <span className="menu-label">{item.label}</span>}
             </Link>
           ))}

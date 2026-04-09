@@ -1,9 +1,8 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import './DeleteConfirmDialog.scss';
 
-/**
- * DeleteConfirmDialog - Modal xác nhận xóa user
- */
 const DeleteConfirmDialog = ({
   isOpen,
   userName,
@@ -21,7 +20,9 @@ const DeleteConfirmDialog = ({
         </div>
 
         <div className="dialog-body">
-          <div className="warning-icon">⚠️</div>
+          <div className="warning-icon">
+            <FontAwesomeIcon icon={faExclamationTriangle} />
+          </div>
           <p className="dialog-message">
             Bạn có chắc chắn muốn xóa <strong>{userName}</strong>?
           </p>

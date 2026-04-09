@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { verifyResetPasswordOTP, resetPassword } from '../../api/authApi';
 import { useToast } from '@/contexts/ToastContext';
 import './VerifyResetPassword.scss';
 
 const VerifyResetPassword = () => {
   const toast = useToast();
-  const [step, setStep] = useState('verify-otp'); // verify-otp or reset-password
+  const [step, setStep] = useState('verify-otp');
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState('');
@@ -16,7 +18,6 @@ const VerifyResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    // Get email from query params
     const params = new URLSearchParams(window.location.search);
     const emailParam = params.get('email');
     if (emailParam) {
@@ -134,7 +135,7 @@ const VerifyResetPassword = () => {
                   className="toggle-visibility"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                 </button>
               </div>
             </div>
@@ -155,7 +156,9 @@ const VerifyResetPassword = () => {
                   className="toggle-visibility"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                  <FontAwesomeIcon
+                    icon={showConfirmPassword ? faEyeSlash : faEye}
+                  />
                 </button>
               </div>
             </div>

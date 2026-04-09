@@ -54,8 +54,17 @@
   border-radius: 8px;
 
   .emptyIcon {
-    font-size: 48px;
-    margin-bottom: 12px;
+    font-size: 64px;
+    color: #a65d43;
+    margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: #fef3c7;
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
   }
 
   p {
@@ -151,6 +160,24 @@
     font-size: 13px;
     color: #6b7280;
 
+    .detailItem {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+
+      .icon {
+        color: #a65d43;
+        font-size: 12px;
+        width: 14px;
+        text-align: center;
+      }
+
+      &:hover {
+        color: #a65d43;
+      }
+    }
+
     .price {
       margin-left: auto;
       font-weight: 700;
@@ -203,5 +230,17 @@
         margin-left: 0;
       }
     }
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
   }
 }

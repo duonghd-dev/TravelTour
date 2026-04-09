@@ -1,17 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCheck,
+  faExclamationTriangle,
+  faTimes,
+  faUser,
+} from '@fortawesome/free-solid-svg-icons';
+import adminApi from '../api/adminApi';
 import './ChartComponents.scss';
 
 export const RevenueVsImpact = () => {
-  const data = [
-    { month: 'Jan', revenue: 65, impact: 45 },
-    { month: 'Feb', revenue: 75, impact: 52 },
-    { month: 'Mar', revenue: 85, impact: 58 },
-    { month: 'Apr', revenue: 70, impact: 48 },
-    { month: 'May', revenue: 95, impact: 68 },
-    { month: 'Jun', revenue: 88, impact: 65 },
-  ];
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const maxValue = 100;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await adminApi.getRevenueByMonth();
+        console.log('Revenue by month data:', response);
+        setData(Array.isArray(response) ? response : response?.data || []);
+      } catch (error) {
+        console.error('Error fetching revenue by month:', error);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div className="chart-card">Loading...</div>;
+
+  const maxValue = Math.max(
+    ...data.map((d) => Math.max(d.revenue || 0, d.impact || 0)),
+    100
+  );
 
   return (
     <div className="chart-card">
@@ -56,11 +79,13 @@ export const RevenueVsImpact = () => {
             </text>
           ))}
 
-          {/* Bars */}
+          {/* Bar rendering */}
           {data.map((item, idx) => {
             const x = 70 + idx * 80;
-            const revenueHeight = (item.revenue / maxValue) * 180;
-            const impactHeight = (item.impact / maxValue) * 180;
+            const revenueHeight =
+              maxValue > 0 ? (item.revenue / maxValue) * 180 : 0;
+            const impactHeight =
+              maxValue > 0 ? (item.impact / maxValue) * 180 : 0;
 
             return (
               <g key={idx}>
@@ -100,18 +125,31 @@ export const RevenueVsImpact = () => {
 };
 
 export const BookingsByCategory = () => {
-  const data = [
-    { name: 'Handcrafts', value: 46, color: '#8c5f3c' },
-    { name: 'Culinary', value: 25, color: '#944c3b' },
-    { name: 'Landscape', value: 20, color: '#9fb96f' },
-    { name: 'Architecture', value: 9, color: '#d4a574' },
-  ];
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await adminApi.getBookingsByCategory();
+        console.log('Bookings by category data:', response);
+        setData(Array.isArray(response) ? response : response?.data || []);
+      } catch (error) {
+        console.error('Error fetching bookings by category:', error);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div className="chart-card">Loading...</div>;
+
   let currentAngle = -90;
 
   const slices = data.map((item, idx) => {
-    const sliceAngle = (item.value / total) * 360;
+    const sliceAngle = (item.value / 100) * 360;
     const startAngle = currentAngle;
     const endAngle = currentAngle + sliceAngle;
     currentAngle = endAngle;
@@ -138,6 +176,8 @@ export const BookingsByCategory = () => {
     );
   });
 
+  const totalBookings = data.reduce((sum, item) => sum + (item.count || 0), 0);
+
   return (
     <div className="chart-card">
       <div className="chart-header">
@@ -147,10 +187,10 @@ export const BookingsByCategory = () => {
       <div className="donut-chart-container">
         <svg viewBox="0 0 400 300" className="donut-chart">
           {slices}
-          {/* Center circle */}
+          {/* Center donut hole */}
           <circle cx="150" cy="150" r="60" fill="white" />
           <text x="150" y="145" className="donut-center-text">
-            3.8k
+            {totalBookings}
           </text>
           <text x="150" y="165" className="donut-center-label">
             TOTAL
@@ -177,29 +217,26 @@ export const BookingsByCategory = () => {
 };
 
 export const PendingVerifications = () => {
-  const requests = [
-    {
-      id: 1,
-      name: 'Maleik Al-Sayed',
-      role: 'Master Oritsu Artisan',
-      avatar: '👨',
-      status: 'review',
-    },
-    {
-      id: 2,
-      name: 'Elena Rossi',
-      role: 'Local Historian',
-      avatar: '👩',
-      status: 'review',
-    },
-    {
-      id: 3,
-      name: 'Hiroshi Tanaka',
-      role: 'Kintsugi Artist - Japan',
-      avatar: '👨‍🦰',
-      status: 'review',
-    },
-  ];
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await adminApi.getPendingVerifications();
+        console.log('Pending verifications data:', response);
+        setRequests(Array.isArray(response) ? response : response?.data || []);
+      } catch (error) {
+        console.error('Error fetching pending verifications:', error);
+        setRequests([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div className="chart-card">Loading...</div>;
 
   return (
     <div className="chart-card">
@@ -211,28 +248,49 @@ export const PendingVerifications = () => {
       </div>
 
       <div className="verification-list">
-        {requests.map((request) => (
-          <div key={request.id} className="verification-item">
-            <div className="verification-avatar">{request.avatar}</div>
-            <div className="verification-info">
-              <div className="verification-name">{request.name}</div>
-              <div className="verification-role">{request.role}</div>
+        {requests.length > 0 ? (
+          requests.map((request) => (
+            <div key={request.id || request._id} className="verification-item">
+              <div className="verification-avatar">{request.avatar}</div>
+              <div className="verification-info">
+                <div className="verification-name">{request.name}</div>
+                <div className="verification-role">{request.role}</div>
+              </div>
+              <button className="btn-review">Review</button>
+              <button className="btn-dismiss">
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
             </div>
-            <button className="btn-review">Review</button>
-            <button className="btn-dismiss">✕</button>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="no-data">No pending verifications</p>
+        )}
       </div>
     </div>
   );
 };
 
 export const RegionalGrowth = () => {
-  const regions = [
-    { name: 'TUSCANY, ITALY', capacity: 86, color: '#8c5f3c' },
-    { name: 'KYOTO, JAPAN', capacity: 71, color: '#944c3b' },
-    { name: 'MARRAKECH, MOROCCO', capacity: 81, color: '#d4a574' },
-  ];
+  const [regions, setRegions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await adminApi.getArtisansByRegion();
+        console.log('Regional growth data:', response);
+        setRegions(Array.isArray(response) ? response : response?.data || []);
+      } catch (error) {
+        console.error('Error fetching regional growth:', error);
+        setRegions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div className="chart-card">Loading...</div>;
 
   return (
     <div className="chart-card">
@@ -245,14 +303,16 @@ export const RegionalGrowth = () => {
           <div key={idx} className="bar-item">
             <div className="bar-label">
               <span className="region-name">{region.name}</span>
-              <span className="capacity-text">{region.capacity}% CAPACITY</span>
+              <span className="capacity-text">
+                {region.capacity} Artisans (+{region.growth}%)
+              </span>
             </div>
             <div className="bar-background">
               <div
                 className="bar-fill"
                 style={{
-                  width: `${region.capacity}%`,
-                  backgroundColor: region.color,
+                  width: `${Math.min((region.capacity / 100) * 100, 100)}%`,
+                  backgroundColor: '#8c5f3c',
                 }}
               ></div>
             </div>
@@ -264,18 +324,75 @@ export const RegionalGrowth = () => {
 };
 
 export const SystemHealth = () => {
-  const healthItems = [
-    { label: 'PAYMENT GATEWAY', status: 'Stable', icon: '✓' },
-    { label: 'CDN SERVERS', status: '99.9% Up', icon: '✓' },
-    { label: 'API LATENCY', status: '125ms', icon: '⚠' },
-    { label: 'DATA BACKUP', status: 'Daily Sync', icon: '✓' },
-  ];
+  const [metrics, setMetrics] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await adminApi.getDashboardMetrics();
+        console.log('System metrics data:', response);
+
+        const healthItems = [
+          {
+            label: 'PLATFORM REVENUE',
+            status: response?.revenue?.formatted || '$0',
+            icon: 'check',
+          },
+          {
+            label: 'ACTIVE ARTISANS',
+            status: response?.artisans?.formatted || '0',
+            icon: 'check',
+          },
+          {
+            label: 'TOTAL BOOKINGS',
+            status: response?.bookings?.formatted || '0',
+            icon: 'check',
+          },
+          {
+            label: 'ACTIVE TRAVELERS',
+            status: response?.travelers?.formatted || '0',
+            icon: 'check',
+          },
+        ];
+
+        setMetrics(healthItems);
+      } catch (error) {
+        console.error('Error fetching system metrics:', error);
+        const defaultItems = [
+          { label: 'PLATFORM REVENUE', status: '$0', icon: 'check' },
+          { label: 'ACTIVE ARTISANS', status: '0', icon: 'check' },
+          { label: 'TOTAL BOOKINGS', status: '0', icon: 'check' },
+          { label: 'ACTIVE TRAVELERS', status: '0', icon: 'check' },
+        ];
+        setMetrics(defaultItems);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const getIcon = (iconType) => {
+    switch (iconType) {
+      case 'check':
+        return faCheck;
+      case 'warning':
+        return faExclamationTriangle;
+      default:
+        return faCheck;
+    }
+  };
+
+  if (loading) return <div className="health-grid">Loading...</div>;
 
   return (
     <div className="health-grid">
-      {healthItems.map((item, idx) => (
+      {metrics.map((item, idx) => (
         <div key={idx} className="health-card">
-          <div className="health-icon">{item.icon}</div>
+          <div className="health-icon">
+            <FontAwesomeIcon icon={getIcon(item.icon)} />
+          </div>
           <div className="health-label">{item.label}</div>
           <div className="health-status">{item.status}</div>
         </div>

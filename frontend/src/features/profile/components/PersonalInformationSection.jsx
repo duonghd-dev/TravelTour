@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { profileApi } from '../api/profileApi';
 import { useToast } from '@/contexts';
 import maleAvatarImg from '@/assets/images/avatarDefault/maleAvatar.png';
@@ -6,24 +8,23 @@ import femaleAvatarImg from '@/assets/images/avatarDefault/femaleAvatar.png';
 import styles from './PersonalInformationSection.module.scss';
 
 const getAvatarUrl = (avatar, gender) => {
-  // If avatar is a data URL (base64), use it directly
   if (avatar && avatar.startsWith('data:')) {
     return avatar;
   }
-  // If avatar is a path string (e.g., 'assets/images/avatarDefault/maleAvatar.png')
+
   if (avatar && typeof avatar === 'string') {
     return `/${avatar}`;
   }
-  // If avatar is null or empty, use default by gender
+
   if (gender === 'male') return maleAvatarImg;
   if (gender === 'female') return femaleAvatarImg;
-  return maleAvatarImg; // Default to male avatar
+  return maleAvatarImg;
 };
 
 const getDefaultAvatar = (gender) => {
   if (gender === 'male') return maleAvatarImg;
   if (gender === 'female') return femaleAvatarImg;
-  return maleAvatarImg; // Default to male avatar
+  return maleAvatarImg;
 };
 
 const PersonalInformationSection = ({ user }) => {
@@ -54,7 +55,6 @@ const PersonalInformationSection = ({ user }) => {
     }
   }, [user]);
 
-  // Update avatar preview when gender changes
   useEffect(() => {
     if (!formData.avatar) {
       setAvatarPreview(getDefaultAvatar(formData.gender));
@@ -72,7 +72,6 @@ const PersonalInformationSection = ({ user }) => {
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file size (max 5MB before compression)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('File size must be less than 5MB');
         return;
@@ -80,16 +79,13 @@ const PersonalInformationSection = ({ user }) => {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Compress image
         const img = new Image();
         img.src = reader.result;
         img.onload = () => {
-          // Canvas for compression
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
 
-          // Resize if larger than 500px
           const maxSize = 500;
           if (width > height) {
             if (width > maxSize) {
@@ -109,7 +105,6 @@ const PersonalInformationSection = ({ user }) => {
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to base64 JPEG (quality 0.7)
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
           setAvatarPreview(compressedBase64);
@@ -162,7 +157,7 @@ const PersonalInformationSection = ({ user }) => {
       <p className={styles.sectionSubtitle}>Update your profile details</p>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        {/* Avatar Section */}
+        {}
         <div className={styles.avatarSection}>
           <label className={styles.label}>AVATAR</label>
           <div className={styles.avatarUploadContainer}>
@@ -199,9 +194,9 @@ const PersonalInformationSection = ({ user }) => {
           </div>
         </div>
 
-        {/* Two Column Group */}
+        {}
         <div className={styles.twoColumnGroup}>
-          {/* First Name */}
+          {}
           <div className={styles.formGroup}>
             <label className={styles.label}>FIRST NAME</label>
             <input
@@ -214,7 +209,7 @@ const PersonalInformationSection = ({ user }) => {
             />
           </div>
 
-          {/* Last Name */}
+          {}
           <div className={styles.formGroup}>
             <label className={styles.label}>LAST NAME</label>
             <input
@@ -228,7 +223,7 @@ const PersonalInformationSection = ({ user }) => {
           </div>
         </div>
 
-        {/* Gender */}
+        {}
         <div className={styles.formGroup}>
           <label className={styles.label}>GENDER</label>
           <select
@@ -244,7 +239,7 @@ const PersonalInformationSection = ({ user }) => {
           </select>
         </div>
 
-        {/* Email */}
+        {}
         <div className={styles.formGroup}>
           <label className={styles.label}>EMAIL ADDRESS</label>
           <div className={styles.inputContainer}>
@@ -263,13 +258,13 @@ const PersonalInformationSection = ({ user }) => {
                 onClick={handleClearEmail}
                 title="Clear email"
               >
-                ✕
+                <FontAwesomeIcon icon={faTimes} />
               </button>
             )}
           </div>
         </div>
 
-        {/* Phone Number */}
+        {}
         <div className={styles.formGroup}>
           <label className={styles.label}>PHONE NUMBER</label>
           <input
@@ -282,7 +277,7 @@ const PersonalInformationSection = ({ user }) => {
           />
         </div>
 
-        {/* Action Buttons */}
+        {}
         <div className={styles.actionButtons}>
           <button
             type="submit"

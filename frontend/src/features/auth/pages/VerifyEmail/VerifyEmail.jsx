@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleXmark, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { verifyEmailPage } from '../../api/authApi';
 import './VerifyEmail.scss';
 
@@ -40,7 +42,6 @@ const VerifyEmail = () => {
       if (result.success) {
         setSuccess(true);
 
-        // Redirect to login after 2 seconds
         setTimeout(() => {
           navigate('/login', {
             state: { message: 'Email đã xác nhận! Vui lòng đăng nhập.' },
@@ -59,7 +60,9 @@ const VerifyEmail = () => {
       <div className="verify-email-page">
         <div className="verify-container">
           <div className="error-box">
-            <h2>❌ Lỗi</h2>
+            <h2>
+              <FontAwesomeIcon icon={faCircleXmark} /> Lỗi
+            </h2>
             <p>Email không tìm thấy. Link xác nhận có thể đã hết hạn.</p>
             <button
               className="btn btn-primary"
@@ -78,7 +81,9 @@ const VerifyEmail = () => {
       <div className="verify-container">
         {success ? (
           <div className="success-box">
-            <div className="success-icon">✓</div>
+            <div className="success-icon">
+              <FontAwesomeIcon icon={faCheck} />
+            </div>
             <h2>Xác nhận email thành công!</h2>
             <p>Tài khoản của bạn đã được kích hoạt.</p>
             <p className="redirect-text">Chuyển hướng tới trang đăng nhập...</p>

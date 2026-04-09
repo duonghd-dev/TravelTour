@@ -14,28 +14,28 @@ const PaymentResultPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState('processing'); // 'processing', 'success', 'failed'
+  const [status, setStatus] = useState('processing'); 
   const [message, setMessage] = useState('Đang xử lý thanh toán...');
   const [bookingId, setBookingId] = useState(null);
   const processedRef = useRef(false);
 
   useEffect(() => {
-    // Tránh xử lý payment 2 lần
+    
     if (processedRef.current) return;
     processedRef.current = true;
 
     const processPayment = async () => {
       try {
-        // Check if coming from VNPay callback
+        
         if (searchParams.has('vnp_TxnRef')) {
           const vnpayParams = Object.fromEntries(searchParams);
 
           if (vnpayParams.vnp_ResponseCode === '00') {
-            // VNPay payment success
+            
             const verifyResult = await verifyVNPayPayment(vnpayParams);
 
             if (verifyResult.success) {
-              // Confirm payment in database
+              
               const bookId = vnpayParams.vnp_OrderInfo?.split('_')[1] || '';
               await confirmPayment(bookId, {
                 paymentMethod: 'vnpay',
@@ -60,14 +60,14 @@ const PaymentResultPage = () => {
             );
           }
         }
-        // Check if coming from PayPal callback
+        
         else if (searchParams.has('token')) {
           const paypalToken = searchParams.get('token');
           const paypalPayerId = searchParams.get('PayerID');
 
           console.log('[PaymentResult] PayPal token:', paypalToken);
 
-          // Capture PayPal payment
+          
           console.log(
             '[PaymentResult] Attempting to capture PayPal token:',
             paypalToken
@@ -84,7 +84,7 @@ const PaymentResultPage = () => {
             captureResult.status === 'COMPLETED' ||
             captureResult.success === true
           ) {
-            // Extract booking ID from response or purchase unit
+            
             const bookId =
               captureResult.bookingId ||
               captureResult.purchase_units?.[0]?.reference_id ||
@@ -93,7 +93,7 @@ const PaymentResultPage = () => {
             console.log('[PaymentResult] Extracted bookingId:', bookId);
 
             if (bookId) {
-              // Confirm payment in database
+              
               const purchaseUnit = captureResult.purchase_units?.[0];
               await confirmPayment(bookId, {
                 paymentMethod: 'paypal',
@@ -121,9 +121,9 @@ const PaymentResultPage = () => {
             );
           }
         }
-        // Check if direct redirect from checkout (pay on delivery)
+        
         else if (location.state?.bookingId) {
-          // Mark booking as confirmed for pay on delivery
+          
           await confirmPayment(location.state.bookingId, {
             paymentMethod: 'cash',
             status: 'pending_payment',
@@ -136,7 +136,7 @@ const PaymentResultPage = () => {
           );
           setBookingId(location.state.bookingId);
         }
-        // No payment data found
+        
         else {
           setStatus('failed');
           setMessage('Không tìm thấy thông tin thanh toán');

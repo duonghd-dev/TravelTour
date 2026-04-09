@@ -2,18 +2,16 @@ import * as artisanService from './artisan.service.js';
 import * as artisanValidator from './artisan.validator.js';
 import logger from '../../common/utils/logger.js';
 
-/**
- * GET /api/v1/artisans - Lấy danh sách tất cả nghệ nhân
- */
 export const getAllArtisans = async (req, res) => {
   try {
-    const { category, craft, province, isVerified } = req.query;
+    const { category, craft, province, isProfileVerified } = req.query;
     const filters = {};
 
     if (category) filters.category = category;
     if (craft) filters.craft = craft;
     if (province) filters.province = province;
-    if (isVerified !== undefined) filters.isVerified = isVerified === 'true';
+    if (isProfileVerified !== undefined)
+      filters.isProfileVerified = isProfileVerified === 'true';
 
     const result = await artisanService.getAllArtisans(filters);
     res.json(result);
@@ -26,14 +24,10 @@ export const getAllArtisans = async (req, res) => {
   }
 };
 
-/**
- * GET /api/v1/artisans/:id - Lấy chi tiết nghệ nhân
- */
 export const getArtisanDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate ID format
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         success: false,
@@ -52,13 +46,8 @@ export const getArtisanDetail = async (req, res) => {
   }
 };
 
-/**
- * POST /api/v1/artisans/profile - Tạo hồ sơ nghệ nhân
- * Protected route - requires authentication
- */
 export const createArtisanProfile = async (req, res) => {
   try {
-    // Validate request body
     const validation = artisanValidator.validateCreateProfile(req.body);
     if (!validation.valid) {
       return res.status(400).json({
@@ -81,13 +70,8 @@ export const createArtisanProfile = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/v1/artisans/profile - Cập nhật hồ sơ nghệ nhân
- * Protected route - requires authentication
- */
 export const updateArtisanProfile = async (req, res) => {
   try {
-    // Validate request body
     const validation = artisanValidator.validateUpdateProfile(req.body);
     if (!validation.valid) {
       return res.status(400).json({
@@ -110,15 +94,10 @@ export const updateArtisanProfile = async (req, res) => {
   }
 };
 
-/**
- * GET /api/v1/artisans/:id/stats - Lấy thống kê hoạt động
- */
 export const getArtisanStats = async (req, res) => {
   try {
-    // Lấy userId từ artisanId (cần find artisan trước)
     const { id } = req.params;
 
-    // Tìm artisan theo ID
     const Artisan = require('./artisan.model.js').default;
     const artisan = await Artisan.findById(id);
     if (!artisan) {
@@ -139,9 +118,6 @@ export const getArtisanStats = async (req, res) => {
   }
 };
 
-/**
- * GET /api/v1/artisans/search - Tìm kiếm nghệ nhân
- */
 export const searchArtisans = async (req, res) => {
   try {
     const { keyword, province } = req.query;
@@ -167,10 +143,6 @@ export const searchArtisans = async (req, res) => {
   }
 };
 
-/**
- * GET /api/v1/artisans/profile - Lấy hồ sơ nghệ nhân của chính mình
- * Protected route - requires authentication
- */
 export const getMyArtisanProfile = async (req, res) => {
   try {
     const Artisan = require('./artisan.model.js').default;

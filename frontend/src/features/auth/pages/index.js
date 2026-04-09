@@ -1,4 +1,4 @@
-// Auth Pages
+
 export { default as LoginPage } from './LoginPage/LoginPage';
 export { default as RegisterPage } from './Register/RegisterPage';
 export { default as OTPVerification } from './OTPVerification/OTPVerification';

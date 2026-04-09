@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Thêm token vào mỗi request
+
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -34,11 +34,11 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Handle response errors
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Nếu 401, redirect to login
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');

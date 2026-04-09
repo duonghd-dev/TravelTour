@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHourglass } from '@fortawesome/free-solid-svg-icons';
 import MessageItem from './MessageItem';
 import './MessageList.scss';
 
@@ -12,7 +14,6 @@ const MessageList = ({
   const messageListRef = useRef(null);
   const shouldAutoScrollRef = useRef(true);
 
-  // Filter typingUsers to exclude current user
   const otherUsersTyping = typingUsers.filter(
     (typingUser) =>
       typingUser &&
@@ -25,20 +26,17 @@ const MessageList = ({
     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
   };
 
-  // Check if user is at bottom of list
   const isUserAtBottom = () => {
     if (!messageListRef.current) return true;
     const { scrollTop, scrollHeight, clientHeight } = messageListRef.current;
-    return scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
+    return scrollHeight - scrollTop - clientHeight < 100;
   };
 
-  // Handle scroll event - disable auto-scroll if user scrolls up
   const handleScroll = () => {
     shouldAutoScrollRef.current = isUserAtBottom();
   };
 
   useEffect(() => {
-    // Only auto-scroll if user is at bottom or when new message from current user
     const lastMessage = messages[messages.length - 1];
     const isLastMessageFromCurrentUser =
       lastMessage?.sender?._id?.toString() === currentUserId?.toString();
@@ -52,7 +50,9 @@ const MessageList = ({
     <div className="message-list" ref={messageListRef} onScroll={handleScroll}>
       {loading && (
         <div className="message-list-loading">
-          <div className="spinner">⏳</div>
+          <div className="spinner">
+            <FontAwesomeIcon icon={faHourglass} />
+          </div>
           <p>Đang tải tin nhắn...</p>
         </div>
       )}

@@ -4,6 +4,8 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCheck, faPencil } from '@fortawesome/free-solid-svg-icons';
 import { useToast } from '@/contexts';
 import { fetchUsers, deleteUser } from '../api';
 import maleAvatarImg from '@/assets/images/avatarDefault/maleAvatar.png';
@@ -22,7 +24,6 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [filters.search, filters.role, filters.status]);
@@ -31,7 +32,6 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
     loadUsers();
   }, [currentPage, filters.search, filters.role, filters.status]);
 
-  // Expose loadUsers method via ref
   useImperativeHandle(ref, () => ({
     loadUsers,
   }));
@@ -39,7 +39,7 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      // Build filter object - only include filters that are not 'all'
+
       const filterParams = {
         page: currentPage,
         limit: 7,
@@ -91,7 +91,7 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || 'Không thể xóa người dùng';
-      toast.error(`❌ ${errorMessage}`, 3000);
+      toast.error(`${errorMessage}`, 3000);
     } finally {
       setIsDeleting(false);
     }
@@ -123,18 +123,17 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
   };
 
   const getAvatarUrl = (avatar, gender) => {
-    // If avatar is a data URL (base64), use it directly
     if (avatar && avatar.startsWith('data:')) {
       return avatar;
     }
-    // If avatar is a path string (e.g., 'assets/images/avatarDefault/maleAvatar.png')
+
     if (avatar && typeof avatar === 'string') {
       return `/${avatar}`;
     }
-    // If avatar is null or empty, use default by gender
+
     if (gender === 'male') return maleAvatarImg;
     if (gender === 'female') return femaleAvatarImg;
-    return maleAvatarImg; // Default to male avatar
+    return maleAvatarImg;
   };
 
   return (
@@ -205,7 +204,11 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
                         <div className="verification-cell">
                           {user.isEmailVerified ? (
                             <span className="verified-badge">
-                              <span className="verified-icon">✓</span> Verified
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="verified-icon"
+                              />{' '}
+                              Verified
                             </span>
                           ) : (
                             <span className="unverified-badge">Pending</span>
@@ -226,14 +229,14 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
                             title="Edit"
                             onClick={() => onEditUser(user)}
                           >
-                            ✎
+                            <FontAwesomeIcon icon={faPencil} />
                           </button>
                           <button
                             className="action-btn delete-btn"
                             title="Delete"
                             onClick={() => handleDeleteUser(user._id)}
                           >
-                            🗑
+                            <FontAwesomeIcon icon={faTrash} />
                           </button>
                         </div>
                       </td>
@@ -244,7 +247,7 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
             </table>
           </div>
 
-          {/* Pagination */}
+          {}
           <div className="pagination">
             <span className="pagination-info">
               Showing {users.length === 0 ? 0 : (currentPage - 1) * 10 + 1}-
@@ -260,10 +263,9 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
                 Previous
               </button>
 
-              {/* Generate page buttons */}
+              {}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => {
-                  // Show first 3 pages, current page, and last page
                   if (
                     page <= 3 ||
                     page === currentPage ||
@@ -307,7 +309,7 @@ const UserTable = forwardRef(({ filters = {}, onEditUser = () => {} }, ref) => {
         </>
       )}
 
-      {/* Delete Confirm Dialog */}
+      {}
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}
         userName={

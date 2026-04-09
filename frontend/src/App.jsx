@@ -13,7 +13,7 @@ function AppContent() {
   const { token, user, isLoading } = useAuth();
   const enableChatBox = import.meta.env.VITE_ENABLE_CHATBOX !== 'false';
 
-  // Chờ token load từ localStorage trước khi render SocketProvider
+  
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -23,7 +23,6 @@ function AppContent() {
       <SocketProvider token={token}>
         <Suspense fallback={<div>Loading...</div>}>
           <AppRouter />
-          {/* ChatBox chỉ cho non-admin users */}
           {enableChatBox && !['admin', 'staff'].includes(user?.role) && (
             <ChatBox />
           )}

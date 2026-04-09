@@ -4,7 +4,7 @@ const API_BASE = '/api/v1/chat';
 const USER_API_BASE = '/api/v1/users';
 
 export const chatApi = {
-  // Conversations
+  
   getOrCreateConversation: async (otherUserId) => {
     try {
       const response = await axiosInstance.post(`${API_BASE}/conversations`, {
@@ -38,7 +38,7 @@ export const chatApi = {
     }
   },
 
-  // Messages
+  
   sendMessage: async (conversationId, content, attachments = []) => {
     try {
       const response = await axiosInstance.post(`${API_BASE}/messages`, {
@@ -97,10 +97,10 @@ export const chatApi = {
     }
   },
 
-  // Users
+  
   getAdminUser: async () => {
     try {
-      // Endpoint để lấy admin/staff user cho customer support chat (không require admin role)
+      
       const response = await axiosInstance.get(
         `${USER_API_BASE}/support/admin`
       );

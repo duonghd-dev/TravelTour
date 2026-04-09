@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/contexts';
 import { getUserBookings, cancelBooking } from '../api/bookingService';
@@ -30,13 +32,10 @@ const MyBookingsPage = () => {
       setError(null);
       const response = await getUserBookings();
 
-      // Handle both array response and object response with success property
       let bookingsData = [];
       if (Array.isArray(response)) {
-        // Response là mảng trực tiếp
         bookingsData = response;
       } else if (response.success && Array.isArray(response.data)) {
-        // Response là object with success + data property
         bookingsData = response.data;
       }
 
@@ -49,7 +48,6 @@ const MyBookingsPage = () => {
     } catch (err) {
       console.error('[MyBookingsPage] Error loading bookings:', err);
 
-      // Handle 403 Forbidden - Invalid token
       if (err.status === 403) {
         console.warn('[MyBookingsPage] Token invalid, redirecting to login');
         localStorage.removeItem('token');
@@ -61,7 +59,6 @@ const MyBookingsPage = () => {
         return;
       }
 
-      // Handle 401 Unauthorized - No token
       if (err.status === 401) {
         console.warn(
           '[MyBookingsPage] Not authenticated, redirecting to login'
@@ -105,7 +102,7 @@ const MyBookingsPage = () => {
 
       if (response.success) {
         toast.success('Hủy booking thành công');
-        // Update local bookings list
+
         const updatedBookings = bookings.map((booking) =>
           booking._id === bookingId
             ? { ...booking, status: 'cancelled' }
@@ -198,7 +195,7 @@ const MyBookingsPage = () => {
         </div>
       )}
 
-      {/* Filter Tabs */}
+      {}
       <div className={styles.filterTabs}>
         <button
           className={`${styles.filterTab} ${activeFilter === 'all' ? styles.active : ''}`}
@@ -232,10 +229,10 @@ const MyBookingsPage = () => {
         </button>
       </div>
 
-      {/* Bookings List */}
+      {}
       {filteredBookings.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📅</div>
+          <FontAwesomeIcon icon={faCalendarDays} className={styles.emptyIcon} />
           <h3>Chưa có đơn đặt nào</h3>
           <p>Hãy khám phá và đặt các trải nghiệm tuyệt vời ngay hôm nay!</p>
           <button
@@ -250,9 +247,9 @@ const MyBookingsPage = () => {
           {filteredBookings.map((booking) => (
             <div
               key={booking._id}
-              className={`${styles.bookingCard} ${styles[`status${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}`]}`}
+              className={`${styles.bookingCard} ${styles[`status${(booking.status || 'pending').charAt(0).toUpperCase() + (booking.status || 'pending').slice(1)}`]}`}
             >
-              {/* LEFT SECTION - ID & STATUS */}
+              {}
               <div className={styles.cardHeader}>
                 <div className={styles.titleSection}>
                   <h3 className={styles.itemTitle}>Đơn đặt</h3>
@@ -267,7 +264,7 @@ const MyBookingsPage = () => {
                 </div>
               </div>
 
-              {/* CENTER SECTION - BOOKING INFO */}
+              {}
               <div className={styles.cardContent}>
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
@@ -313,7 +310,7 @@ const MyBookingsPage = () => {
                         Trạng thái thanh toán
                       </span>
                       <span
-                        className={`${styles.value} ${styles[`paymentStatus${booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}`]}`}
+                        className={`${styles.value} ${styles[`paymentStatus${(booking.paymentStatus || 'pending').charAt(0).toUpperCase() + (booking.paymentStatus || 'pending').slice(1)}`]}`}
                       >
                         {booking.paymentStatus === 'completed'
                           ? 'Đã thanh toán'
@@ -321,14 +318,14 @@ const MyBookingsPage = () => {
                             ? 'Chờ thanh toán'
                             : booking.paymentStatus === 'failed'
                               ? 'Thất bại'
-                              : booking.paymentStatus}
+                              : booking.paymentStatus || 'Chờ thanh toán'}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* RIGHT SECTION - PRICE & ACTIONS */}
+              {}
               <div className={styles.cardFooter}>
                 <div className={styles.priceSection}>
                   <div className={styles.priceLabel}>Tổng cộng</div>

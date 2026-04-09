@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/services/axiosInstance';
 
-/**
- * Hook để fetch data từ API
- * @param {string} url - URL của API
- * @param {object} options - Config options (method, params, headers, etc)
- * @returns {object} { data, loading, error, refetch }
- */
+
 const useFetch = (url, options = {}) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -2,13 +2,9 @@ import * as authService from './auth.service.js';
 import asyncHandler from '../../common/utils/asyncHandler.js';
 import AppError from '../../common/errors/AppError.js';
 
-/**
- * Auth Controller
- * Handles authentication-related HTTP requests
- * Throws AppError for error handling via middleware
- */
 
-// 📝 REGISTER
+
+
 export const handleRegister = asyncHandler(async (req, res) => {
   const result = await authService.register(req.body);
   res.status(201).json({
@@ -18,7 +14,7 @@ export const handleRegister = asyncHandler(async (req, res) => {
   });
 });
 
-// ✅ VERIFY EMAIL
+
 export const handleVerifyEmail = asyncHandler(async (req, res) => {
   const { userId, otp } = req.body;
 
@@ -34,7 +30,7 @@ export const handleVerifyEmail = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔐 LOGIN
+
 export const handleLogin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -50,7 +46,7 @@ export const handleLogin = asyncHandler(async (req, res) => {
   });
 });
 
-// ✅ VERIFY LOGIN OTP
+
 export const handleVerifyLoginOTP = asyncHandler(async (req, res) => {
   const { userId, otp } = req.body;
 
@@ -66,7 +62,7 @@ export const handleVerifyLoginOTP = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔄 FORGOT PASSWORD
+
 export const handleForgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -82,7 +78,7 @@ export const handleForgotPassword = asyncHandler(async (req, res) => {
   });
 });
 
-// ✅ VERIFY RESET PASSWORD OTP
+
 export const handleVerifyResetPasswordOTP = asyncHandler(async (req, res) => {
   const { email, otp } = req.body;
 
@@ -98,7 +94,7 @@ export const handleVerifyResetPasswordOTP = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔑 RESET PASSWORD
+
 export const handleResetPassword = asyncHandler(async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
@@ -118,7 +114,7 @@ export const handleResetPassword = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔐 GOOGLE OAUTH CALLBACK
+
 export const handleGoogleCallback = asyncHandler(async (req, res) => {
   if (!req.user) {
     throw new AppError('Authentication failed', 401);
@@ -126,14 +122,14 @@ export const handleGoogleCallback = asyncHandler(async (req, res) => {
 
   const result = await authService.oauthLogin(req.user);
 
-  // Redirect to frontend with token
+  
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
   res.redirect(
     `${frontendUrl}/auth/oauth-success?token=${result.token}&role=${result.user.role}`
   );
 });
 
-// 🔐 FACEBOOK OAUTH CALLBACK
+
 export const handleFacebookCallback = asyncHandler(async (req, res) => {
   if (!req.user) {
     throw new AppError('Authentication failed', 401);
@@ -141,7 +137,7 @@ export const handleFacebookCallback = asyncHandler(async (req, res) => {
 
   const result = await authService.oauthLogin(req.user);
 
-  // Redirect to frontend with token
+  
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
   res.redirect(
     `${frontendUrl}/auth/oauth-success?token=${result.token}&role=${result.user.role}`

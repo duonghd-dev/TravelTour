@@ -4,12 +4,9 @@ import Review from '../review/review.model.js';
 import Booking from '../booking/booking.model.js';
 import logger from '../../common/utils/logger.js';
 
-/**
- * Lấy danh sách experiences với filters
- */
 export const listExperiences = async (filters = {}) => {
   try {
-    const query = { status: 'active' };
+    const query = { publishStatus: 'active' };
 
     if (filters.artisanId) {
       query.artisanId = filters.artisanId;
@@ -39,13 +36,10 @@ export const listExperiences = async (filters = {}) => {
   }
 };
 
-/**
- * Tìm kiếm experiences theo title/description
- */
 export const searchExperiences = async (keyword) => {
   try {
     const experiences = await Experience.find({
-      status: 'active',
+      publishStatus: 'active',
       $or: [
         { title: { $regex: keyword, $options: 'i' } },
         { description: { $regex: keyword, $options: 'i' } },
@@ -65,12 +59,8 @@ export const searchExperiences = async (keyword) => {
   }
 };
 
-/**
- * Tạo experience mới (artisan)
- */
 export const createExperience = async (artisanId, experienceData) => {
   try {
-    // Kiểm tra artisan
     const artisan = await Artisan.findById(artisanId);
     if (!artisan) {
       throw new Error('Artisan not found');
@@ -96,12 +86,8 @@ export const createExperience = async (artisanId, experienceData) => {
   }
 };
 
-/**
- * Cập nhật experience
- */
 export const updateExperience = async (experienceId, updateData) => {
   try {
-    // Không cho cập nhật artisanId
     delete updateData.artisanId;
 
     const experience = await Experience.findByIdAndUpdate(
@@ -127,9 +113,6 @@ export const updateExperience = async (experienceId, updateData) => {
   }
 };
 
-/**
- * Xóa experience
- */
 export const deleteExperience = async (experienceId) => {
   try {
     const experience = await Experience.findByIdAndDelete(experienceId);
@@ -150,16 +133,11 @@ export const deleteExperience = async (experienceId) => {
   }
 };
 
-/**
- * Tính toán stats của experience từ Booking & Review
- */
 const computeExperienceStats = async (experienceId) => {
   try {
-    // Lấy bookings
     const bookings = await Booking.find({ experienceId }).lean();
     const totalBookings = bookings.length;
 
-    // Lấy reviews
     const reviews = await Review.find({ experienceId }).lean();
     const totalReviews = reviews.length;
     const ratingAverage =
@@ -184,9 +162,6 @@ const computeExperienceStats = async (experienceId) => {
   }
 };
 
-/**
- * Lấy chi tiết experience với stats
- */
 export const getExperienceWithStats = async (experienceId) => {
   try {
     const User = (await import('../user/user.model.js')).default;
@@ -206,10 +181,8 @@ export const getExperienceWithStats = async (experienceId) => {
       throw new Error('Experience not found');
     }
 
-    // Compute stats
     const stats = await computeExperienceStats(experienceId);
 
-    // Fetch reviews with user info
     const reviews = await Review.find({ experienceId })
       .populate({
         path: 'userId',
@@ -217,7 +190,6 @@ export const getExperienceWithStats = async (experienceId) => {
       })
       .lean();
 
-    // Format guide object từ artisan
     let guide = null;
     if (experience.artisanId && experience.artisanId.userId) {
       const artisan = experience.artisanId;
@@ -227,12 +199,11 @@ export const getExperienceWithStats = async (experienceId) => {
         desc: artisan.storytelling || '',
         years: artisan.experienceYears || 0,
         generation: artisan.generation || 0,
-        image: artisan.avatar || user.avatar || '',
+        image: user.avatar || '',
         artisanId: experience.artisanId._id,
       };
     }
 
-    // Format reviews array
     const formattedReviews = reviews.map((r) => ({
       name: r.userId
         ? `${r.userId.firstName} ${r.userId.lastName}`
@@ -242,7 +213,6 @@ export const getExperienceWithStats = async (experienceId) => {
       rating: r.rating,
     }));
 
-    // Use images as gallery
     const gallery = experience.images || [];
 
     return {

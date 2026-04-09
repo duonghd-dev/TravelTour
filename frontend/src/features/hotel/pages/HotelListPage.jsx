@@ -15,7 +15,7 @@ export default function HotelListPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceRange, setPriceRange] = useState(25000000);
 
-  // Check if coming from checkout
+  
   const fromCheckout = location.state?.fromCheckout || false;
   const currentItems = location.state?.currentItems || [];
 
@@ -38,7 +38,7 @@ export default function HotelListPage() {
   ];
   const [selectedLocation, setSelectedLocation] = useState('All');
 
-  // Fetch hotels
+  
   useEffect(() => {
     const fetchHotels = async () => {
       setIsLoading(true);
@@ -57,11 +57,11 @@ export default function HotelListPage() {
     fetchHotels();
   }, []);
 
-  // Filter logic
+  
   useEffect(() => {
     let result = [...hotels];
 
-    // Search filter
+    
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -72,17 +72,17 @@ export default function HotelListPage() {
       );
     }
 
-    // Category filter
+    
     if (selectedCategory !== 'All') {
       result = result.filter((h) => h.category === selectedCategory);
     }
 
-    // Location filter
+    
     if (selectedLocation !== 'All') {
       result = result.filter((h) => h.location === selectedLocation);
     }
 
-    // Price filter
+    
     result = result.filter((h) => h.price <= priceRange);
 
     setFilteredHotels(result);
@@ -94,7 +94,7 @@ export default function HotelListPage() {
 
   return (
     <div className="hotel-list-page">
-      {/* Hero Header */}
+      {}
       <div className="hotel-list-page__header">
         <div className="hotel-list-page__header-content">
           <h1>Archived Stays</h1>
@@ -114,11 +114,11 @@ export default function HotelListPage() {
       </div>
 
       <div className="hotel-list-page__container">
-        {/* Filters Sidebar */}
+        {}
         <aside className="hotel-list-page__sidebar">
           <h3>Refine Search</h3>
 
-          {/* Category Filter */}
+          {}
           <div className="filter-section">
             <h4>Accommodation Type</h4>
             {categories.map((cat) => (
@@ -134,7 +134,7 @@ export default function HotelListPage() {
             ))}
           </div>
 
-          {/* Location Filter */}
+          {}
           <div className="filter-section">
             <h4>Location</h4>
             {locations.map((loc) => (
@@ -150,7 +150,7 @@ export default function HotelListPage() {
             ))}
           </div>
 
-          {/* Price Range */}
+          {}
           <div className="filter-section">
             <h4>Price Range</h4>
             <input
@@ -180,9 +180,9 @@ export default function HotelListPage() {
           </button>
         </aside>
 
-        {/* Main Content */}
+        {}
         <main className="hotel-list-page__main">
-          {/* Toolbar */}
+          {}
           <div className="hotel-list-page__toolbar">
             <div className="search-input-group">
               <Search size={20} />
@@ -204,7 +204,7 @@ export default function HotelListPage() {
             </div>
           </div>
 
-          {/* Hotels Grid */}
+          {}
           {isLoading ? (
             <div className="hotel-list-page__loading">
               <div className="spinner"></div>
@@ -229,7 +229,7 @@ export default function HotelListPage() {
             </div>
           )}
 
-          {/* Load More */}
+          {}
           {filteredHotels.length > 0 && (
             <div className="hotel-list-page__load-more">
               <button className="btn-load-more">Load More Stays</button>

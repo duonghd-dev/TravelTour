@@ -1,16 +1,13 @@
 import * as reviewService from './review.service.js';
 import logger from '../../common/utils/logger.js';
 
-/**
- * POST /api/v1/reviews - Tạo review
- * Protected route - requires authentication
- */
+
 export const createReview = async (req, res) => {
   try {
     const { experienceId, rating, content } = req.body;
     const userId = req.user.userId;
 
-    // Validate dữ liệu
+    
     if (!experienceId || !rating || !content) {
       return res.status(400).json({
         success: false,
@@ -40,9 +37,7 @@ export const createReview = async (req, res) => {
   }
 };
 
-/**
- * GET /api/v1/reviews/experience/:experienceId - Lấy reviews của experience
- */
+
 export const getExperienceReviews = async (req, res) => {
   try {
     const { experienceId } = req.params;
@@ -58,9 +53,7 @@ export const getExperienceReviews = async (req, res) => {
   }
 };
 
-/**
- * GET /api/v1/reviews/artisan/:artisanId - Lấy reviews của artisan
- */
+
 export const getArtisanReviews = async (req, res) => {
   try {
     const { artisanId } = req.params;
@@ -76,10 +69,7 @@ export const getArtisanReviews = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/v1/reviews/:reviewId - Xóa review
- * Protected route - requires authentication
- */
+
 export const deleteReview = async (req, res) => {
   try {
     const { reviewId } = req.params;

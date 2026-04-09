@@ -4,7 +4,6 @@ const { Schema, model } = mongoose;
 
 const userSchema = new Schema(
   {
-    // 🧑 Thông tin cá nhân
     firstName: {
       type: String,
       required: true,
@@ -33,7 +32,6 @@ const userSchema = new Schema(
       default: '',
     },
 
-    // 📧 Đăng nhập
     email: {
       type: String,
       required: true,
@@ -50,7 +48,6 @@ const userSchema = new Schema(
       type: String,
     },
 
-    // 🔐 Xác thực email
     isEmailVerified: {
       type: Boolean,
       default: false,
@@ -64,13 +61,11 @@ const userSchema = new Schema(
       default: null,
     },
 
-    // 🔐 2FA Status
     twoFactorEnabled: {
       type: Boolean,
       default: false,
     },
 
-    // 🔐 Reset Password OTP
     resetPasswordOTP: {
       type: String,
       default: null,
@@ -80,38 +75,27 @@ const userSchema = new Schema(
       default: null,
     },
 
-    // ℹ️ NOTE: OTP & OAuth data architecture:
-    // - EmailOTP/EmailOTPExpire: for email verification OTP (stored on User)
-    // - resetPasswordOTP/resetPasswordExpire: for password reset OTP (stored on User)
-    // - LoginOTP: for 2FA login OTP (can be moved to separate collection if needed)
-    // - OAuthProvider: for OAuth provider data (Google, Facebook, etc.) (can be moved if needed)
-
-    // 👤 Role
     role: {
       type: String,
       enum: ['admin', 'staff', 'artisan', 'customer'],
       default: 'customer',
     },
 
-    // 👑 Admin tạo tài khoản
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
 
-    // 🟡 Lần login đầu
     isFirstLogin: {
       type: Boolean,
       default: true,
     },
 
-    // 📊 Trạng thái
     isActive: {
       type: Boolean,
       default: true,
     },
 
-    // ❤️ Favorites
     favorites: [
       {
         itemId: {
@@ -130,7 +114,6 @@ const userSchema = new Schema(
       },
     ],
 
-    // 🕒 Tracking
     lastLoginAt: {
       type: Date,
     },
@@ -139,6 +122,14 @@ const userSchema = new Schema(
     timestamps: true,
   }
 );
+
+// Indexes for better query performance
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ phone: 1 }, { sparse: true, unique: true });
+userSchema.index({ role: 1 });
+userSchema.index({ isActive: 1 });
+userSchema.index({ createdAt: -1 });
+userSchema.index({ lastLoginAt: -1 });
 
 const User = model('User', userSchema);
 export default User;

@@ -38,7 +38,7 @@ export const SocketProvider = ({ children, token }) => {
     });
 
     socketInstance.on('reconnect', () => {
-      // Delay slightly to ensure socket is fully ready
+      
       setTimeout(() => {
         setIsConnected(true);
       }, 100);

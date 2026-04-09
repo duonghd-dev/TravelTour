@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AlertCircle, CheckCircle } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
 import {
   getBooking,
   confirmBookingPayment,
@@ -47,10 +49,8 @@ const PaymentProcessingPage = () => {
     setError(null);
 
     try {
-      // Simulate payment delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Confirm payment
       const response = await confirmBookingPayment(bookingId, {
         transactionId: `TXN_${Date.now()}`,
         paymentMethod: booking?.paymentMethod || 'credit_card',
@@ -59,7 +59,6 @@ const PaymentProcessingPage = () => {
       if (response.success) {
         setPaymentSuccess(true);
 
-        // Redirect to success page after 2 seconds
         setTimeout(() => {
           navigate('/payment-success', {
             state: { bookingId, booking: response.data },
@@ -117,7 +116,7 @@ const PaymentProcessingPage = () => {
           </div>
         )}
 
-        {/* Items List */}
+        {}
         {items && items.length > 0 && (
           <div className={styles.itemsList}>
             <h3>Các sản phẩm được thanh toán:</h3>
@@ -207,8 +206,8 @@ const PaymentProcessingPage = () => {
             )}
 
             <p className={styles.note}>
-              💡 Cho mục đích testing, click "Thanh Toán Ngay" để mô phỏng thanh
-              toán thành công
+              <FontAwesomeIcon icon={faLightbulb} /> Cho mục đích testing, click
+              "Thanh Toán Ngay" để mô phỏng thanh toán thành công
             </p>
           </div>
         )}

@@ -18,9 +18,9 @@ export const useChat = (conversationId) => {
 
   const typingTimeoutRef = useRef(null);
 
-  // =========================
-  // LOAD MESSAGES
-  // =========================
+  
+  
+  
   const loadMessages = useCallback(
     async (page = 1) => {
       if (!conversationId) return;
@@ -39,14 +39,14 @@ export const useChat = (conversationId) => {
     [conversationId]
   );
 
-  // Load lần đầu
+  
   useEffect(() => {
     if (conversationId) {
       loadMessages();
     }
   }, [conversationId, loadMessages]);
 
-  // Polling khi mất socket
+  
   useEffect(() => {
     if (!conversationId || isConnected) return;
 
@@ -57,9 +57,9 @@ export const useChat = (conversationId) => {
     return () => clearInterval(interval);
   }, [conversationId, isConnected, loadMessages]);
 
-  // =========================
-  // SOCKET
-  // =========================
+  
+  
+  
   useEffect(() => {
     if (!socket || !isConnected || !conversationId) return;
 
@@ -107,9 +107,9 @@ export const useChat = (conversationId) => {
     };
   }, [socket, isConnected, conversationId]);
 
-  // =========================
-  // SEND MESSAGE
-  // =========================
+  
+  
+  
   const sendMessage = useCallback(
     async (content, attachments = []) => {
       if (!conversationId || !content.trim()) return;
@@ -122,7 +122,7 @@ export const useChat = (conversationId) => {
           attachments
         );
 
-        // Optimistic update
+        
         setMessages((prev) => {
           if (prev.some((m) => m._id === res.data._id)) return prev;
           return [...prev, res.data];
@@ -139,9 +139,9 @@ export const useChat = (conversationId) => {
     [conversationId]
   );
 
-  // =========================
-  // TYPING
-  // =========================
+  
+  
+  
   const handleTyping = useCallback(() => {
     if (!socket || !conversationId) return;
 
@@ -158,9 +158,9 @@ export const useChat = (conversationId) => {
     return () => clearTimeout(typingTimeoutRef.current);
   }, []);
 
-  // =========================
-  // ACTIONS
-  // =========================
+  
+  
+  
   const markAsRead = useCallback(async () => {
     if (!conversationId) return;
     try {

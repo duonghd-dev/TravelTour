@@ -3,9 +3,6 @@ import axiosInstance from '@/services/axiosInstance';
 const API_BASE = '/api/v1/artisans';
 
 export const artisanApi = {
-  /**
-   * Lấy danh sách tất cả nghệ nhân
-   */
   getAllArtisans: async (filters = {}) => {
     try {
       const params = new URLSearchParams();
@@ -24,21 +21,15 @@ export const artisanApi = {
     }
   },
 
-  /**
-   * Lấy chi tiết nghệ nhân theo ID
-   */
   getArtisanDetail: async (artisanId) => {
     try {
       const response = await axiosInstance.get(`${API_BASE}/${artisanId}`);
-      return response.data;
+      return response?.data?.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  /**
-   * Lấy thống kê hoạt động
-   */
   getArtisanStats: async (artisanId) => {
     try {
       const response = await axiosInstance.get(
@@ -50,9 +41,6 @@ export const artisanApi = {
     }
   },
 
-  /**
-   * Tìm kiếm nghệ nhân
-   */
   searchArtisans: async (keyword, filters = {}) => {
     try {
       const params = new URLSearchParams({ keyword });
@@ -67,37 +55,28 @@ export const artisanApi = {
     }
   },
 
-  /**
-   * Lấy hồ sơ nghệ nhân của chính mình
-   */
   getMyProfile: async () => {
     try {
       const response = await axiosInstance.get(`${API_BASE}/me/profile`);
-      return response.data;
+      return response?.data?.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  /**
-   * Tạo hồ sơ nghệ nhân
-   */
   createProfile: async (data) => {
     try {
       const response = await axiosInstance.post(API_BASE, data);
-      return response.data;
+      return response?.data?.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  /**
-   * Cập nhật hồ sơ nghệ nhân
-   */
   updateProfile: async (data) => {
     try {
       const response = await axiosInstance.put(API_BASE, data);
-      return response.data;
+      return response?.data?.data;
     } catch (error) {
       throw error.response?.data || error;
     }

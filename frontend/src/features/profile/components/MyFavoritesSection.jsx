@@ -1,4 +1,14 @@
 import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faPalette,
+  faBuilding,
+  faPlane,
+  faUsers,
+  faMapPin,
+  faTag,
+  faHeart,
+} from '@fortawesome/free-solid-svg-icons';
 import { profileApi } from '../api/profileApi';
 import styles from './MyFavoritesSection.module.scss';
 
@@ -10,7 +20,6 @@ const MyFavoritesSection = () => {
   const FALLBACK_IMAGE =
     'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80';
 
-  // Group favorites by itemType
   const groupedFavorites = {
     experience: favorites.filter((f) => f.itemType === 'experience'),
     hotel: favorites.filter((f) => f.itemType === 'hotel'),
@@ -21,22 +30,22 @@ const MyFavoritesSection = () => {
   const itemTypeConfig = {
     experience: {
       label: 'Experiences',
-      icon: '🎨',
+      iconFA: faPalette,
       color: '#2d5016',
     },
     hotel: {
       label: 'Hotels',
-      icon: '🏨',
+      iconFA: faBuilding,
       color: '#8b5a2b',
     },
     tour: {
       label: 'Tours',
-      icon: '✈️',
+      iconFA: faPlane,
       color: '#6b4226',
     },
     artisan: {
       label: 'Artisans',
-      icon: '👨‍🎨',
+      iconFA: faUsers,
       color: '#663399',
     },
   };
@@ -102,7 +111,6 @@ const MyFavoritesSection = () => {
   const renderFavoriteItem = (favorite) => {
     const item = favorite.itemDetail;
 
-    // If item not found
     if (!item) {
       return (
         <div key={favorite._id} className={styles.favoriteItem}>
@@ -147,13 +155,13 @@ const MyFavoritesSection = () => {
           <div className={styles.itemMeta}>
             {metaInfo.location && (
               <div className={styles.metaItem}>
-                <span className={styles.icon}>📍</span>
+                <FontAwesomeIcon icon={faMapPin} className={styles.icon} />
                 {metaInfo.location}
               </div>
             )}
             {(metaInfo.category || metaInfo.craft || metaInfo.craftType) && (
               <div className={styles.metaItem}>
-                <span className={styles.icon}>🏷️</span>
+                <FontAwesomeIcon icon={faTag} className={styles.icon} />
                 {metaInfo.category || metaInfo.craft || metaInfo.craftType}
               </div>
             )}
@@ -195,7 +203,9 @@ const MyFavoritesSection = () => {
         </div>
       ) : favorites.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>❤️</div>
+          <div className={styles.emptyIcon}>
+            <FontAwesomeIcon icon={faHeart} />
+          </div>
           <h3 className={styles.emptyTitle}>No Favorites Yet</h3>
           <p className={styles.emptyText}>
             Start exploring our collection and add your favorite experiences to
@@ -213,7 +223,7 @@ const MyFavoritesSection = () => {
             const config = itemTypeConfig[type];
             return (
               <div key={type} className={styles.favoriteGroup}>
-                {/* Group Header */}
+                {}
                 <div
                   className={styles.groupHeader}
                   style={{ borderLeftColor: config.color }}
@@ -223,7 +233,7 @@ const MyFavoritesSection = () => {
                   <span className={styles.groupCount}>{items.length}</span>
                 </div>
 
-                {/* Group Items */}
+                {}
                 <div className={styles.groupItems}>
                   {items.map((favorite) => renderFavoriteItem(favorite))}
                 </div>

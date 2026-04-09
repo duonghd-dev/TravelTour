@@ -1,4 +1,11 @@
 import React, { useState, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faPaperclip,
+  faSmile,
+  faTimes,
+  faPaperPlane,
+} from '@fortawesome/free-solid-svg-icons';
 import aiService from '@/services/api/aiService';
 import './MessageInput.scss';
 
@@ -18,7 +25,7 @@ const MessageInput = ({
   const getInitials = (firstName, lastName) => {
     const initials =
       `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
-    return initials || 'U'; // Fallback to 'U' if no initials
+    return initials || 'U';
   };
 
   const handleSend = () => {
@@ -39,7 +46,6 @@ const MessageInput = ({
   const handleInputChange = (e) => {
     setMessage(e.target.value);
 
-    // Trigger typing indicator
     if (onTyping) {
       onTyping();
     }
@@ -77,14 +83,16 @@ const MessageInput = ({
               {attachment.type === 'image' ? (
                 <img src={attachment.url} alt={attachment.name} />
               ) : (
-                <div className="file-preview">📎 {attachment.name}</div>
+                <div className="file-preview">
+                  <FontAwesomeIcon icon={faPaperclip} /> {attachment.name}
+                </div>
               )}
               <button
                 className="remove-btn"
                 onClick={() => removeAttachment(idx)}
                 type="button"
               >
-                ✕
+                <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
           ))}
@@ -107,7 +115,7 @@ const MessageInput = ({
             rows={1}
           />
           <button className="emoji-btn" title="Emoji" disabled={disabled}>
-            😊
+            <FontAwesomeIcon icon={faSmile} />
           </button>
         </div>
 
@@ -117,7 +125,7 @@ const MessageInput = ({
           disabled={disabled || (!message.trim() && attachments.length === 0)}
           title="Gửi"
         >
-          ➤
+          <FontAwesomeIcon icon={faPaperPlane} />
         </button>
       </div>
 

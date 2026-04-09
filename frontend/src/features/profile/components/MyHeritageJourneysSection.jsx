@@ -1,4 +1,10 @@
 import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faPlane,
+  faCalendarDays,
+  faMapPin,
+} from '@fortawesome/free-solid-svg-icons';
 import { profileApi } from '../api/profileApi';
 import styles from './MyHeritageJourneysSection.module.scss';
 
@@ -34,7 +40,7 @@ const MyHeritageJourneysSection = () => {
         </div>
       ) : journeys.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>✈️</div>
+          <FontAwesomeIcon icon={faPlane} className={styles.emptyIcon} />
           <h3 className={styles.emptyTitle}>No Heritage Journeys Yet</h3>
           <p className={styles.emptyText}>
             You haven't booked any heritage experiences yet. Start exploring our
@@ -63,14 +69,17 @@ const MyHeritageJourneysSection = () => {
               <div className={styles.cardContent}>
                 <h3 className={styles.journeyTitle}>{journey.title}</h3>
                 <div className={styles.infoRow}>
-                  <span className={styles.icon}>📅</span>
+                  <FontAwesomeIcon
+                    icon={faCalendarDays}
+                    className={styles.icon}
+                  />
                   <span>
                     {new Date(journey.startDate).toLocaleDateString()} -{' '}
                     {new Date(journey.endDate).toLocaleDateString()}
                   </span>
                 </div>
                 <div className={styles.infoRow}>
-                  <span className={styles.icon}>📍</span>
+                  <FontAwesomeIcon icon={faMapPin} className={styles.icon} />
                   <span>{journey.location}</span>
                 </div>
                 <button className={styles.manageButton}>Manage Booking</button>

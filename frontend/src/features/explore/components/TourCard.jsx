@@ -39,16 +39,16 @@ export default function TourCard({ tour, onNavigate }) {
       setLoading(true);
 
       if (isFavorite && favoriteId) {
-        // Remove from favorites
+        
         await profileApi.removeFavorite(favoriteId);
         setIsFavorite(false);
         setFavoriteId(null);
       } else {
-        // Add to favorites
+        
         const response = await profileApi.addFavorite(tour._id, 'tour');
         if (response.success) {
           setIsFavorite(true);
-          // Get the new favorites to find the ID
+          
           const favorites = response.data || [];
           const newFavorite = favorites.find(
             (fav) =>

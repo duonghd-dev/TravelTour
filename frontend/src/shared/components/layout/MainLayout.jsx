@@ -1,7 +1,7 @@
 import Header from './Header/Header';
 import Footer from './Footer/Footer';
 
-// Main layout wrapper for public pages
+
 const MainLayout = ({ children }) => {
   return (
     <div className="main-layout">

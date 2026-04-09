@@ -1,20 +1,9 @@
-/**
- * Booking API Service
- * Handle all booking-related API calls
- */
-
 import apiService from '@/services/api/apiService.js';
 
 const bookingAPI = '/api/v1/bookings';
 
-/**
- * Create a new booking
- * @param {Object} bookingData - Booking details
- * @returns {Promise}
- */
 export const createBooking = async (bookingData) => {
   try {
-    // Map itemId to correct field name based on itemType
     const payload = {
       bookingDate: bookingData.bookingDate,
       guestsCount: bookingData.guestsCount,
@@ -23,20 +12,23 @@ export const createBooking = async (bookingData) => {
       billingInfo: bookingData.billingInfo,
     };
 
-    // Add timeSlot for experiences only
     if (bookingData.itemType === 'experience' && bookingData.timeSlot) {
       payload.timeSlot = bookingData.timeSlot;
     }
 
-    // Add type-specific ID field
     if (bookingData.itemType === 'tour') {
       payload.tourId = bookingData.itemId;
     } else if (bookingData.itemType === 'experience') {
       payload.experienceId = bookingData.itemId;
     } else if (bookingData.itemType === 'hotel') {
       payload.hotelId = bookingData.itemId;
-      payload.checkoutDate = bookingData.checkoutDate; // Hotels need checkout date
+      payload.checkoutDate = bookingData.checkoutDate;
     }
+
+    console.log(
+      '[bookingService] POST /api/v1/bookings with payload:',
+      payload
+    );
 
     const response = await apiService.post(bookingAPI, payload);
     return response.data;
@@ -46,11 +38,6 @@ export const createBooking = async (bookingData) => {
   }
 };
 
-/**
- * Get booking details
- * @param {string} bookingId - Booking ID
- * @returns {Promise}
- */
 export const getBooking = async (bookingId) => {
   try {
     const response = await apiService.get(`${bookingAPI}/${bookingId}`);
@@ -61,10 +48,6 @@ export const getBooking = async (bookingId) => {
   }
 };
 
-/**
- * Get user's bookings
- * @returns {Promise}
- */
 export const getUserBookings = async () => {
   try {
     const response = await apiService.get(bookingAPI, {
@@ -79,12 +62,6 @@ export const getUserBookings = async () => {
   }
 };
 
-/**
- * Confirm payment for booking
- * @param {string} bookingId - Booking ID
- * @param {Object} paymentData - Payment details
- * @returns {Promise}
- */
 export const confirmBookingPayment = async (bookingId, paymentData) => {
   try {
     const response = await apiService.post(
@@ -101,11 +78,6 @@ export const confirmBookingPayment = async (bookingId, paymentData) => {
   }
 };
 
-/**
- * Cancel booking
- * @param {string} bookingId - Booking ID
- * @returns {Promise}
- */
 export const cancelBooking = async (bookingId) => {
   try {
     const response = await apiService.post(`${bookingAPI}/${bookingId}/cancel`);

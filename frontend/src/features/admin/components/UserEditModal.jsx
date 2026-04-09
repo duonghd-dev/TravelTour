@@ -7,24 +7,24 @@ import femaleAvatarImg from '@/assets/images/avatarDefault/femaleAvatar.png';
 import './UserEditModal.scss';
 
 const getAvatarUrl = (avatar, gender) => {
-  // If avatar is a data URL (base64), use it directly
+  
   if (avatar && avatar.startsWith('data:')) {
     return avatar;
   }
-  // If avatar is a path string (e.g., 'assets/images/avatarDefault/maleAvatar.png')
+  
   if (avatar && typeof avatar === 'string') {
     return `/${avatar}`;
   }
-  // If avatar is null or empty, use default by gender
+  
   if (gender === 'male') return maleAvatarImg;
   if (gender === 'female') return femaleAvatarImg;
-  return maleAvatarImg; // Default to male avatar
+  return maleAvatarImg; 
 };
 
 const getDefaultAvatar = (gender) => {
   if (gender === 'male') return maleAvatarImg;
   if (gender === 'female') return femaleAvatarImg;
-  return maleAvatarImg; // Default to male avatar
+  return maleAvatarImg; 
 };
 
 const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
@@ -90,7 +90,7 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
         isActive: user.isActive !== undefined ? user.isActive : false,
       });
 
-      // Load artisan data if role is artisan
+      
       if ((user.role || 'customer') === 'artisan' && user.artisanInfo) {
         const artisan = user.artisanInfo;
         setArtisanData({
@@ -138,7 +138,7 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
     setArtisanData(newArtisanData);
   };
 
-  // Update avatar preview when gender changes
+  
   useEffect(() => {
     if (!formData.avatar) {
       setAvatarPreview(getDefaultAvatar(formData.gender));
@@ -185,7 +185,7 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
       return false;
     }
 
-    // Validate artisan fields if role is artisan
+    
     if (formData.role === 'artisan') {
       if (!artisanData.category?.trim()) {
         setError('Category is required for artisan');
@@ -214,10 +214,10 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
 
       await updateUser(userId, updateData);
 
-      // Show success toast
+      
       toast.success(`Cập nhật thông tin thành công!`, 4000);
 
-      // Call onSuccess callback to refresh users list
+      
       if (onSuccess) {
         onSuccess();
       }
@@ -410,7 +410,7 @@ const UserEditModal = ({ isOpen, onClose, onSuccess, userId }) => {
             </select>
           </div>
 
-          {/* Artisan Fields - Show only when role is artisan */}
+          {}
           {formData.role === 'artisan' && (
             <ArtisanFieldsForm
               artisanData={artisanData}

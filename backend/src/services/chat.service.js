@@ -4,7 +4,7 @@ import User from '../modules/user/user.model.js';
 import { encrypt, decrypt } from '../common/utils/encryption.js';
 
 class ChatService {
-  // Lấy hoặc tạo conversation giữa 2 users
+  
   async getOrCreateConversation(userId1, userId2) {
     try {
       let conversation = await Conversation.findOne({
@@ -22,14 +22,14 @@ class ChatService {
           ],
         });
         await conversation.save();
-        // Populate participants sau khi save
+        
         await conversation.populate(
           'participants',
           'firstName lastName avatar email'
         );
       }
 
-      // Tạo otherParticipant field như trong getUserConversations
+      
       const otherParticipant = conversation.participants.find(
         (p) => p._id.toString() !== userId1.toString()
       );
@@ -43,10 +43,10 @@ class ChatService {
     }
   }
 
-  // Gửi message
+  
   async sendMessage(conversationId, senderId, content, attachments = []) {
     try {
-      // 🔐 Encrypt message content
+      
       let encryptedContent = null;
       let isEncrypted = false;
 
@@ -55,7 +55,7 @@ class ChatService {
           encryptedContent = encrypt(content);
           isEncrypted = true;
         } catch (encryptError) {
-          // Fallback: nếu encryption fail, lưu plaintext (không nên xảy ra)
+          
           console.error('Encryption failed:', encryptError);
           encryptedContent = content;
           isEncrypted = false;
@@ -74,7 +74,7 @@ class ChatService {
       await message.save();
       await message.populate('sender', '_id firstName lastName avatar');
 
-      // Cập nhật conversation
+      
       await Conversation.findByIdAndUpdate(
         conversationId,
         {
@@ -84,7 +84,7 @@ class ChatService {
         { new: true }
       );
 
-      // Return message với decrypted content cho client
+      
       const messageObj = message.toObject();
       if (isEncrypted) {
         try {
@@ -100,7 +100,7 @@ class ChatService {
     }
   }
 
-  // Lấy messages của conversation (pagination)
+  
   async getMessages(conversationId, page = 1, limit = 20, currentUser = null) {
     try {
       const skip = (page - 1) * limit;
@@ -113,37 +113,37 @@ class ChatService {
 
       const total = await Message.countDocuments({ conversationId });
 
-      // Filter messages dựa trên role
+      
       let filteredMessages = messages;
       if (currentUser && currentUser.role) {
         filteredMessages = messages.filter((msg) => {
           const isSelfMessage =
             msg.sender._id.toString() === currentUser._id.toString();
 
-          // Nếu current user là admin/staff: show messages từ non-admin hoặc từ chính mình
+          
           if (['admin', 'staff'].includes(currentUser.role)) {
             return (
               isSelfMessage || !['admin', 'staff'].includes(msg.sender.role)
             );
           }
-          // Nếu current user là customer/artisan: show messages từ admin/staff hoặc từ chính mình
+          
           if (['customer', 'artisan'].includes(currentUser.role)) {
             return (
               isSelfMessage || ['admin', 'staff'].includes(msg.sender.role)
             );
           }
-          // Default: show all
+          
           return true;
         });
       }
 
-      // 🔐 DECRYPT content của messages
+      
       const decryptedMessages = filteredMessages.map((msg) => {
         const msgObj = msg.toObject();
 
         if (msgObj.isEncrypted && msgObj.content) {
           try {
-            // Decrypt content từ encrypted object
+            
             msgObj.content = decrypt(msgObj.content);
           } catch (decryptError) {
             console.error(
@@ -173,7 +173,7 @@ class ChatService {
     }
   }
 
-  // Đánh dấu message đã đọc
+  
   async markAsRead(messageId, userId) {
     try {
       const message = await Message.findByIdAndUpdate(
@@ -192,7 +192,7 @@ class ChatService {
     }
   }
 
-  // Đánh dấu tất cả messages trong conversation đã đọc
+  
   async markConversationAsRead(conversationId, userId) {
     try {
       await Message.updateMany(
@@ -207,7 +207,7 @@ class ChatService {
         }
       );
 
-      // Cập nhật readStatus của conversation
+      
       await Conversation.findByIdAndUpdate(
         conversationId,
         {
@@ -227,7 +227,7 @@ class ChatService {
     }
   }
 
-  // Lấy danh sách conversations của user
+  
   async getUserConversations(userId, page = 1, limit = 10) {
     try {
       const skip = (page - 1) * limit;
@@ -247,7 +247,7 @@ class ChatService {
         isActive: true,
       });
 
-      // Thêm thông tin unread messages
+      
       const convsWithUnread = await Promise.all(
         conversations.map(async (conv) => {
           const unreadCount = await Message.countDocuments({
@@ -281,7 +281,7 @@ class ChatService {
     }
   }
 
-  // Xóa message (soft delete hoặc yang khác)
+  
   async deleteMessage(messageId, userId) {
     try {
       const message = await Message.findById(messageId);
@@ -294,11 +294,11 @@ class ChatService {
         throw new Error('Only message sender can delete');
       }
 
-      // 🔐 Encrypt deletion message
+      
       const deletionMessage = '[Message deleted]';
       const encryptedContent = encrypt(deletionMessage);
 
-      // Edit content thay vì xóa
+      
       message.content = encryptedContent;
       message.isEncrypted = true;
       message.attachments = [];
@@ -307,7 +307,7 @@ class ChatService {
 
       await message.save();
 
-      // Return message với decrypted content
+      
       const msgObj = message.toObject();
       msgObj.content = deletionMessage;
 
@@ -317,18 +317,18 @@ class ChatService {
     }
   }
 
-  // Tìm kiếm messages
-  // ⚠️ LƯU Ý: Với encrypted content, không thể search trên DB trực tiếp
-  // Giải pháp: Decrypt tất cả messages rồi search in-memory (slow) hoặc
-  // Tạo searchable plaintext index riêng (nếu cần)
+  
+  
+  
+  
   async searchMessages(conversationId, keyword) {
     try {
-      // Lấy tất cả messages (tidak filter vì không thể filter encrypted data)
+      
       const messages = await Message.find({ conversationId })
         .populate('sender', '_id firstName lastName avatar')
         .sort({ createdAt: -1 });
 
-      // Decrypt tất cả messages để search in-memory
+      
       const decryptedMessages = messages.map((msg) => {
         const msgObj = msg.toObject();
 
@@ -343,7 +343,7 @@ class ChatService {
         return msgObj;
       });
 
-      // Search in decrypted content
+      
       const results = decryptedMessages.filter((msg) => {
         const content = typeof msg.content === 'string' ? msg.content : '';
         return content.toLowerCase().includes(keyword.toLowerCase());

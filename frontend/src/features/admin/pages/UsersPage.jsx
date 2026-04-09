@@ -1,4 +1,10 @@
 import React, { useState, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faChartSimple,
+  faCalendarDays,
+  faMagnifyingGlass,
+} from '@fortawesome/free-solid-svg-icons';
 import { useToast } from '@/contexts';
 import UserStats from '../components/UserStats';
 import UserTable from '../components/UserTable';
@@ -52,7 +58,6 @@ const UsersPage = () => {
   };
 
   const handleModalSuccess = () => {
-    // Refresh users list
     if (userTableRef.current) {
       userTableRef.current.loadUsers();
     }
@@ -70,7 +75,7 @@ const UsersPage = () => {
 
   return (
     <div className="users-page">
-      {/* Header Section */}
+      {}
       <div className="users-header">
         <div className="header-content">
           <h1>User Management</h1>
@@ -78,7 +83,7 @@ const UsersPage = () => {
         </div>
         <div className="header-actions">
           <button className="btn btn-secondary" onClick={handleExportReport}>
-            <span className="btn-icon">📊</span>
+            <FontAwesomeIcon icon={faChartSimple} className="btn-icon" />
             Export Report
           </button>
           <button className="btn btn-primary" onClick={handleCreateUser}>
@@ -88,10 +93,10 @@ const UsersPage = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <UserStats />
 
-      {/* Filters Section */}
+      {}
       <div className="filters-section">
         <div className="search-filter">
           <input
@@ -101,7 +106,7 @@ const UsersPage = () => {
             value={filters.search}
             onChange={handleSearchChange}
           />
-          <span className="search-icon">🔍</span>
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="search-icon" />
         </div>
 
         <div className="filter-controls">
@@ -127,25 +132,27 @@ const UsersPage = () => {
             <option value="inactive">Suspended</option>
           </select>
 
-          <button className="filter-btn date-range">📅 Date Range</button>
+          <button className="filter-btn date-range">
+            <FontAwesomeIcon icon={faCalendarDays} /> Date Range
+          </button>
         </div>
       </div>
 
-      {/* User Table */}
+      {}
       <UserTable
         ref={userTableRef}
         filters={filters}
         onEditUser={handleEditUser}
       />
 
-      {/* Create User Modal */}
+      {}
       <UserCreateModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
         onSuccess={handleModalSuccess}
       />
 
-      {/* Edit User Modal */}
+      {}
       <UserEditModal
         isOpen={isEditModalOpen}
         onClose={handleEditModalClose}

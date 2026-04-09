@@ -4,7 +4,6 @@ const { Schema, model } = mongoose;
 
 const tourSchema = new Schema(
   {
-    // 📝 Thông tin cơ bản
     title: {
       type: String,
       required: true,
@@ -24,7 +23,6 @@ const tourSchema = new Schema(
       default: 'Central',
     },
 
-    // 💰 Giá
     price: {
       type: Number,
       required: true,
@@ -34,9 +32,8 @@ const tourSchema = new Schema(
       default: 'per person',
     },
 
-    // ⏱️ Thời gian
     duration: {
-      value: Number, // Số lượng
+      value: Number,
       unit: {
         type: String,
         enum: ['hour', 'day', 'week'],
@@ -44,7 +41,6 @@ const tourSchema = new Schema(
       },
     },
 
-    // 👥 Số lượng
     maxParticipants: {
       type: Number,
       default: 20,
@@ -54,7 +50,6 @@ const tourSchema = new Schema(
       default: 1,
     },
 
-    // ⭐ Đánh giá
     rating: {
       type: Number,
       min: 0,
@@ -66,17 +61,14 @@ const tourSchema = new Schema(
       default: 0,
     },
 
-    // 📸 Hình ảnh
     images: [
       {
         type: String,
       },
     ],
 
-    // 🏷️ Badge
     badge: String,
 
-    // 🎯 Highlights/Attractions
     highlights: [
       {
         icon: String,
@@ -85,31 +77,26 @@ const tourSchema = new Schema(
       },
     ],
 
-    // 📖 Itinerary
     itinerary: [
       {
         day: Number,
         title: String,
         description: String,
         activities: [String],
-        meals: [String], // breakfast, lunch, dinner
+        meals: [String],
       },
     ],
 
-    // 🌍 Included Services
-    included: [String], // meals, transport, guide, etc
+    included: [String],
 
-    // 📋 What to Bring
     whatToBring: [String],
 
-    // 👤 Admin
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
 
-    // 📊 Status
-    status: {
+    publishStatus: {
       type: String,
       enum: ['active', 'inactive'],
       default: 'active',

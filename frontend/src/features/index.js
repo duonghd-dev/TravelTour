@@ -1,4 +1,4 @@
-// Feature modules with barrel file pattern
+
 export * from './auth';
 export * from './admin';
 export * from './home';

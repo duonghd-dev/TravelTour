@@ -5,7 +5,7 @@ import './RegisterForm.scss';
 
 const RegisterForm = () => {
   const toast = useToast();
-  const [step, setStep] = useState('register'); // register or verify-email
+  const [step, setStep] = useState('register'); 
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState('');
   const [otp, setOtp] = useState('');
@@ -40,7 +40,7 @@ const RegisterForm = () => {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
+    
     if (!formData.firstName.trim()) {
       toast.error('First name is required');
       return;
@@ -53,13 +53,13 @@ const RegisterForm = () => {
       toast.error('Email is required');
       return;
     }
-    // Validate email format
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast.error('Please enter a valid email address');
       return;
     }
-    // Validate phone if provided (optional field)
+    
     if (formData.phone.trim()) {
       const phoneRegex = /^[0-9]{10,}$/;
       if (!phoneRegex.test(formData.phone.replace(/[^0-9]/g, ''))) {
@@ -91,7 +91,7 @@ const RegisterForm = () => {
         password: formData.password,
       });
 
-      // Extract data from new response format: { success, message, data: { userId, ... } }
+      
       const { userId: newUserId } = result.data || result;
 
       setUserEmail(formData.email);
@@ -118,17 +118,17 @@ const RegisterForm = () => {
     try {
       const result = await verifyEmail(userId, otp);
 
-      // Extract data from new response format
+      
       const { token, user } = result.data || result;
 
-      // Lưu token vào localStorage
+      
       if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
 
         toast.success('Email verified successfully! Redirecting...');
         setTimeout(() => {
-          // Redirect sang home instead of login
+          
           window.location.href = '/';
         }, 1500);
       }

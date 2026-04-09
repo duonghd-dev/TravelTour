@@ -2,15 +2,13 @@ import { createContext, useState, useCallback, useEffect } from 'react';
 
 export const AuthContext = createContext();
 
-/**
- * AuthProvider - Cung cấp Authentication context cho ứng dụng
- */
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check localStorage when app loads
+  
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     const savedToken = localStorage.getItem('token');
@@ -32,7 +30,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(() => {
-    // Clear user data
+    
     setUser(null);
     setToken(null);
     localStorage.removeItem('token');

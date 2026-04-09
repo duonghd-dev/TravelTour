@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, ShieldCheck, MapPin, Star, ArrowRight } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { profileApi } from '@/features/profile/api/profileApi';
 import './ArtisanCard.scss';
 
@@ -25,7 +27,6 @@ const ArtisanCard = ({ artisan, onClick }) => {
   const fullName = `${firstName} ${lastName}`.trim();
   const avatar = userId?.avatar || '';
 
-  // Check favorite status on mount
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       try {
@@ -49,7 +50,6 @@ const ArtisanCard = ({ artisan, onClick }) => {
     checkFavoriteStatus();
   }, [artisan._id]);
 
-  // Handle favorite toggle
   const handleFavoriteClick = async (e) => {
     e.stopPropagation();
 
@@ -57,16 +57,14 @@ const ArtisanCard = ({ artisan, onClick }) => {
       setLoading(true);
 
       if (isFavorite && favoriteId) {
-        // Remove from favorites
         await profileApi.removeFavorite(favoriteId);
         setIsFavorite(false);
         setFavoriteId(null);
       } else {
-        // Add to favorites
         const response = await profileApi.addFavorite(artisan._id, 'artisan');
         if (response.success) {
           setIsFavorite(true);
-          // Get the new favorites to find the ID
+
           const favorites = response.data || [];
           const newFavorite = favorites.find(
             (fav) =>
@@ -95,7 +93,10 @@ const ArtisanCard = ({ artisan, onClick }) => {
         />
         {isVerified && (
           <div className="artisan-card__verified">
-            <span className="artisan-card__verified-icon">✓</span>
+            <FontAwesomeIcon
+              icon={faCheck}
+              className="artisan-card__verified-icon"
+            />
             <span className="artisan-card__verified-text">
               HERITAGE VERIFIED
             </span>

@@ -4,7 +4,6 @@ const { Schema, model } = mongoose;
 
 const hotelSchema = new Schema(
   {
-    // 📝 Thông tin cơ bản
     name: {
       type: String,
       required: true,
@@ -30,7 +29,6 @@ const hotelSchema = new Schema(
       default: 'Heritage Hotel',
     },
 
-    // 💰 Giá
     price: {
       type: Number,
       required: true,
@@ -40,7 +38,6 @@ const hotelSchema = new Schema(
       default: 'night',
     },
 
-    // ⭐ Đánh giá
     rating: {
       type: Number,
       min: 0,
@@ -52,17 +49,14 @@ const hotelSchema = new Schema(
       default: 0,
     },
 
-    // 📸 Hình ảnh
     images: [
       {
         type: String,
       },
     ],
 
-    // 🏷️ Badge
     badge: String,
 
-    // 🎯 Amenities
     amenities: [
       {
         icon: String,
@@ -71,7 +65,6 @@ const hotelSchema = new Schema(
       },
     ],
 
-    // 🌍 Cultural Impact
     culturalImpact: {
       title: String,
       description: String,
@@ -79,30 +72,25 @@ const hotelSchema = new Schema(
       artisans: String,
     },
 
-    // 🎬 Hero Section
     hero: {
       title: String,
       subtitle: String,
     },
 
-    // 📖 Story
     story: {
       title: String,
       content: String,
       details: String,
     },
 
-    // 🖼️ Gallery
     gallery: [String],
 
-    // 👤 Admin
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
 
-    // 📊 Status
-    status: {
+    publishStatus: {
       type: String,
       enum: ['active', 'inactive'],
       default: 'active',

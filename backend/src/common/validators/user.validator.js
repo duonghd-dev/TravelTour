@@ -1,7 +1,4 @@
-/**
- * User Validators
- * Validates user-related input data
- */
+
 
 import {
   validateEmail,
@@ -12,11 +9,11 @@ import {
 } from '../validators/common.validator.js';
 import AppError from '../errors/AppError.js';
 
-// ✅ Validate Update Profile Data
+
 export const validateUpdateProfileData = (data) => {
   const { firstName, lastName, phone, gender, slogan, address } = data;
 
-  // Fields to validate
+  
   const updates = {};
 
   if (firstName !== undefined) {
@@ -59,7 +56,7 @@ export const validateUpdateProfileData = (data) => {
   return updates;
 };
 
-// ✅ Validate Change Password Data
+
 export const validateChangePasswordData = (data) => {
   const { oldPassword, newPassword, confirmPassword } = data;
 
@@ -80,20 +77,20 @@ export const validateChangePasswordData = (data) => {
   return { oldPassword, newPassword };
 };
 
-// ✅ Validate Avatar Upload (base64 data)
+
 export const validateAvatarData = (avatarData) => {
   if (!avatarData || typeof avatarData !== 'string') {
     throw new AppError('Avatar data is required', 400);
   }
 
-  // Check if it's a valid base64 data URL
+  
   if (!avatarData.startsWith('data:image/')) {
     throw new AppError('Invalid image format', 400);
   }
 
-  // Check max size (~5MB)
+  
   const sizeInBytes = Buffer.byteLength(avatarData, 'utf8');
-  const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+  const maxSizeBytes = 5 * 1024 * 1024; 
 
   if (sizeInBytes > maxSizeBytes) {
     throw new AppError('Avatar size must be less than 5MB', 400);

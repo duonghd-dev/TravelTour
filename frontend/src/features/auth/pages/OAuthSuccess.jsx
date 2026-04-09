@@ -13,7 +13,7 @@ const OAuthSuccess = () => {
   const hasProcessed = useRef(false);
 
   useEffect(() => {
-    // Prevent multiple executions
+    
     if (hasProcessed.current) return;
     hasProcessed.current = true;
 
@@ -30,24 +30,24 @@ const OAuthSuccess = () => {
 
     if (token) {
       try {
-        // Save token to localStorage
+        
         localStorage.setItem('token', token);
 
-        // Set Authorization header for this request
+        
         axiosInstance.defaults.headers.common['Authorization'] =
           `Bearer ${token}`;
 
-        // Fetch user profile using the token
+        
         axiosInstance
           .get('/api/v1/users/profile')
           .then((response) => {
             const user = response.data?.data || response.data?.user;
 
             if (user) {
-              // Save user to localStorage
+              
               localStorage.setItem('user', JSON.stringify(user));
 
-              // Update AuthContext
+              
               setUser(user);
 
               toast.success('Login successful! Redirecting...');
@@ -60,7 +60,7 @@ const OAuthSuccess = () => {
           })
           .catch((err) => {
             toast.error('Failed to fetch user profile');
-            // Clear token if profile fetch fails
+            
             localStorage.removeItem('token');
             setTimeout(() => {
               navigate('/auth/login');

@@ -47,16 +47,14 @@ const HotelCard = ({
       setLoading(true);
 
       if (isFavorite && favoriteId) {
-        // Remove from favorites
         await profileApi.removeFavorite(favoriteId);
         setIsFavorite(false);
         setFavoriteId(null);
       } else {
-        // Add to favorites
         const response = await profileApi.addFavorite(hotel._id, 'hotel');
         if (response.success) {
           setIsFavorite(true);
-          // Get the new favorites to find the ID
+
           const favorites = response.data || [];
           const newFavorite = favorites.find(
             (fav) =>
@@ -77,16 +75,15 @@ const HotelCard = ({
   const handleBookNow = (e) => {
     e.stopPropagation();
 
-    // Check if adding hotel when tour already exists
     if (fromCheckout && currentItems && currentItems.length > 0) {
       const hasTour = currentItems.some((item) => item.itemType === 'tour');
 
       if (hasTour) {
         showWarning(
-          '⚠️ Tour đã bao gồm khách sạn và lịch trình đầy đủ. Bạn không thể thêm khách sạn khác!',
+          'Tour đã bao gồm khách sạn và lịch trình đầy đủ. Bạn không thể thêm khách sạn khác!',
           5000
         );
-        return; // Don't proceed
+        return;
       }
     }
 
@@ -98,7 +95,6 @@ const HotelCard = ({
     };
 
     if (fromCheckout) {
-      // Add to existing cart instead of replacing
       navigate('/checkout', {
         state: {
           bookingData,
@@ -107,7 +103,6 @@ const HotelCard = ({
         },
       });
     } else {
-      // Normal booking - replace the cart
       navigate('/checkout', {
         state: {
           bookingData,

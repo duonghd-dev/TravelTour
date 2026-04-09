@@ -5,11 +5,8 @@ class GroqService {
     this.client = null;
   }
 
-  /**
-   * Khởi tạo Groq client lần đầu (Lazy initialization)
-   */
   initializeClient() {
-    if (this.client) return; // Đã khởi tạo rồi
+    if (this.client) return;
 
     if (!process.env.GROQ_API_KEY) {
       throw new Error('GROQ_API_KEY không được cấu hình trong .env');
@@ -25,9 +22,6 @@ class GroqService {
     }
   }
 
-  /**
-   * Tạo system prompt cho tư vấn du lịch
-   */
   createSystemPrompt() {
     return `Bạn là tư vấn viên du lịch chuyên nghiệp của Van Hoá Trinh.
 
@@ -40,9 +34,6 @@ HƯỚNG DẪN:
 - Sử dụng tiếng Việt`;
   }
 
-  /**
-   * Format dữ liệu từ DB thành context
-   */
   formatDataContext(data) {
     let context = '';
 
@@ -61,7 +52,7 @@ HƯỚNG DẪN:
     }
 
     if (data.artisans && data.artisans.length > 0) {
-      context += '\n👨‍🎨 NGHỆ NHÂN:\n';
+      context += '\n NGHỆ NHÂN:\n';
       data.artisans.forEach((artisan) => {
         const name = artisan.userId
           ? `${artisan.userId.firstName} ${artisan.userId.lastName}`
@@ -80,13 +71,8 @@ HƯỚNG DẪN:
     return context;
   }
 
-  /**
-   * Gọi Groq API với RAG
-   * Sử dụng chat.completions API (OpenAI compatible)
-   */
   async generateAdvice(userQuery, contextData) {
     try {
-      // 🔧 Khởi tạo client nếu chưa (Lazy init)
       this.initializeClient();
 
       const systemPrompt = this.createSystemPrompt();
@@ -102,7 +88,6 @@ Hãy trả lời và gợi ý phù hợp:`;
 
       console.log('🔥 [generateAdvice] Calling Groq chat.completions API...');
 
-      // Groq SDK sử dụng chat.completions (OpenAI compatible)
       const message = await this.client.chat.completions.create({
         model: 'llama-3.1-8b-instant',
         max_tokens: 1024,
@@ -139,12 +124,8 @@ Hãy trả lời và gợi ý phù hợp:`;
     }
   }
 
-  /**
-   * Stream response từ Groq (nếu cần real-time)
-   */
   async generateAdviceStream(userQuery, contextData) {
     try {
-      // 🔧 Khởi tạo client nếu chưa (Lazy init)
       this.initializeClient();
 
       const systemPrompt = this.createSystemPrompt();
@@ -158,7 +139,6 @@ CÂUHỎI KHÁCH: "${userQuery}"
 
 Hãy trả lời và gợi ý phù hợp:`;
 
-      // Stream mode - sử dụng stream: true
       const stream = await this.client.chat.completions.create({
         model: 'llama-3.1-8b-instant',
         max_tokens: 1024,

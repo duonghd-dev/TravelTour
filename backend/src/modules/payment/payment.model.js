@@ -4,7 +4,6 @@ const { Schema, model } = mongoose;
 
 const paymentSchema = new Schema(
   {
-    // 📌 REFERENCE
     bookingId: {
       type: Schema.Types.ObjectId,
       ref: 'Booking',
@@ -16,7 +15,6 @@ const paymentSchema = new Schema(
       required: true,
     },
 
-    // 💵 AMOUNT
     amount: {
       type: Number,
       required: true,
@@ -24,10 +22,9 @@ const paymentSchema = new Schema(
     },
     currency: {
       type: String,
-      default: 'USD', // or VND, depending on your market
+      default: 'USD',
     },
 
-    // 💳 PAYMENT METHOD & GATEWAY
     paymentMethod: {
       type: String,
       enum: ['credit_card', 'bank_transfer', 'cash', 'vnpay', 'paypal'],
@@ -36,38 +33,34 @@ const paymentSchema = new Schema(
     paymentGateway: {
       type: String,
       enum: ['stripe', 'vnpay', 'paypal', 'manual', 'mock'],
-      default: 'mock', // Changed to 'mock' for testing
+      default: 'mock',
     },
 
-    // 🔐 TRANSACTION
     transactionId: {
       type: String,
       unique: true,
       sparse: true,
     },
     gatewayReference: {
-      type: String, // For storing gateway's transaction ID
+      type: String,
       sparse: true,
     },
 
-    // 📊 STATUS
     status: {
       type: String,
       enum: ['pending', 'processing', 'completed', 'failed', 'refunded'],
       default: 'pending',
     },
 
-    // 📝 DETAILS (mã hóa nhạy cảm: last4Digits, cardBrand, bankCode, bankName)
     paymentDetails: {
-      type: mongoose.Schema.Types.Mixed, // { encryptedData, iv, authTag } - encrypted
+      type: mongoose.Schema.Types.Mixed,
       default: null,
     },
     isEncrypted: {
       type: Boolean,
-      default: false, // Flag để track nếu paymentDetails đã encrypted
+      default: false,
     },
 
-    // ⏰ TIMESTAMPS
     completedAt: {
       type: Date,
       default: null,
@@ -80,10 +73,13 @@ const paymentSchema = new Schema(
   { timestamps: true }
 );
 
-// Index for faster queries
-paymentSchema.index({ bookingId: 1 });
+// Indexes for better query performance
+paymentSchema.index({ bookingId: 1 }, { unique: true });
 paymentSchema.index({ userId: 1 });
-paymentSchema.index({ transactionId: 1 });
+paymentSchema.index({ status: 1 });
+paymentSchema.index({ paymentMethod: 1 });
+paymentSchema.index({ transactionId: 1 }, { sparse: true });
+paymentSchema.index({ gatewayReference: 1 }, { sparse: true });
 paymentSchema.index({ createdAt: -1 });
 
 export default model('Payment', paymentSchema);

@@ -1,9 +1,7 @@
 import * as bookingService from './booking.service.js';
 import logger from '../../common/utils/logger.js';
 
-/**
- * Lấy danh sách bookings của user
- */
+
 export const getUserBookings = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -19,9 +17,7 @@ export const getUserBookings = async (req, res) => {
   }
 };
 
-/**
- * Tạo booking mới
- */
+
 export const createBooking = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -37,9 +33,7 @@ export const createBooking = async (req, res) => {
   }
 };
 
-/**
- * Lấy chi tiết booking
- */
+
 export const getBookingDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -55,9 +49,7 @@ export const getBookingDetail = async (req, res) => {
   }
 };
 
-/**
- * Cập nhật status booking
- */
+
 export const updateBookingStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -74,9 +66,7 @@ export const updateBookingStatus = async (req, res) => {
   }
 };
 
-/**
- * Hủy booking
- */
+
 export const cancelBooking = async (req, res) => {
   try {
     const { id } = req.params;
@@ -92,9 +82,7 @@ export const cancelBooking = async (req, res) => {
   }
 };
 
-/**
- * Confirm payment for booking
- */
+
 export const confirmPayment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -116,10 +104,7 @@ export const confirmPayment = async (req, res) => {
   }
 };
 
-/**
- * Lấy số slot còn trống cho một ngày cụ thể
- * GET /api/v1/bookings/available-slots/:experienceId/:date
- */
+
 export const getAvailableSlots = async (req, res) => {
   try {
     const { experienceId, date } = req.params;

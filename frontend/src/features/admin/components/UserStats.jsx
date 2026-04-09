@@ -1,6 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faUsers,
+  faMask,
+  faPalette,
+  faClipboard,
+  faChartLine,
+} from '@fortawesome/free-solid-svg-icons';
 import { fetchUserStats } from '../api';
 import './UserStats.scss';
+
+const iconMap = {
+  users: faUsers,
+  tourists: faMask,
+  artisans: faPalette,
+  approvals: faClipboard,
+  growth: faChartLine,
+};
 
 const UserStats = () => {
   const [stats, setStats] = useState({
@@ -33,28 +49,28 @@ const UserStats = () => {
       label: 'Total Users',
       value: stats.totalUsers.toLocaleString(),
       change: `+${stats.growth}%`,
-      icon: '👥',
+      icon: 'users',
       color: '#a67566',
     },
     {
       id: 'active-tourists',
       label: 'Active Tourists',
       value: stats.activeTourists.toLocaleString(),
-      icon: '🎭',
+      icon: 'tourists',
       color: '#d32f2f',
     },
     {
       id: 'verified-artisans',
       label: 'Verified Artisans',
       value: stats.verifiedArtisans.toLocaleString(),
-      icon: '🎨',
+      icon: 'artisans',
       color: '#8b6f47',
     },
     {
       id: 'pending-approvals',
       label: 'Pending Approvals',
       value: stats.pendingApprovals.toLocaleString(),
-      icon: '📋',
+      icon: 'approvals',
       color: '#f4a460',
     },
   ];
@@ -65,11 +81,15 @@ const UserStats = () => {
         <div key={card.id} className="stat-card">
           <div className="stat-header">
             <span className="stat-icon" style={{ color: card.color }}>
-              {card.icon}
+              {iconMap[card.icon] ? (
+                <FontAwesomeIcon icon={iconMap[card.icon]} />
+              ) : (
+                card.icon
+              )}
             </span>
             {card.change && (
               <span className="stat-change">
-                <span className="change-icon">📈</span>
+                <FontAwesomeIcon icon={faChartLine} className="change-icon" />
                 {card.change}
               </span>
             )}

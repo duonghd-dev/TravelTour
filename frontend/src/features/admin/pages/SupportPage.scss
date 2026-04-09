@@ -253,6 +253,11 @@
     background-color: #faf9f7;
     overflow: hidden;
 
+    .message-input {
+      border-top: 1px solid #e8ddf4;
+      background-color: white;
+    }
+
     .chat-header {
       padding: 16px 24px;
       border-bottom: 1px solid #e8ddf4;

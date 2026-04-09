@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { useToast } from '@/contexts';
 import { getUserBookings } from '@/features/booking/api/bookingService';
 import styles from './MyBookingsSection.module.scss';
@@ -19,7 +21,6 @@ const MyBookingsSection = () => {
       setLoading(true);
       const response = await getUserBookings();
 
-      // Handle both array response and object response with success property
       let bookingsData = [];
       if (Array.isArray(response)) {
         bookingsData = response;
@@ -28,11 +29,11 @@ const MyBookingsSection = () => {
       }
 
       if (bookingsData && bookingsData.length > 0) {
-        setBookings(bookingsData.slice(0, 3)); // Show only first 3
+        setBookings(bookingsData.slice(0, 3));
       }
     } catch (err) {
       console.error('Failed to load bookings:', err);
-      // Don't show error if it's an auth issue - just keep empty state
+
       if (err.status !== 403 && err.status !== 401) {
         toast.error('Không thể tải danh sách bookings');
       }
@@ -96,7 +97,9 @@ const MyBookingsSection = () => {
 
       {bookings.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📅</div>
+          <div className={styles.emptyIcon}>
+            <FontAwesomeIcon icon={faCalendarDays} />
+          </div>
           <p>No bookings yet</p>
           <button
             className={styles.createBtn}
@@ -128,8 +131,17 @@ const MyBookingsSection = () => {
               </div>
 
               <div className={styles.itemDetails}>
-                <span>📅 {formatDate(booking.bookingDate)}</span>
-                <span>👥 {booking.guestsCount} guests</span>
+                <span className={styles.detailItem}>
+                  <FontAwesomeIcon
+                    icon={faCalendarDays}
+                    className={styles.icon}
+                  />
+                  {formatDate(booking.bookingDate)}
+                </span>
+                <span className={styles.detailItem}>
+                  <FontAwesomeIcon icon={faUsers} className={styles.icon} />
+                  {booking.guestsCount} guests
+                </span>
                 <span className={styles.price}>
                   {formatCurrency(booking.totalPrice)}
                 </span>

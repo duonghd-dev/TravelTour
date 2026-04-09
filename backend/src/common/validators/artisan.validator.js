@@ -1,7 +1,4 @@
-/**
- * Artisan Validators
- * Validates artisan/service provider related input data
- */
+
 
 import {
   validateEmail,
@@ -13,7 +10,7 @@ import {
 } from '../validators/common.validator.js';
 import AppError from '../errors/AppError.js';
 
-// ✅ Validate Update Artisan Profile
+
 export const validateUpdateArtisanProfile = (data) => {
   const { serviceName, description, hourlyRate, experience, skills } = data;
 
@@ -57,7 +54,7 @@ export const validateUpdateArtisanProfile = (data) => {
   return updates;
 };
 
-// ✅ Validate Artisan Registration
+
 export const validateArtisanRegistration = (data) => {
   const {
     serviceName,
@@ -97,7 +94,7 @@ export const validateArtisanRegistration = (data) => {
   };
 };
 
-// ✅ Validate Status Update
+
 export const validateStatusUpdate = (status) => {
   const validStatuses = ['active', 'inactive', 'suspended', 'pending'];
   validateEnum('status', status.toLowerCase(), validStatuses);

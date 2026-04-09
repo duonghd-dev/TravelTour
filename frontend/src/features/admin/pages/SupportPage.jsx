@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatContext } from '@/contexts';
 import { chatApi } from '@/features/chat/api';
@@ -7,10 +9,6 @@ import MessageList from '@/features/chat/components/MessageList';
 import MessageInput from '@/features/chat/components/MessageInput';
 import './SupportPage.scss';
 
-/**
- * Admin Support Page
- * Conversation management interface for admin/staff
- */
 const SupportPage = () => {
   const { user } = useAuth();
 
@@ -21,9 +19,6 @@ const SupportPage = () => {
   const [loadingConvs, setLoadingConvs] = useState(false);
   const [activeTab, setActiveTab] = useState('recent');
 
-  // =========================
-  // CHAT HOOK
-  // =========================
   const {
     messages,
     loading: messagesLoading,
@@ -32,9 +27,6 @@ const SupportPage = () => {
     handleTyping,
   } = useChat(selectedConversation?._id, user);
 
-  // =========================
-  // LOAD CONVERSATIONS
-  // =========================
   useEffect(() => {
     loadConversations();
   }, []);
@@ -54,9 +46,6 @@ const SupportPage = () => {
     }
   };
 
-  // =========================
-  // AUTO SELECT FIRST
-  // =========================
   useEffect(() => {
     if (conversations.length > 0 && !selectedConversation) {
       setSelectedConversation(conversations[0]);
@@ -64,9 +53,6 @@ const SupportPage = () => {
     }
   }, [conversations, selectedConversation]);
 
-  // =========================
-  // FILTER
-  // =========================
   const filteredConversations = conversations
     .filter((conv) => {
       const otherUserName = `${conv.otherParticipant?.firstName || ''} ${
@@ -84,9 +70,6 @@ const SupportPage = () => {
     (conv) => conv.unreadCount > 0
   );
 
-  // =========================
-  // ACTIONS
-  // =========================
   const handleMarkAllAsRead = async () => {
     try {
       const unreadConvs = conversations.filter((c) => c.unreadCount > 0);
@@ -130,9 +113,6 @@ const SupportPage = () => {
     await sendMessage(content);
   };
 
-  // =========================
-  // UTILS
-  // =========================
   const getTimeAgo = (date) => {
     const now = new Date();
     const diffMs = now - new Date(date);
@@ -149,12 +129,9 @@ const SupportPage = () => {
     return new Date(date).toLocaleDateString('vi-VN');
   };
 
-  // =========================
-  // RENDER
-  // =========================
   return (
     <div className="support-page">
-      {/* SIDEBAR */}
+      {}
       <div className="support-sidebar">
         <div className="sidebar-header">
           <h2>Messages</h2>
@@ -166,7 +143,7 @@ const SupportPage = () => {
           )}
         </div>
 
-        {/* SEARCH */}
+        {}
         <div className="search-box">
           <input
             type="text"
@@ -175,10 +152,10 @@ const SupportPage = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
-          <span className="search-icon">🔍</span>
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="search-icon" />
         </div>
 
-        {/* TABS */}
+        {}
         <div className="conversations-tabs">
           <button
             className={`tab ${activeTab === 'recent' ? 'active' : ''}`}
@@ -195,7 +172,7 @@ const SupportPage = () => {
           </button>
         </div>
 
-        {/* LIST */}
+        {}
         <div className="conversations-list">
           {loadingConvs ? (
             <div className="loading-state">Loading...</div>
@@ -249,7 +226,7 @@ const SupportPage = () => {
         </div>
       </div>
 
-      {/* CHAT */}
+      {}
       <div className="support-chat">
         {selectedConversation ? (
           <>

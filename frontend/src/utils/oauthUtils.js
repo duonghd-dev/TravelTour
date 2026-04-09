@@ -1,14 +1,12 @@
-/**
- * OAuth utility functions for Google and Facebook login
- */
 
-// Initialize Facebook SDK
+
+
 export const initializeFacebook = () => {
   if (window.facebookSdkInitialized) return;
 
   window.fbAsyncInit = function () {
     FB.init({
-      appId: '2114288385984509', // From your .env
+      appId: '2114288385984509', 
       xfbml: true,
       version: 'v18.0',
       cookie: true,
@@ -16,7 +14,7 @@ export const initializeFacebook = () => {
     });
   };
 
-  // Load the SDK
+  
   const script = document.createElement('script');
   script.src = 'https://connect.facebook.net/en_US/sdk.js';
   script.async = true;
@@ -26,13 +24,13 @@ export const initializeFacebook = () => {
   window.facebookSdkInitialized = true;
 };
 
-// Handle Google OAuth callback
+
 export const handleGoogleCallback = (credentialResponse) => {
-  // credentialResponse contains the JWT token
+  
   return credentialResponse.credential;
 };
 
-// Handle Facebook login
+
 export const handleFacebookLogin = (callback) => {
   if (!window.FB) {
     console.error('Facebook SDK not initialized');
@@ -51,7 +49,7 @@ export const handleFacebookLogin = (callback) => {
   );
 };
 
-// Get Facebook user info after login
+
 export const getFacebookUserInfo = (accessToken) => {
   return new Promise((resolve, reject) => {
     if (!window.FB) {
@@ -73,7 +71,7 @@ export const getFacebookUserInfo = (accessToken) => {
   });
 };
 
-// Logout from OAuth
+
 export const logoutFromOAuth = () => {
   if (window.FB) {
     FB.logout();

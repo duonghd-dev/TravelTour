@@ -22,7 +22,7 @@ export const connectDB = async () => {
   }
 };
 
-// Disconnect handler
+
 export const disconnectDB = async () => {
   try {
     await mongoose.disconnect();

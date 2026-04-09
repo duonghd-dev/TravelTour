@@ -1,6 +1,4 @@
-/**
- * Validate tạo hồ sơ nghệ nhân
- */
+
 export const validateCreateProfile = (data) => {
   const errors = [];
 
@@ -22,9 +20,7 @@ export const validateCreateProfile = (data) => {
   };
 };
 
-/**
- * Validate cập nhật hồ sơ nghệ nhân
- */
+
 export const validateUpdateProfile = (data) => {
   const errors = [];
 

@@ -1,15 +1,11 @@
 import Booking from './booking.model.js';
+import BillingInfo from './billingInfo.model.js';
 import Experience from '../experience/experience.model.js';
 import User from '../user/user.model.js';
 import Artisan from '../artisan/artisan.model.js';
 import logger from '../../common/utils/logger.js';
 import { encrypt, decrypt } from '../../common/utils/encryption.js';
 
-/**
- * Helper: Encrypt billing info
- * @param {object} billingInfo - { fullName, email, phone, address }
- * @returns {object} - Encrypted object { encryptedData, iv, authTag }
- */
 const encryptBillingInfo = (billingInfo) => {
   if (!billingInfo) return null;
 
@@ -17,18 +13,13 @@ const encryptBillingInfo = (billingInfo) => {
     return encrypt(JSON.stringify(billingInfo));
   } catch (error) {
     logger.error('Failed to encrypt billing info:', error.message);
-    return billingInfo; // Fallback
+    return billingInfo;
   }
 };
 
-/**
- * Helper: Decrypt billing info
- * @param {object} encryptedData - { encryptedData, iv, authTag }
- * @returns {object} - Decrypted billing info
- */
 const decryptBillingInfo = (encryptedData) => {
   if (!encryptedData || typeof encryptedData === 'string') {
-    return encryptedData; // Fallback
+    return encryptedData;
   }
 
   try {
@@ -40,27 +31,31 @@ const decryptBillingInfo = (encryptedData) => {
   }
 };
 
-/**
- * Lấy danh sách bookings của user
- */
 export const getUserBookings = async (userId) => {
   try {
     const bookings = await Booking.find({ userId })
       .populate('experienceId', 'title price duration')
       .populate('artisanId', 'userId')
+      .populate('billingInfoId', 'encryptedData iv authTag')
       .sort({ createdAt: -1 })
       .lean();
 
-    // 🔐 Decrypt billing info
     const decryptedBookings = bookings.map((booking) => {
-      if (booking.isEncrypted && booking.billingInfo) {
-        const decrypted = decryptBillingInfo(booking.billingInfo);
-        // Mask phone number khi trả về cho client
+      if (booking.billingInfoId && booking.billingInfoId.encryptedData) {
+        const encryptedObj = booking.billingInfoId;
+        const decrypted = decryptBillingInfo({
+          encryptedData: encryptedObj.encryptedData,
+          iv: encryptedObj.iv,
+          authTag: encryptedObj.authTag,
+        });
+
         if (decrypted && decrypted.phone) {
-          decrypted.phone = decrypted.phone.slice(-4); // Chỉ hiển thị 4 số cuối
+          decrypted.phone = decrypted.phone.slice(-4);
         }
-        booking.billingInfo = decrypted || booking.billingInfo;
+
+        booking.billingInfo = decrypted || null;
       }
+      delete booking.billingInfoId;
       return booking;
     });
 
@@ -75,15 +70,10 @@ export const getUserBookings = async (userId) => {
   }
 };
 
-/**
- * Tạo booking mới
- */
 export const createBooking = async (userId, bookingData) => {
   try {
-    // Support both generic (itemId + itemType) and type-specific (tourId, experienceId, hotelId) formats
     let itemId, itemType;
 
-    // Extract itemId and itemType from request
     if (bookingData.tourId) {
       itemId = bookingData.tourId;
       itemType = 'tour';
@@ -94,7 +84,6 @@ export const createBooking = async (userId, bookingData) => {
       itemId = bookingData.hotelId;
       itemType = 'hotel';
     } else if (bookingData.itemId && bookingData.itemType) {
-      // Fallback to generic format
       itemId = bookingData.itemId;
       itemType = bookingData.itemType;
     }
@@ -106,10 +95,9 @@ export const createBooking = async (userId, bookingData) => {
       totalPrice,
       paymentMethod,
       billingInfo,
-      checkoutDate, // for hotels
+      checkoutDate,
     } = bookingData;
 
-    // Validate required fields
     if (
       !itemId ||
       !itemType ||
@@ -123,33 +111,28 @@ export const createBooking = async (userId, bookingData) => {
       );
     }
 
-    // Validate timeSlot - only required for experiences
     if (itemType === 'experience' && !timeSlot) {
       throw new Error(
         'Missing required field: timeSlot (required for experiences)'
       );
     }
 
-    // Validate timeSlot format if provided (only for experiences)
     if (itemType === 'experience' && timeSlot && typeof timeSlot !== 'string') {
       throw new Error('timeSlot must be a non-empty string (e.g., "08:00 AM")');
     }
 
-    // For tours and hotels, ignore timeSlot if it's empty or undefined
     const finalTimeSlot = itemType === 'experience' ? timeSlot : undefined;
 
-    // 🔐 Encrypt billing info
-    const encryptedBillingInfo = encryptBillingInfo(billingInfo);
+    const encryptedBillingData = encryptBillingInfo(billingInfo);
 
-    // Handle different booking types
+    let booking = null;
+
     if (itemType === 'experience') {
-      // Kiểm tra experience tồn tại
       const experience = await Experience.findById(itemId);
       if (!experience) {
         throw new Error('Experience not found');
       }
 
-      // Kiểm tra số lượng khách hợp lệ
       if (
         guestsCount < experience.minGuests ||
         guestsCount > experience.maxGuests
@@ -159,8 +142,7 @@ export const createBooking = async (userId, bookingData) => {
         );
       }
 
-      // Tạo booking
-      const booking = new Booking({
+      booking = new Booking({
         userId,
         experienceId: itemId,
         artisanId: experience.artisanId,
@@ -170,12 +152,21 @@ export const createBooking = async (userId, bookingData) => {
         totalPrice: totalPrice || experience.price * guestsCount,
         status: 'pending',
         paymentMethod,
-        paymentStatus: 'pending',
-        isPaid: false,
-        billingInfo: encryptedBillingInfo,
+      });
+
+      await booking.save();
+
+      // Create billing info document
+      const billingInfoDoc = new BillingInfo({
+        bookingId: booking._id,
+        encryptedData: encryptedBillingData.encryptedData,
+        iv: encryptedBillingData.iv,
+        authTag: encryptedBillingData.authTag,
         isEncrypted: true,
       });
 
+      await billingInfoDoc.save();
+      booking.billingInfoId = billingInfoDoc._id;
       await booking.save();
 
       logger.info(
@@ -189,25 +180,30 @@ export const createBooking = async (userId, bookingData) => {
         data: booking,
       };
     } else if (itemType === 'tour') {
-      // For tours, we create a booking record
-      // Note: Tour model might not exist yet, so we'll just store tourId as extra field
-      const booking = new Booking({
+      booking = new Booking({
         userId,
-        // Store tour as experienceId for now (schema compatibility)
-        experienceId: itemId,
-        artisanId: null, // Tours might not have artisan
+        tourId: itemId,
+        artisanId: null,
         bookingDate,
-        // Don't include timeSlot for tours
         guestsCount,
-        totalPrice: totalPrice || 3000000, // Default price for now
+        totalPrice: totalPrice || 3000000,
         status: 'pending',
         paymentMethod,
-        paymentStatus: 'pending',
-        isPaid: false,
-        billingInfo: encryptedBillingInfo,
+      });
+
+      await booking.save();
+
+      // Create billing info document
+      const billingInfoDoc = new BillingInfo({
+        bookingId: booking._id,
+        encryptedData: encryptedBillingData.encryptedData,
+        iv: encryptedBillingData.iv,
+        authTag: encryptedBillingData.authTag,
         isEncrypted: true,
       });
 
+      await billingInfoDoc.save();
+      booking.billingInfoId = billingInfoDoc._id;
       await booking.save();
 
       logger.info(`Tour Booking ${booking._id} created by user ${userId}`);
@@ -219,28 +215,34 @@ export const createBooking = async (userId, bookingData) => {
         data: booking,
       };
     } else if (itemType === 'hotel') {
-      // Hotel bookings need checkoutDate
-      const booking = new Booking({
+      booking = new Booking({
         userId,
-        experienceId: itemId, // Store hotel as experienceId for schema compatibility
+        hotelId: itemId,
         artisanId: null,
         bookingDate,
-        // Don't include timeSlot for hotels
         guestsCount,
         totalPrice: totalPrice || 2000000,
         status: 'pending',
         paymentMethod,
-        paymentStatus: 'pending',
-        isPaid: false,
-        billingInfo: encryptedBillingInfo,
-        isEncrypted: true,
       });
 
-      // Store checkoutDate in custom field or metadata
       if (checkoutDate) {
         booking.metadata = { checkoutDate };
       }
 
+      await booking.save();
+
+      // Create billing info document
+      const billingInfoDoc = new BillingInfo({
+        bookingId: booking._id,
+        encryptedData: encryptedBillingData.encryptedData,
+        iv: encryptedBillingData.iv,
+        authTag: encryptedBillingData.authTag,
+        isEncrypted: true,
+      });
+
+      await billingInfoDoc.save();
+      booking.billingInfoId = billingInfoDoc._id;
       await booking.save();
 
       logger.info(`Hotel Booking ${booking._id} created by user ${userId}`);
@@ -260,19 +262,24 @@ export const createBooking = async (userId, bookingData) => {
   }
 };
 
-/**
- * Lấy chi tiết booking
- */
 export const getBookingDetail = async (bookingId) => {
   try {
     const booking = await Booking.findById(bookingId)
       .populate('userId', 'firstName lastName email phone')
       .populate('experienceId', 'title description price duration')
       .populate('artisanId', 'userId title craft')
+      .populate('billingInfoId', 'encryptedData iv authTag')
       .lean();
 
     if (!booking) {
       throw new Error('Booking not found');
+    }
+
+    // Decrypt billing info
+    if (booking.billingInfoId) {
+      const decrypted = decryptBillingInfo(booking.billingInfoId);
+      booking.billingInfo = decrypted;
+      delete booking.billingInfoId;
     }
 
     return {
@@ -286,9 +293,6 @@ export const getBookingDetail = async (bookingId) => {
   }
 };
 
-/**
- * Cập nhật status booking
- */
 export const updateBookingStatus = async (bookingId, status) => {
   try {
     const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed'];
@@ -322,9 +326,6 @@ export const updateBookingStatus = async (bookingId, status) => {
   }
 };
 
-/**
- * Hủy booking
- */
 export const cancelBooking = async (bookingId) => {
   try {
     const booking = await Booking.findById(bookingId);
@@ -353,9 +354,6 @@ export const cancelBooking = async (bookingId) => {
   }
 };
 
-/**
- * Confirm payment for booking
- */
 export const confirmPayment = async (bookingId, userId, paymentData) => {
   try {
     const booking = await Booking.findById(bookingId);
@@ -364,19 +362,16 @@ export const confirmPayment = async (bookingId, userId, paymentData) => {
       throw new Error('Booking not found');
     }
 
-    // Verify user owns this booking
     if (booking.userId.toString() !== userId.toString()) {
       throw new Error('Unauthorized: You do not own this booking');
     }
 
-    // Update booking payment status
     booking.paymentStatus = 'completed';
     booking.isPaid = true;
     booking.status = 'confirmed';
 
-    // Save transaction ID if provided
     if (paymentData.transactionId) {
-      booking._id; // You might want to store this in a payment record
+      booking._id;
     }
 
     await booking.save();
@@ -394,43 +389,45 @@ export const confirmPayment = async (bookingId, userId, paymentData) => {
   }
 };
 
-/**
- * Lấy số slot còn trống cho một ngày cụ thể
- * @param {string} experienceId - Experience ID
- * @param {string} date - Date in format YYYY-MM-DD (e.g., "2026-04-15")
- * @returns {Object} Available slots with capacity info
- */
 export const getAvailableSlots = async (experienceId, date) => {
   try {
-    // Lấy experience để có thông tin timeSlots
     const experience = await Experience.findById(experienceId);
     if (!experience) {
       throw new Error('Experience not found');
     }
 
-    // Parse date string to Date object
+    // Kiểm tra xem experience có timeSlots không
+    let timeSlots = experience.timeSlots || [];
+
+    // Nếu không có timeSlots, dùng default
+    if (!timeSlots || timeSlots.length === 0) {
+      timeSlots = [
+        { time: '08:00', capacity: 8 },
+        { time: '10:00', capacity: 8 },
+        { time: '14:00', capacity: 8 },
+        { time: '16:00', capacity: 8 },
+      ];
+    }
+
     const bookingDate = new Date(date);
     if (isNaN(bookingDate.getTime())) {
       throw new Error('Invalid date format. Use YYYY-MM-DD');
     }
 
-    // Set to start of day for query
     const startOfDay = new Date(bookingDate);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(bookingDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Lấy tất cả bookings cho ngày này
     const bookings = await Booking.find({
       experienceId,
       bookingDate: {
         $gte: startOfDay,
         $lte: endOfDay,
       },
-      status: { $ne: 'cancelled' }, // Exclude cancelled bookings
+      status: { $ne: 'cancelled' },
     });
 
-    // Group bookings by timeSlot
     const bookedBySlot = {};
     bookings.forEach((booking) => {
       if (!bookedBySlot[booking.timeSlot]) {
@@ -439,20 +436,26 @@ export const getAvailableSlots = async (experienceId, date) => {
       bookedBySlot[booking.timeSlot] += booking.guestsCount;
     });
 
-    // Calculate available slots for each timeSlot
-    const slotsWithAvailability = experience.timeSlots.map((slot) => {
-      const slotTime = typeof slot === 'string' ? slot : slot.time;
-      const capacity = typeof slot === 'object' ? slot.capacity : 8;
-      const booked = bookedBySlot[slotTime] || 0;
-      const available = capacity - booked;
+    const slotsWithAvailability = timeSlots
+      .filter((slot) => {
+        const slotTime = typeof slot === 'string' ? slot : slot?.time;
+        return (
+          slotTime && typeof slotTime === 'string' && slotTime.trim() !== ''
+        );
+      })
+      .map((slot) => {
+        const slotTime = typeof slot === 'string' ? slot : slot.time;
+        const capacity = typeof slot === 'object' ? slot.capacity : 8;
+        const booked = bookedBySlot[slotTime] || 0;
+        const available = capacity - booked;
 
-      return {
-        time: slotTime,
-        capacity,
-        booked,
-        available: Math.max(0, available),
-      };
-    });
+        return {
+          time: slotTime,
+          capacity,
+          booked,
+          available: Math.max(0, available),
+        };
+      });
 
     return {
       success: true,

@@ -6,9 +6,7 @@ import Hotel from '../../modules/hotel/hotel.model.js';
 import asyncHandler from '../../common/utils/asyncHandler.js';
 import AppError from '../../common/errors/AppError.js';
 
-/**
- * Tìm dữ liệu liên quan từ DB dựa vào query
- */
+
 const searchRelevantData = async (query) => {
   try {
     const searchRegex = new RegExp(query, 'i');
@@ -55,11 +53,7 @@ const searchRelevantData = async (query) => {
   }
 };
 
-/**
- * @route   POST /api/v1/ai/suggest
- * @desc    Lấy tư vấn từ AI dựa vào dữ liệu database
- * @access  Public
- */
+
 export const getAISuggestion = asyncHandler(async (req, res) => {
   const { message } = req.body;
 
@@ -71,10 +65,10 @@ export const getAISuggestion = asyncHandler(async (req, res) => {
     throw new AppError('Groq API key không được cấu hình', 500);
   }
 
-  // Tìm dữ liệu liên quan
+  
   const contextData = await searchRelevantData(message);
 
-  // Gọi Groq API
+  
   const result = await groqService.generateAdvice(message, contextData);
 
   if (!result.success) {
@@ -91,11 +85,7 @@ export const getAISuggestion = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @route   GET /api/v1/ai/health
- * @desc    Kiểm tra Groq API connection
- * @access  Public
- */
+
 export const checkAIHealth = asyncHandler(async (req, res) => {
   if (!process.env.GROQ_API_KEY) {
     return res.status(200).json({

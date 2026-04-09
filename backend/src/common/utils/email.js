@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-// Cấu hình Gmail SMTP (lấy env vars khi transporter được tạo)
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 📧 Send OTP Email
+
 export const sendOTPEmail = async (email, otp) => {
   try {
     await transporter.sendMail({
@@ -26,7 +26,7 @@ export const sendOTPEmail = async (email, otp) => {
       `,
     });
     console.log('📧 OTP sent to:', email);
-    console.log('🔐 OTP Code:', otp); // DEBUG: Print OTP to console
+    console.log('🔐 OTP Code:', otp); 
     return true;
   } catch (error) {
     console.error('❌ Error sending OTP:', error.message);
@@ -34,7 +34,7 @@ export const sendOTPEmail = async (email, otp) => {
   }
 };
 
-// 📧 Send Password Reset Email
+
 export const sendPasswordResetEmail = async (email, otp) => {
   try {
     await transporter.sendMail({
@@ -58,7 +58,7 @@ export const sendPasswordResetEmail = async (email, otp) => {
   }
 };
 
-// 📧 Send Welcome Email
+
 export const sendWelcomeEmail = async (email, firstName) => {
   try {
     await transporter.sendMail({
@@ -81,7 +81,7 @@ export const sendWelcomeEmail = async (email, firstName) => {
   }
 };
 
-// 📧 Send Email Verification Link with OTP
+
 export const sendVerifyEmailLink = async (
   email,
   otp,

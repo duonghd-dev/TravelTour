@@ -3,9 +3,7 @@ import { profileApi } from '../api/profileApi';
 import { useToast } from '@/contexts';
 import styles from './SecuritySettingsSection.module.scss';
 
-/**
- * SecuritySettingsSection - Quản lý cài đặt bảo mật tài khoản
- */
+
 const SecuritySettingsSection = ({ user, onProfileUpdate }) => {
   const toast = useToast();
   const [passwords, setPasswords] = useState({
@@ -18,7 +16,7 @@ const SecuritySettingsSection = ({ user, onProfileUpdate }) => {
   );
   const [loading, setLoading] = useState(false);
 
-  // Đồng bộ lại state khi user thay đổi
+  
   useEffect(() => {
     setTwoFactorEnabled(user?.twoFactorEnabled || false);
   }, [user?.twoFactorEnabled]);
@@ -55,12 +53,12 @@ const SecuritySettingsSection = ({ user, onProfileUpdate }) => {
   };
 
   const handleToggleTwoFactor = async () => {
-    // Prevent multiple clicks
+    
     if (loading) return;
 
     const newState = !twoFactorEnabled;
 
-    // Optimistic UI update
+    
     setTwoFactorEnabled(newState);
     setLoading(true);
 
@@ -72,12 +70,12 @@ const SecuritySettingsSection = ({ user, onProfileUpdate }) => {
           `Xác thực 2 lớp ${newState ? 'đã bật' : 'đã tắt'} thành công!`
       );
 
-      // Reload profile data sau khi cập nhật thành công
+      
       if (onProfileUpdate) {
         onProfileUpdate();
       }
     } catch (error) {
-      // Revert state on error
+      
       setTwoFactorEnabled(!newState);
 
       const errorMessage =
@@ -95,7 +93,7 @@ const SecuritySettingsSection = ({ user, onProfileUpdate }) => {
       <h2 className={styles.sectionTitle}>Security Settings</h2>
       <p className={styles.sectionSubtitle}>Protect your account and privacy</p>
 
-      {/* Change Password */}
+      {}
       <div className={styles.subsectionDivider}>
         <h3 className={styles.subsectionTitle}>Change Password</h3>
 
@@ -164,7 +162,7 @@ const SecuritySettingsSection = ({ user, onProfileUpdate }) => {
         </form>
       </div>
 
-      {/* Two-Factor Authentication */}
+      {}
       <div className={styles.subsectionDivider}>
         <h3 className={styles.subsectionTitle}>Two-Factor Authentication</h3>
         <p style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>
@@ -205,7 +203,7 @@ const SecuritySettingsSection = ({ user, onProfileUpdate }) => {
         </div>
       </div>
 
-      {/* Last Login */}
+      {}
       <div className={styles.subsectionDivider}>
         <h3 className={styles.subsectionTitle}>Last Login</h3>
 

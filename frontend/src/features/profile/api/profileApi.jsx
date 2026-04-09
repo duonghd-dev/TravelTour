@@ -1,6 +1,6 @@
 import apiService from '../../../services/api/apiService.js';
 
-// Helper function to handle API errors
+
 const handleApiError = (error, fallbackMessage = 'API request failed') => {
   console.error('[Profile API Error]', {
     message: error.message,
@@ -19,7 +19,7 @@ const handleApiError = (error, fallbackMessage = 'API request failed') => {
 };
 
 export const profileApi = {
-  // Get user profile
+  
   getProfile: async () => {
     try {
       return await apiService.get('/api/v1/users/profile');
@@ -29,7 +29,7 @@ export const profileApi = {
     }
   },
 
-  // Update user profile
+  
   updateProfile: async (profileData) => {
     try {
       return await apiService.put('/api/v1/users/profile', profileData);
@@ -39,7 +39,7 @@ export const profileApi = {
     }
   },
 
-  // Get user's heritage journeys
+  
   getHeritageJourneys: async () => {
     try {
       return await apiService.get('/api/v1/users/heritage-journeys');
@@ -49,7 +49,7 @@ export const profileApi = {
     }
   },
 
-  // Get user's favorites
+  
   getFavorites: async () => {
     try {
       return await apiService.get('/api/v1/users/favorites');
@@ -59,7 +59,7 @@ export const profileApi = {
     }
   },
 
-  // Add to favorites
+  
   addFavorite: async (itemId, itemType) => {
     try {
       return await apiService.post('/api/v1/users/favorites', {
@@ -72,7 +72,7 @@ export const profileApi = {
     }
   },
 
-  // Remove from favorites
+  
   removeFavorite: async (favoriteId) => {
     try {
       return await apiService.delete(`/api/v1/users/favorites/${favoriteId}`);

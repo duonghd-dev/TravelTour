@@ -16,7 +16,10 @@
     "seed:setup": "node src/common/seeds/setupDatabase.js",
     "seed:artisans": "node src/common/seeds/artisanSeed.js",
     "seed:experiences": "node src/common/seeds/experienceSeed.js",
-    "seed:reviews": "node src/common/seeds/reviewSeed.js"
+    "seed:reviews": "node src/common/seeds/reviewSeed.js",
+    "migrate:remove-emoji": "node src/migrations/removeEmojis.migration.js",
+    "migrate:emoji-to-icons": "node src/migrations/replaceEmojiWithIcons.migration.js",
+    "migrate:fix-icons": "node src/migrations/fixIconNames.migration.js"
   },
   "keywords": [],
   "author": "",

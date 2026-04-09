@@ -1,13 +1,13 @@
-// Constants for Artisan Module
+
 export const ARTISAN_CONSTANTS = {
-  // Duration units
+  
   DURATION_UNITS: {
     HOUR: 'hour',
     DAY: 'day',
     MINUTE: 'minute',
   },
 
-  // Days of week
+  
   DAYS_OF_WEEK: {
     MONDAY: 'Monday',
     TUESDAY: 'Tuesday',
@@ -18,7 +18,7 @@ export const ARTISAN_CONSTANTS = {
     SUNDAY: 'Sunday',
   },
 
-  // Badge types
+  
   BADGE_TYPES: {
     BESTSELLER: 'Bestseller',
     POPULAR: 'Popular',
@@ -26,31 +26,31 @@ export const ARTISAN_CONSTANTS = {
     LIMITED: 'Limited',
   },
 
-  // Rating defaults
+  
   DEFAULT_RATING: 0,
   DEFAULT_RESPONSE_RATE: 100,
   DEFAULT_TOTAL_GUESTS: 0,
   DEFAULT_TOTAL_BOOKINGS: 0,
   DEFAULT_TOTAL_REVIEWS: 0,
 
-  // Placeholder images
+  
   PLACEHOLDER_AVATAR: 'https://via.placeholder.com/180',
   PLACEHOLDER_COVER:
     'https://images.unsplash.com/photo-1610701596007-11502861dcfa',
   PLACEHOLDER_EXPERIENCE: 'https://via.placeholder.com/400',
   PLACEHOLDER_REVIEW_AVATAR: 'https://via.placeholder.com/48',
 
-  // Error messages
+  
   ERROR_MESSAGES: {
     LOAD_ERROR: 'Không thể tải thông tin nghệ nhân lúc này.',
     NOT_FOUND: 'Không tìm thấy thông tin nghệ nhân',
     NO_DATA: 'Không tìm thấy dữ liệu',
   },
 
-  // Loading states
+  
   LOADING_TEXT: 'Đang tải dữ liệu...',
 
-  // Button labels
+  
   BUTTONS: {
     MESSAGE: 'Nhắn Tin Tư Vấn',
     SAVE: 'Lưu Hồ Sơ',
@@ -58,7 +58,7 @@ export const ARTISAN_CONSTANTS = {
     BACK: 'Quay lại',
   },
 
-  // Section titles
+  
   SECTION_TITLES: {
     HERITAGE_STORY: 'Câu Chuyện Di Sản',
     EXPERIENCES: 'Trải Nghiệm Cùng Nghệ Nhân',

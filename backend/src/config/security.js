@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 
-// Security configuration
+
 export const corsConfig = {
   origin: [
     'http://localhost:5173',
@@ -20,35 +20,35 @@ export const sessionConfig = {
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, 
     sameSite: 'lax',
   },
 };
 
 export const rateLimitConfig = {
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
 };
 
-// OTP Rate Limiter
+
 export const otpLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 3, // max 3 requests per minute
+  windowMs: 60 * 1000, 
+  max: 3, 
   message: 'Quá nhiều yêu cầu OTP, vui lòng thử lại sau.',
 });
 
-// Auth Rate Limiter
+
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // max 5 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 5, 
   message: 'Quá nhiều yêu cầu đăng nhập, vui lòng thử lại sau.',
   skipSuccessfulRequests: true,
 });
 
-// General Rate Limiter
+
 export const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 500 : 10000, // Higher limit for development
+  windowMs: 15 * 60 * 1000, 
+  max: process.env.NODE_ENV === 'production' ? 500 : 10000, 
   message: 'Quá nhiều yêu cầu, vui lòng thử lại sau.',
-  skip: (req, res) => process.env.NODE_ENV !== 'production', // Skip rate limiting in development
+  skip: (req, res) => process.env.NODE_ENV !== 'production', 
 });

@@ -2,13 +2,10 @@ import Experience from './experience.model.js';
 import { getExperienceWithStats } from './experience.service.js';
 import logger from '../../common/utils/logger.js';
 
-/**
- * Lấy danh sách experiences
- */
 export const getAllExperiences = async (req, res) => {
   try {
     const { artisanId, status } = req.query;
-    const filters = { status: status || 'active' };
+    const filters = { publishStatus: status || 'active' };
 
     if (artisanId) {
       filters.artisanId = artisanId;
@@ -33,9 +30,6 @@ export const getAllExperiences = async (req, res) => {
   }
 };
 
-/**
- * Lấy chi tiết experience
- */
 export const getExperienceDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -52,9 +46,6 @@ export const getExperienceDetail = async (req, res) => {
   }
 };
 
-/**
- * Tạo experience (protected)
- */
 export const createExperience = async (req, res) => {
   try {
     const artisanId = req.params.artisanId || req.user.artisanId;
@@ -87,9 +78,6 @@ export const createExperience = async (req, res) => {
   }
 };
 
-/**
- * Cập nhật experience (protected)
- */
 export const updateExperience = async (req, res) => {
   try {
     const { id } = req.params;
